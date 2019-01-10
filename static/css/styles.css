@@ -2,7 +2,7 @@
   background-color: #1c1e2d;
 }
 
-.wallet-login-button:after {
+#wallet-login-button:after {
   color: #b0bccc;
 }
 

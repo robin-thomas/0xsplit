@@ -16,7 +16,7 @@ body {
   padding-right: 0 !important;
 }
 
-.wallet-login-button {
+#wallet-login-button {
   position: relative;
   line-height: 1;
   letter-spacing: .33pt;
@@ -27,7 +27,7 @@ body {
   cursor: pointer;
 }
 
-.wallet-login-button:after {
+#wallet-login-button:after {
   font-family: FontAwesome;
   font-size: 1rem;
   content: "\F107";
