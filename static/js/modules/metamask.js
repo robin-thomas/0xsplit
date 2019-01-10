@@ -1,30 +1,66 @@
-const Metamask = require('./modules/metamask.js');
+const Web3New = require('web3');
 
-$(document).ready(() => {
-  const walletLoginButton = $('#wallet-login-button'),
-        confirmAddrButton = $('#confirm-eth-addr');
+const Metamask = {
+  hasMetamask: () => {
+    return window.web3 && window.web3.currentProvider.isMetaMask;
+  },
 
-  const walletAddreses = $('#eth-addresses');
+  loadWeb3: async () => {
+    if (window.ethereum) {
+      window.web3 = new Web3New(ethereum);
 
-  const walletConnectDialog = $('#wallet-connect-dialog');
+      try {
+        await window.ethereum.enable();
+        console.log('already connected');
 
-  walletLoginButton.on('click', async (e) => {
-    try {
-      const addrs = await Metamask.walletButtonClick(e);
-      let select = '';
-      for (addr of addrs) {
-        select += '<option value="' + addr + '">' + addr + '</option>';
+        return await Metamask.getAddress();
+      } catch (err) {
+        throw new Error('User has denied access to eth account!');
       }
-      walletAddreses.html(select);
-
-      walletConnectDialog.modal('show');
-    } catch (err) {
-      alert(err.message);
+    } else if (window.web3) {
+      throw new Error('Update Metamask!');
+    } else {
+      throw new Error('Non-Ethereum browser detected. Use MetaMask!');
     }
-  });
+  },
 
-  confirmAddrButton.on('click', (e) => {
-    console.log('click');
-    walletConnectDialog.modal('hide');
-  });
-});
+  walletButtonClick: async (e) => {
+    e.preventDefault();
+
+    if (Metamask.hasMetamask()) {
+      try {
+        return await Metamask.loadWeb3();
+      } catch (err) {
+        throw err;
+      }
+    }
+  },
+
+  getAddress: async () => {
+    try {
+      return await window.web3.eth.getAccounts();
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  personalSign: (address, message) => {
+    return new Promise((resolve, reject) => {
+      const opts = {
+        id: 1,
+        method: 'personal_sign',
+        params: [address, message]
+      };
+
+      window.web3.currentProvider.sendAsync(opts, (err, result) => {
+        if (!err) {
+          resolve(result.result);
+        } else {
+          reject(err);
+        }
+      });
+    });
+  },
+};
+
+module.exports = Metamask;
