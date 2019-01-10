@@ -1,25 +1,48 @@
-const Metamask = require('./modules/metamask.js');
+const Web3New = require('web3');
 
-$(document).ready(() => {
-  const walletButton   = $('#wallet-login-button'),
-        walletAddreses = $('#eth-addresses');
+const Metamask = {
+  hasMetamask: () => {
+    return window.web3 && window.web3.currentProvider.isMetaMask;
+  },
 
-  walletButton.on('click', async (e) => {
-    // Trigger the metamask popup.
-    try {
-      console.log('hello');
+  loadWeb3: async () => {
+    if (window.ethereum) {
+      window.web3 = new Web3New(ethereum);
 
-      const addrs = await Metamask.WalletButtonClick(e);
-      console.log(addrs);
-      let select = '';
-      for (addr of addrs) {
-        select += '<option value="' + addr + '">' + addr + '</option>';
+      try {
+        await window.ethereum.enable();
+        console.log('already connected');
+
+        return await Metamask.getAddress();
+      } catch (err) {
+        throw new Error('User has denied access to eth account!');
       }
-      walletAddreses.html(select);
-
-      $('#wallet-connect-dialog').modal('show');
-    } catch (err) {
-      console.log(err.message);
+    } else if (window.web3) {
+      throw new Error('Update Metamask!');
+    } else {
+      throw new Error('Non-Ethereum browser detected. Use MetaMask!');
     }
-  });
-});
+  },
+
+  walletButtonClick: async (e) => {
+    e.preventDefault();
+
+    if (Metamask.hasMetamask()) {
+      try {
+        return await Metamask.loadWeb3();
+      } catch (err) {
+        throw err;
+      }
+    }
+  },
+
+  getAddress: async () => {
+    try {
+      return await window.web3.eth.getAccounts();
+    } catch (err) {
+      throw err;
+    }
+  },
+};
+
+module.exports = Metamask;
