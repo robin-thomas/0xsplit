@@ -11,11 +11,14 @@ const Metamask = {
 
       try {
         await window.ethereum.enable();
+        console.log('already connected');
+
+        return await Metamask.getAddress();
       } catch (err) {
         throw new Error('User has denied access to eth account!');
       }
     } else if (window.web3) {
-      window.web3 = new Web3New(window.web3.currentProvider);
+      throw new Error('Update Metamask!');
     } else {
       throw new Error('Non-Ethereum browser detected. Use MetaMask!');
     }
@@ -26,10 +29,18 @@ const Metamask = {
 
     if (Metamask.hasMetamask()) {
       try {
-        await Metamask.loadWeb3();
+        return await Metamask.loadWeb3();
       } catch (err) {
-        alert(err.message);
+        throw err;
       }
+    }
+  },
+
+  getAddress: async () => {
+    try {
+      return await window.web3.eth.getAccounts();
+    } catch (err) {
+      throw err;
     }
   }
 };
