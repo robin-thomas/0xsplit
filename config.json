@@ -1,0 +1,14 @@
+{
+  "api": {
+    "login": {
+      "path": "/login",
+      "method": "POST",
+      "headers": { "Content-Type": "application/json" }
+    },
+    "test": "/test"
+  },
+  "jwt": {
+    "secret": "hello",
+    "expiresIn": "1h"
+  }
+}

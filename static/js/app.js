@@ -1,4 +1,7 @@
 const Wallet = require('./modules/metamask.js');
+const Session = require('./modules/session.js');
+
+let token = null;
 
 $(document).ready(() => {
   const walletLoginButton = $('#wallet-login-button'),
@@ -24,14 +27,11 @@ $(document).ready(() => {
   });
 
   confirmAddrButton.on('click', async (e) => {
-    // Get the wallet address;
     const address = walletAddreses.val();
     const message = 'Signing this message proves to us you are in control of your account while never storing any sensitive account information.';
 
-    // Sign using wallet
     try {
-      const msg = await Wallet.personalSign(address, message);
-      if (typeof msg !== 'undefined') {
+      if (await Session.login(address, message)) {
         walletConnectDialog.modal('hide');
       }
     } catch (err) {
