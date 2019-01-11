@@ -18,15 +18,37 @@ const getToken = async (msg, sig, address) => {
   }
 };
 
+const setToken = (headers) => {
+  headers = JSON.stringify(headers);
+  headers = headers.replace('%token', token);
+  return JSON.parse(headers);
+};
+
 const Session = {
   login: async (address, message) => {
     try {
       const sig = await Metamask.personalSign(address, message);
       if (typeof sig !== 'undefined') {
         token = await getToken(message, sig, address);
-        console.log(token);
-        return true;
+        return await Session.testToken(address);
       }
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  testToken: async (address) => {
+    try {
+      const headers = setToken(config.api.test.headers);
+
+      const ret = await fetch(config.api.test.path, {
+        method: config.api.test.method,
+        headers: headers,
+        body: JSON.stringify({address: address}),
+      });
+
+      const json = await ret.json();
+      return json.status === "ok";
     } catch (err) {
       throw err;
     }

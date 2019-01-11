@@ -5,7 +5,14 @@
       "method": "POST",
       "headers": { "Content-Type": "application/json" }
     },
-    "test": "/test"
+    "test": {
+      "path": "/test",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
+    }
   },
   "jwt": {
     "secret": "hello",

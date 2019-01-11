@@ -32,7 +32,7 @@ const Auth = {
 
   validate: (req, res, next) => {
     try {
-      const token = req.body.token;
+      const token = req.headers['x-access-token'];
       const address = req.body.address;
 
       const decoded = jwt.verify(token, config.jwt.secret);
