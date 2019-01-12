@@ -1,3 +1,7 @@
+body {
+  background: #12131f;
+}
+
 #header {
   background-color: #1c1e2d;
 }
@@ -12,4 +16,22 @@
 
 .wallet-label-bottom {
   color: #fff;
+}
+
+.wallet-left {
+  background-color: #1c1e2d;
+}
+
+.wallet-left .row {
+  border-color: rgba(181,187,202,.08);
+}
+
+#wallet-connect {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#wallet-left-connect {
+  border-color: #fff;
+  color: #fff;
+  background: #12131f;
 }

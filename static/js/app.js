@@ -5,13 +5,14 @@ let token = null;
 
 $(document).ready(() => {
   const walletLoginButton = $('#wallet-login-button'),
-        confirmAddrButton = $('#confirm-eth-addr');
+        confirmAddrButton = $('#confirm-eth-addr'),
+        walletLeftConnect = $('#wallet-left-connect');
 
   const walletAddreses = $('#eth-addresses');
 
   const walletConnectDialog = $('#wallet-connect-dialog');
 
-  walletLoginButton.on('click', async (e) => {
+  const walletConnectHandler = async (e) => {
     try {
       const addrs = await Wallet.walletButtonClick(e);
       let select = '';
@@ -24,7 +25,10 @@ $(document).ready(() => {
     } catch (err) {
       alert(err.message);
     }
-  });
+  };
+
+  walletLoginButton.on('click', async (e) => walletConnectHandler(e));
+  walletLeftConnect.on('click', async (e) => walletConnectHandler(e));
 
   confirmAddrButton.on('click', async (e) => {
     const address = walletAddreses.val();
