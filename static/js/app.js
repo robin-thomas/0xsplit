@@ -52,8 +52,18 @@ $(document).ready(() => {
       alert(err);
     }
   };
+  const walletLogoutHandler = () => {
+    if (confirm("Are you sure you want to logout?")) {
+      walletAfterConnect.fadeOut();
+      walletBeforeConnect.fadeIn();
+      walletConnect.fadeIn();
+      walletLogoutButton.fadeOut();
+      walletLoginButton.css('display', 'flex').hide().fadeIn();
+    }
+  };
 
   walletLoginButton.on('click', async (e) => walletConnectHandler(e));
   walletLeftConnect.on('click', async (e) => walletConnectHandler(e));
   confirmAddrButton.on('click', async (e) => walletConnectConfirmHandler(e));
+  walletLogoutButton.on('click', walletLogoutHandler);
 });
