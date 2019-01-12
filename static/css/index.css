@@ -16,18 +16,20 @@ body {
   padding-right: 0 !important;
 }
 
-#wallet-login-button {
-  position: relative;
+.wallet-toggle-button {
+  position: absolute;
   line-height: 1;
   letter-spacing: .33pt;
   height: 51px;
   padding: 10px 20px;
-  float: right;
   display: flex;
   cursor: pointer;
+  right: 10px;
+  width: 200px;
+  overflow: hidden;
 }
 
-#wallet-login-button:after {
+.wallet-toggle-button:after {
   font-family: FontAwesome;
   font-size: 1rem;
   content: "\F107";
@@ -73,6 +75,10 @@ body {
   color: #fff;
   font-weight: 500;
   overflow: visible;
+}
+
+#wallet-logout-button {
+  display: none;
 }
 
 .wallet-left {
