@@ -88,6 +88,7 @@ body {
   height: 58%;
   width: 17%;
   border-radius: 10px;
+  overflow: hidden;
 }
 
 .wallet-left .container-fluid {
@@ -95,7 +96,7 @@ body {
 }
 
 .wallet-left .row {
-  height: 15%;
+  height: 90px;
   border-width: 1px;
   border-style:solid;
   display: flex;

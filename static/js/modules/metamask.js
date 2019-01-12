@@ -1,4 +1,6 @@
 const Web3New = require('web3');
+const contracts = require('./contracts.json');
+const contractABI = require('./abi.json');
 
 const Metamask = {
   hasMetamask: () => {
@@ -61,6 +63,38 @@ const Metamask = {
       });
     });
   },
+
+  getAllERC20Balance: async (address, network) => {
+    const contractAddresses = contracts[network];
+
+    let tokens = [];
+
+    // Loop through all supported ERC20 tokens.
+    for (const token of Object.keys(contractAddresses)) {
+      const tokenContract = new window.web3.eth.Contract(contractABI, contractAddresses[token]);
+
+      try {
+        const balance = await tokenContract.methods.balanceOf(address).call();
+        const decimals = await tokenContract.methods.decimals().call();
+
+        const adjustedBalance = balance / Math.pow(10, decimals);
+        tokens.push({token: token, balance: adjustedBalance});
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    return tokens;
+  },
+
+  getNetwork: async () => {
+    try {
+      const network = await window.web3.eth.net.getNetworkType();
+      return network;
+    } catch (err) {
+      throw new Error('Unable to determine the network!');
+    }
+  }
 };
 
 module.exports = Metamask;

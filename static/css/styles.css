@@ -30,8 +30,12 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
+#wallet-after-connect .row {
+  color: #fff;
+}
+
 #wallet-left-connect {
-  border-color: #fff;
+  border-color: rgba(181,187,202,.08);
   color: #fff;
   background: #12131f;
 }
