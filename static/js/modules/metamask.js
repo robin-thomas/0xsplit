@@ -1,7 +1,7 @@
 const Web3New = require('web3');
 const contracts = require('./contracts.json');
 const contractABI = require('./abi.json');
-
+const logos = require('./tokens.json');
 
 const Metamask = {
   hasMetamask: () => {
@@ -68,7 +68,7 @@ const Metamask = {
   getWalletBalance: async (address, network) => {
     let tokens = [];
     let balance = await window.web3.eth.getBalance(address);
-    tokens.push({token: "ETH", balance: (balance / Math.pow(10, 18))});
+    tokens.push({token: "ETH", balance: (balance / Math.pow(10, 18)), logo: logos["ETH"]});
 
     // Loop through all supported ERC20 tokens.
     const contractAddresses = contracts[network];
@@ -80,7 +80,12 @@ const Metamask = {
         const decimals = await tokenContract.methods.decimals().call();
 
         const adjustedBalance = balance / Math.pow(10, decimals);
-        tokens.push({token: token, balance: adjustedBalance});
+        if (typeof logos[token] !== 'undefined') {
+          tokens.push({token: token, balance: adjustedBalance, logo: logos[token]});
+        } else {
+          tokens.push({token: token, balance: adjustedBalance, logo: ""});
+        }
+
       } catch (err) {
         throw err;
       }

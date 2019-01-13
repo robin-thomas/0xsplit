@@ -22,15 +22,18 @@ $(document).ready(() => {
   const displayWallet = (tokens) => {
     let rows = '';
     for (let i in tokens) {
-      const logo = '';
       const tokenName = tokens[i].token;
       const tokenBalance = tokens[i].balance;
-      const row = '<div class="row">\
-                    <div class="col-md-2">\
-                      <svg width="28" height="28">\
+      const logo = tokens[i].logo !== "" ?
+                      '<img width="28" height="28" src="' + tokens[i].logo + '" />' :
+                      '<svg width="28" height="28">\
                         <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
-                      </svg>\
-                    </div>\
+                      </svg>';
+
+      const row = '<div class="row">\
+                    <div class="col-md-2">'
+                      + logo +
+                    '</div>\
                     <div class="col-md-7">\
                       <div style="width:60px;height:14px">'
                         + tokenName +
