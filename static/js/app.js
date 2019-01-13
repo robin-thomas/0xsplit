@@ -56,6 +56,9 @@ $(document).ready(() => {
                   '</div>';
 
     walletAfterConnect.html(html);
+
+    const el = new SimpleBar(walletAfterConnect[0]);
+    el.recalculate();
   }
 
   const walletConnectHandler = async (e) => {

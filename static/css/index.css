@@ -125,4 +125,6 @@ body {
 
 #wallet-after-connect{
   display: none;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
