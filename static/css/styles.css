@@ -6,6 +6,11 @@ body {
   background-color: #1c1e2d;
 }
 
+#logo {
+  border-color: rgba(181,187,202,.08);
+  color: #fff;
+}
+
 .wallet-toggle-button:after {
   color: #b0bccc;
 }

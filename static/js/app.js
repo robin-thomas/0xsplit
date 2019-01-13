@@ -35,11 +35,10 @@ $(document).ready(() => {
                       + logo +
                     '</div>\
                     <div class="col-md-7">\
-                      <div style="width:60px;height:14px">'
+                      <div style="width:60px;height:14px;font-size:11px;">'
                         + tokenName +
                       '</div>\
-                      <br />\
-                      <div style="width:30px;height:28px">'
+                      <div style="width:30px;height:28px;font-weight:bold;">'
                         + tokenBalance +
                       '</div>\
                     </div>\
