@@ -140,6 +140,10 @@ body {
 
 #wallet-after-connect{
   display: none;
+  overflow: hidden;
+}
+
+#wallet-erc20-display {
   overflow-y: auto;
-  overflow-x: hidden;
+  padding: 0 15px;
 }

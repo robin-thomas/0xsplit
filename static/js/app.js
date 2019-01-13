@@ -51,14 +51,17 @@ $(document).ready(() => {
 
       rows += row;
     }
+    rows += '<div class="row"></div>';
 
     const walletLogo = '<svg width="28" height="28">\
       <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
     </svg>';
 
     const addressDisplay = address.substr(0, 5) + '...' + address.substr(37);
-    const html = '<div class="container-fluid">\
-                    <div class="row row-header">\
+    const html = '<div class="container-fluid" \
+                    style="margin:0px !important;padding:0px !important;">\
+                    <div class="row row-header" \
+                      style="height:50px !important;padding:0 !important;margin:0 !important;">\
                       <div class="col-md-2">'
                       + walletLogo +
                       '</div>\
@@ -66,14 +69,15 @@ $(document).ready(() => {
                         + addressDisplay +
                       '</div>\
                       <div class="col-md-3">&nbsp;</div>\
-                    </div>'
+                    </div>\
+                    <div id="wallet-erc20-display">'
                     + rows +
-                  '</div>';
+                    '</div>\
+                  </div>';
 
     walletAfterConnect.html(html);
 
-    const el = new SimpleBar(walletAfterConnect[0]);
-    el.recalculate();
+    const el = new SimpleBar(walletAfterConnect.find('#wallet-erc20-display')[0]);
   }
 
   const walletConnectHandler = async (e) => {
