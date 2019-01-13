@@ -83,7 +83,7 @@ $(document).ready(() => {
 
     try {
       if (await Session.login(address, message)) {
-        const tokens = Wallet.getAllERC20Balance(address, await network);
+        const tokens = Wallet.getWalletBalance(address, await network);
         displayWallet(await tokens);
 
         const addressDisplay = address.substr(0, 5) + '...' + address.substr(37);

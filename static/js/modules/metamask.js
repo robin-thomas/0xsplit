@@ -2,6 +2,7 @@ const Web3New = require('web3');
 const contracts = require('./contracts.json');
 const contractABI = require('./abi.json');
 
+
 const Metamask = {
   hasMetamask: () => {
     return window.web3 && window.web3.currentProvider.isMetaMask;
@@ -64,12 +65,13 @@ const Metamask = {
     });
   },
 
-  getAllERC20Balance: async (address, network) => {
-    const contractAddresses = contracts[network];
-
+  getWalletBalance: async (address, network) => {
     let tokens = [];
+    let balance = await window.web3.eth.getBalance(address);
+    tokens.push({token: "ETH", balance: (balance / Math.pow(10, 18))});
 
     // Loop through all supported ERC20 tokens.
+    const contractAddresses = contracts[network];
     for (const token of Object.keys(contractAddresses)) {
       const tokenContract = new window.web3.eth.Contract(contractABI, contractAddresses[token]);
 
