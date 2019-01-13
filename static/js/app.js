@@ -53,8 +53,21 @@ $(document).ready(() => {
       rows += row;
     }
 
+    const walletLogo = '<svg width="28" height="28">\
+      <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
+    </svg>';
+
+    const addressDisplay = address.substr(0, 5) + '...' + address.substr(37);
     const html = '<div class="container-fluid">\
-                    <div class="row row-header"></div>'
+                    <div class="row row-header">\
+                      <div class="col-md-2">'
+                      + walletLogo +
+                      '</div>\
+                      <div class="col-md-7">'
+                        + addressDisplay +
+                      '</div>\
+                      <div class="col-md-3">&nbsp;</div>\
+                    </div>'
                     + rows +
                   '</div>';
 
