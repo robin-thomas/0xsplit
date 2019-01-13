@@ -40,6 +40,8 @@ body {
   right: 10px;
   width: 200px;
   overflow: hidden;
+  border-width: 0 0 0 1px;
+  border-style:solid;
 }
 
 .wallet-toggle-button:after {

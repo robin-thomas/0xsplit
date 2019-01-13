@@ -11,6 +11,10 @@ body {
   color: #fff;
 }
 
+.wallet-toggle-button {
+  border-color: rgba(181,187,202,.08);
+}
+
 .wallet-toggle-button:after {
   color: #b0bccc;
 }
