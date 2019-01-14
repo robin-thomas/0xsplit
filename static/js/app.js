@@ -14,11 +14,14 @@ $(document).ready(() => {
         walletLeftConnect       = $('#wallet-left-connect'),
         newContactAddress       = $('#new-contact-address'),
         newContactNickname      = $('#new-contact-nickname'),
-        confirmNewContactButton = $('#confirm-add-contact');
+        confirmNewContactButton = $('#confirm-add-contact'),
+        addNewContactButton     = $('#add-new-contact');
 
   const walletBeforeConnect      = $('#wallet-before-connect'),
         walletConnect            = $('#wallet-connect'),
-        walletAfterConnect       = $('#wallet-after-connect');
+        walletAfterConnect       = $('#wallet-after-connect'),
+        contactsBeforeConnect    = $('#contacts-before-connect'),
+        contactsAfterConnect     = $('#contacts-after-connect');
 
   const walletAddreses = $('#eth-addresses');
 
@@ -123,7 +126,7 @@ $(document).ready(() => {
         walletLoginButton.fadeOut();
         walletLogoutButton.css('display', 'flex').hide().fadeIn(500, () => btn.html(btn.data('original-text')));
 
-        addContactDialog.modal('show');
+        contactsBeforeConnect.fadeOut(600, () => contactsAfterConnect.fadeIn());
       } else {
         btn.html(btn.data('original-text'));
       }
@@ -191,4 +194,5 @@ $(document).ready(() => {
   walletLogoutButton.on('click', walletLogoutHandler);
 
   confirmNewContactButton.on('click', () => addNewContactHandler(confirmNewContactButton));
+  addNewContactButton.on('click', () => addContactDialog.modal('show'));
 });

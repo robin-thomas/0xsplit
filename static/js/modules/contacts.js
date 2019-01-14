@@ -32,6 +32,11 @@ const Contacts = {
       throw err;
     }
   },
+
+  loadContacts: (address) => {
+    let out = {};
+    return out;
+  }
 };
 
 module.exports = Contacts;

@@ -232,8 +232,24 @@
       </div>
       <div class="wallet-left" id="wallet-after-connect"></div>
       <div class="contacts" id="contacts-before-connect">
-        <h5>Your Contacts</h5><br />
+        <br /><br />
         <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-2">
+              <svg width="28" height="28">
+                <circle cx="14" cy="14" r="14" fill="#12131f"></circle>
+              </svg>
+            </div>
+            <div class="col-md-7">
+              <svg width="160" height="28">
+                <rect width="160" height="14" fill="#12131f"></rect>
+              </svg>
+              <svg width="60" height="28">
+                <rect width="60" height="14" fill="#12131f"></rect>
+              </svg>
+            </div>
+            <div class="col-md-3"></div>
+          </div>
           <div class="row">
             <div class="col-md-2">
               <svg width="28" height="28">
@@ -348,7 +364,11 @@
           </div>
         </div>
       </div>
-      <div class="contacts" id="contacts-after-connect"></div>
+      <div class="contacts" id="contacts-after-connect">
+        <h5>Your Contacts</h5>
+        <i id="add-new-contact" class="fa fa-plus-circle" style="font-size:5em;cursor:pointer;"></i><br />
+        <div class="container-fluid"></div>
+      </div>
     </div>
     <div id="footer"></div>
   </body>
