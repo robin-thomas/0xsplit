@@ -6,12 +6,18 @@ const Session = require('./session.js');
 const Contacts = {
   validateNewContactFields: (address, name) => {
     // Validate Name.
+    if (name.trim().length === 0) {
+      throw new Error('Nickname cannot be empty!');
+    }
     const nameValid = /^[a-zA-Z ]+$/.test(name);
     if (!nameValid) {
       throw new Error('Nickname not in valid format!');
     }
 
     // Validate ETH address.
+    if (address.trim().length === 0) {
+      throw new Error('ETH Address is not empty!');
+    }
     const addressValid = ethUtil.isValidAddress(address);
     if (!addressValid) {
       throw new Error('ETH Address not valid!');

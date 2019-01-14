@@ -7,9 +7,54 @@ body {
 }
 
 #header {
-  height: 52px;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 50px;
   padding-top: 1px;
   box-shadow: inset 0 -1px 0 0 hsla(0,0%,100%,.02), inset 0 1px 0 0 hsla(0,0%,100%,.02), inset 0 0 0 1px hsla(0,0%,100%,.02);
+}
+
+#content {
+  position:absolute;
+  top: 50px;
+  width: 100%;
+  height: calc(100% - 90px);
+}
+
+.contacts {
+  position: absolute;
+  width: 350px;
+  height: 100%;
+  right: 0;
+  text-align: center;
+  padding: 1%;
+  border-width: 0 0 0 1px;
+  border-style: solid;
+}
+
+.contacts .row {
+  height: 50px;
+  border-width: 1px;
+  border-style:solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+#contacts-after-connect {
+  display: none;
+  z-index: 10;
+}
+
+#footer {
+  width: 100%;
+  height: 50px;
+  position:absolute;
+  bottom: 0;
+  border-width: 0 0 1px 0;
+  border-style: solid;
 }
 
 #header .col-md-2, #header .col-md-8 {
