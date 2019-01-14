@@ -28,7 +28,29 @@ $(document).ready(() => {
   const walletConnectDialog = $('#wallet-connect-dialog'),
         addContactDialog    = $('#add-contact-dialog');
 
-  const walletdisplayHandler = (tokens) => {
+  const contactsDisplayHandler = (contacts) => {
+    let rows = '';
+    for (let i in contacts) {
+      const contactName = contacts[i].nickname;
+      const contactAddress = contacts[i].address;
+      const row = '<div class="row">\
+                    <div class="col-md-2">\
+                      <svg width="28" height="28">\
+                        <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
+                      </svg>\
+                    </div>\
+                    <div class="col-md-7">'
+                     + contactName +
+                    '</div>\
+                    <div class="col-md-3"></div>\
+                  </div>';
+
+      rows += row;
+    }
+
+    contactsAfterConnect.find('.container-fluid').html(rows);
+  }
+  const walletDisplayHandler = (tokens) => {
     let rows = '';
     for (let i in tokens) {
       const tokenName = tokens[i].token;
@@ -114,7 +136,10 @@ $(document).ready(() => {
     try {
       if (await Session.login(address, message)) {
         const tokens = Wallet.getWalletBalance(address, await network);
-        walletdisplayHandler(await tokens);
+        walletDisplayHandler(await tokens);
+
+        const contacts = Contacts.loadContacts(address);
+        contactsDisplayHandler(await contacts);
 
         const addressDisplay = address.substr(0, 5) + '...' + address.substr(37);
         walletAddressDisplay.text(addressDisplay);

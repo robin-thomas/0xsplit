@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const Url = require('url');
 const Metamask = require('./metamask.js');
 const config = require('../../../config.json');
 
@@ -41,10 +42,16 @@ const Session = {
     try {
       const headers = setToken(config.api[apiName].headers);
 
-      const ret = await fetch(config.api[apiName].path, {
+      let url = config.api[apiName].path;
+      if (config.api[apiName].method === 'GET') {
+        //url.search = new URLSearchParams(data);
+        url += Url.format({query: data});
+      }
+
+      const ret = await fetch(url, {
         method: config.api[apiName].method,
         headers: headers,
-        body: JSON.stringify(data),
+        body: config.api[apiName].method !== 'GET' ? JSON.stringify(data) : undefined,
       });
 
       const json = await ret.json();

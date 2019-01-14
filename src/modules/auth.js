@@ -33,7 +33,7 @@ const Auth = {
   validate: (req, res, next) => {
     try {
       const token = req.headers['x-access-token'];
-      const address = req.body.address;
+      const address = req.method !== 'GET' ? req.body.address : req.query.address;
 
       const decoded = jwt.verify(token, config.jwt.secret);
       if (decoded.user === address) {

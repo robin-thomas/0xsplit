@@ -24,5 +24,13 @@ app.post(config.api.addContact.path, Auth.validate, (req, res) => {
     msg: "new contact added!"
   });
 });
+app.get(config.api.getAllContacts.path, Auth.validate, (req, res) => {
+  const contacts = [];
+
+  res.status(200).send({
+    status: "ok",
+    msg: contacts
+  });
+});
 
 app.listen(port, () => console.log(`app listening on ${port}`));

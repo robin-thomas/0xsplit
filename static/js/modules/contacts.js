@@ -33,9 +33,13 @@ const Contacts = {
     }
   },
 
-  loadContacts: (address) => {
-    let out = {};
-    return out;
+  loadContacts: async(address) => {
+    try {
+      const out = await Session.api(config.api.getAllContacts.name, {address: address});
+      return out;
+    } catch (err) {
+      throw err;
+    }
   }
 };
 

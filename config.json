@@ -27,6 +27,15 @@
         "Content-Type": "application/json",
         "x-access-token": "%token"
       }
+    },
+    "getAllContacts": {
+      "name": "getAllContacts",
+      "path": "/contacts",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
     }
   },
   "jwt": {
