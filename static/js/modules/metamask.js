@@ -36,6 +36,8 @@ const Metamask = {
       } catch (err) {
         throw err;
       }
+    } else {
+      throw new Error('No Metamask detected in the browser!');
     }
   },
 

@@ -2,8 +2,6 @@ const fetch = require('node-fetch');
 const Metamask = require('./metamask.js');
 const config = require('../../../config.json');
 
-let token = null;
-
 const getToken = async (msg, sig, address) => {
   try {
     const ret = await fetch(config.api.login.path, {
@@ -20,18 +18,40 @@ const getToken = async (msg, sig, address) => {
 
 const setToken = (headers) => {
   headers = JSON.stringify(headers);
-  headers = headers.replace('%token', token);
+  headers = headers.replace('%token', Session.token);
   return JSON.parse(headers);
 };
 
 const Session = {
+  token: null,
+
   login: async (address, message) => {
     try {
       const sig = await Metamask.personalSign(address, message);
       if (typeof sig !== 'undefined') {
-        token = await getToken(message, sig, address);
+        Session.token = await getToken(message, sig, address);
         return await Session.testToken(address);
       }
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  api: async (apiName, data) => {
+    try {
+      const headers = setToken(config.api[apiName].headers);
+
+      const ret = await fetch(config.api[apiName].path, {
+        method: config.api[apiName].method,
+        headers: headers,
+        body: JSON.stringify(data),
+      });
+
+      const json = await ret.json();
+      if (json.status !== 'ok') {
+        throw new Error(apiName + ' failed: ' + json.error);
+      }
+      return json.msg;
     } catch (err) {
       throw err;
     }
@@ -55,7 +75,7 @@ const Session = {
   },
 
   logout: () => {
-    token = null;
+    Session.token = null;
   },
 };
 

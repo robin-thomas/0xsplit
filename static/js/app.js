@@ -1,15 +1,20 @@
 const Wallet = require('./modules/metamask.js');
 const Session = require('./modules/session.js');
+const Contacts = require('./modules/contacts.js');
+const config = require('../../config.json');
 
 let token = null;
 let address = null;
 
 $(document).ready(() => {
-  const walletLoginButton    = $('#wallet-login-button'),
-        walletLogoutButton   = $('#wallet-logout-button'),
-        walletAddressDisplay = walletLogoutButton.find('.wallet-label-bottom'),
-        confirmAddrButton    = $('#confirm-eth-addr'),
-        walletLeftConnect    = $('#wallet-left-connect');
+  const walletLoginButton       = $('#wallet-login-button'),
+        walletLogoutButton      = $('#wallet-logout-button'),
+        walletAddressDisplay    = walletLogoutButton.find('.wallet-label-bottom'),
+        confirmAddrButton       = $('#confirm-eth-addr'),
+        walletLeftConnect       = $('#wallet-left-connect'),
+        newContactAddress       = $('#new-contact-address'),
+        newContactNickname      = $('#new-contact-nickname'),
+        confirmNewContactButton = $('#confirm-add-contact');
 
   const walletBeforeConnect      = $('#wallet-before-connect'),
         walletConnect            = $('#wallet-connect'),
@@ -17,7 +22,8 @@ $(document).ready(() => {
 
   const walletAddreses = $('#eth-addresses');
 
-  const walletConnectDialog = $('#wallet-connect-dialog');
+  const walletConnectDialog = $('#wallet-connect-dialog'),
+        addContactDialog    = $('#add-contact-dialog');
 
   const walletdisplayHandler = (tokens) => {
     let rows = '';
@@ -116,6 +122,8 @@ $(document).ready(() => {
 
         walletLoginButton.fadeOut();
         walletLogoutButton.css('display', 'flex').hide().fadeIn(500, () => btn.html(btn.data('original-text')));
+
+        addContactDialog.modal('show');
       } else {
         btn.html(btn.data('original-text'));
       }
@@ -133,9 +141,54 @@ $(document).ready(() => {
       walletLoginButton.css('display', 'flex').hide().fadeIn();
     }
   };
+  const addNewContactHandler = async (btn) => {
+    // Validate the fields.
+    try {
+      Contacts.validateNewContactFields(newContactAddress.val(), newContactNickname.val());
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
+
+    const loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;Adding...';
+    btn.data('original-text', btn.html());
+    btn.html(loadingText);
+
+    // Add the new contact.
+    try {
+      await Contacts.addNewContact({
+        address: newContactAddress.val(),
+        nickname: newContactNickname.val(),
+        address: address
+      });
+    } catch (err) {
+      btn.html(btn.data('original-text'))
+      alert(err.message);
+      return;
+    }
+
+    // Send an invite to the contact.
+    if (confirm("Do you want to share this website with this contact \
+                 through an ETH transaction (gas costs included)?")) {
+      const rawTransaction = {
+        "from": address,
+        "to": newContactAddress.val(),
+        "data": window.web3.utils.toHex(config.app.url),
+        "gas": 200000
+      };
+      try {
+        await window.web3.eth.sendTransaction(rawTransaction);
+      } catch(err) {}
+    }
+
+    btn.html(btn.data('original-text'));
+    addContactDialog.modal('hide');
+  };
 
   walletLoginButton.on('click', async (e) => walletConnectHandler(e));
   walletLeftConnect.on('click', async (e) => walletConnectHandler(e));
   confirmAddrButton.on('click', () => walletConnectConfirmHandler(confirmAddrButton));
   walletLogoutButton.on('click', walletLogoutHandler);
+
+  confirmNewContactButton.on('click', () => addNewContactHandler(confirmNewContactButton));
 });

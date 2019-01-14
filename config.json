@@ -1,12 +1,27 @@
 {
+  "app": {
+    "name": "0xsplit",
+    "url": "https://oxsplit.herokuapp.com"
+  },
   "api": {
     "login": {
+      "name": "login",
       "path": "/login",
       "method": "POST",
       "headers": { "Content-Type": "application/json" }
     },
     "test": {
+      "name": "test",
       "path": "/test",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
+    },
+    "addContact": {
+      "name": "addContact",
+      "path": "/contacts/new",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json",

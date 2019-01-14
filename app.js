@@ -4,7 +4,7 @@ const Auth = require('./src/modules/auth.js');
 const config = require('./config.json');
 
 const app = express();
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
@@ -16,6 +16,12 @@ app.post(config.api.test.path, Auth.validate, (req, res) => {
   res.status(200).send({
     status: "ok",
     msg: "passed!"
+  });
+});
+app.post(config.api.addContact.path, Auth.validate, (req, res) => {
+  res.status(200).send({
+    status: "ok",
+    msg: "new contact added!"
   });
 });
 
