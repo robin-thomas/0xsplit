@@ -19,7 +19,7 @@ $(document).ready(() => {
 
   const walletConnectDialog = $('#wallet-connect-dialog');
 
-  const displayWallet = (tokens) => {
+  const walletdisplayHandler = (tokens) => {
     let rows = '';
     for (let i in tokens) {
       const tokenName = tokens[i].token;
@@ -79,7 +79,6 @@ $(document).ready(() => {
 
     const el = new SimpleBar(walletAfterConnect.find('#wallet-erc20-display')[0]);
   }
-
   const walletConnectHandler = async (e) => {
     try {
       const addrs = await Wallet.walletButtonClick(e);
@@ -106,7 +105,7 @@ $(document).ready(() => {
     try {
       if (await Session.login(address, message)) {
         const tokens = Wallet.getWalletBalance(address, await network);
-        displayWallet(await tokens);
+        walletdisplayHandler(await tokens);
 
         const addressDisplay = address.substr(0, 5) + '...' + address.substr(37);
         walletAddressDisplay.text(addressDisplay);
