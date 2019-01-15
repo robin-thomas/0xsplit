@@ -42,7 +42,9 @@ $(document).ready(() => {
                     <div class="col-md-7">'
                      + contactName +
                     '</div>\
-                    <div class="col-md-3"></div>\
+                    <div class="col-md-3">\
+                      <i class="fas fa-trash-alt" style="cursor:pointer"></i>\
+                    </div>\
                   </div>';
 
       rows += row;
@@ -125,7 +127,7 @@ $(document).ready(() => {
     }
   };
   const walletConnectConfirmHandler = async (btn) => {
-    const loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;Confirming...';
+    const loadingText = '<i class="fas fa-spinner fa-spin"></i>&nbsp;Confirming...';
     btn.data('original-text', btn.html());
     btn.html(loadingText);
 
@@ -182,7 +184,7 @@ $(document).ready(() => {
       return;
     }
 
-    const loadingText = '<i class="fa fa-circle-o-notch fa-spin"></i>&nbsp;Adding...';
+    const loadingText = '<i class="fas fa-spinner fa-spin"></i>&nbsp;Adding...';
     btn.data('original-text', btn.html());
     btn.html(loadingText);
 
