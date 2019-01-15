@@ -36,6 +36,15 @@
         "Content-Type": "application/json",
         "x-access-token": "%token"
       }
+    },
+    "deleteContact": {
+      "name": "deleteContact",
+      "path": "/contacts",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
     }
   },
   "jwt": {

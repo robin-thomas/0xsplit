@@ -53,8 +53,25 @@ app.get(config.api.getAllContacts.path, Auth.validate, async (req, res) => {
       msg: contacts
     });
   } catch (err) {
-    console.log(err.message);
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
+});
 
+app.delete(config.api.deleteContact.path, Auth.validate, async (req, res) => {
+  const address = req.body.address;
+  const contactAddress = req.body.contactAddress;
+
+  try {
+    await Contacts.deleteContact(address, contactAddress);
+
+    res.status(200).send({
+      status: "ok",
+      msg: null
+    });
+  } catch (err) {
     res.status(500).send({
       status: "not ok",
       msg: err.message

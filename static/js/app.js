@@ -43,6 +43,8 @@ $(document).ready(() => {
                      + contactName +
                     '</div>\
                     <div class="col-md-3">\
+                      <input type="hidden" class="contact-name" value="' + contactName + '" />\
+                      <input type="hidden" class="contact-address" value="' + contactAddress + '" />\
                       <i class="fas fa-trash-alt" style="cursor:pointer"></i>\
                     </div>\
                   </div>';
@@ -169,6 +171,9 @@ $(document).ready(() => {
       walletConnect.fadeIn();
       walletLogoutButton.fadeOut();
       walletLoginButton.css('display', 'flex').hide().fadeIn();
+
+      contactsAfterConnect.fadeOut();
+      contactsBeforeConnect.fadeIn();
     }
   };
   const addNewContactHandler = async (btn) => {
@@ -223,6 +228,22 @@ $(document).ready(() => {
     btn.html(btn.data('original-text'));
     addContactDialog.modal('hide');
   };
+  const deleteContactHandler = async (ele) => {
+    const contactAddress = $(ele).parent().find('.contact-address').val();
+    const contactName = $(ele).parent().find('.contact-name').val();
+
+    try {
+      if (confirm('Are you sure you want to delete ' + contactName + ' from your contacts?')) {
+        await Contacts.deleteContact({address: address, contactAddress: contactAddress});
+
+        // Load the contacts.
+        const contacts = Contacts.loadContacts(address);
+        contactsDisplayHandler(await contacts);
+      }
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   walletLoginButton.on('click', async (e) => walletConnectHandler(e));
   walletLeftConnect.on('click', async (e) => walletConnectHandler(e));
@@ -231,4 +252,5 @@ $(document).ready(() => {
 
   confirmNewContactButton.on('click', () => addNewContactHandler(confirmNewContactButton));
   addNewContactButton.on('click', () => addContactDialog.modal('show'));
+  contactsAfterConnect.on('click', '.fa-trash-alt', (e) => deleteContactHandler(e.target));
 });

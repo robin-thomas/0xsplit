@@ -31,6 +31,20 @@ const Contacts = {
       throw err;
     }
   },
+
+  deleteContact: async (address, contactAddress) => {
+    const query = {
+      sql: 'DELETE FROM contacts WHERE address = ? AND contact_address = ?',
+      timeout: 6 * 1000, // 6s
+      values: [ address, contactAddress ],
+    };
+
+    try {
+      await DB.select(query);
+    } catch (err) {
+      throw err;
+    }
+  },
 };
 
 module.exports = Contacts;

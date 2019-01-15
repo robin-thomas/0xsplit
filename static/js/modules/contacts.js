@@ -40,7 +40,15 @@ const Contacts = {
     } catch (err) {
       throw err;
     }
-  }
+  },
+
+  deleteContact: async(data) => {
+    try {
+      await Session.api(config.api.deleteContact.name, data);
+    } catch (err) {
+      throw err;
+    }
+  },
 };
 
 module.exports = Contacts;
