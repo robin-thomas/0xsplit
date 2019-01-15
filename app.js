@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const Auth = require('./src/modules/auth.js');
+const Contacts = require('./src/modules/contacts.js');
 const config = require('./config.json');
 
 const app = express();
@@ -12,25 +13,53 @@ app.options('*', cors());
 app.use(express.static(__dirname + '/static'));
 
 app.post(config.api.login.path, Auth.login);
+
 app.post(config.api.test.path, Auth.validate, (req, res) => {
   res.status(200).send({
     status: "ok",
     msg: "passed!"
   });
 });
-app.post(config.api.addContact.path, Auth.validate, (req, res) => {
-  res.status(200).send({
-    status: "ok",
-    msg: "new contact added!"
-  });
-});
-app.get(config.api.getAllContacts.path, Auth.validate, (req, res) => {
-  const contacts = [];
 
-  res.status(200).send({
-    status: "ok",
-    msg: contacts
-  });
+app.post(config.api.addContact.path, Auth.validate, async (req, res) => {
+  const contactAddress = req.body.contact_address;
+  const contactNickname = req.body.contact_nickname;
+  const address = req.body.address;
+
+  // Add the new contact to DB.
+  try {
+    await Contacts.addContact(address, contactAddress, contactNickname);
+
+    res.status(200).send({
+      status: "ok",
+      msg: "new contact added!"
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
+});
+
+app.get(config.api.getAllContacts.path, Auth.validate, async (req, res) => {
+  const address = req.query.address;
+
+  try {
+    const contacts = await Contacts.getAllContacts(address);
+
+    res.status(200).send({
+      status: "ok",
+      msg: contacts
+    });
+  } catch (err) {
+    console.log(err.message);
+
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
 });
 
 app.listen(port, () => console.log(`app listening on ${port}`));

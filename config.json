@@ -41,5 +41,14 @@
   "jwt": {
     "secret": "hello",
     "expiresIn": "1h"
+  },
+  "aws": {
+    "mysql": {
+      "host": "oxhacks.cpemymxl5jcj.ap-southeast-1.rds.amazonaws.com",
+      "port": 3306,
+      "user": "robin",
+      "password": "aAbBcCdDeE",
+      "database": "oxhacks"
+    }
   }
 }

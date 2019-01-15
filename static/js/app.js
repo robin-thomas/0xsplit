@@ -173,6 +173,10 @@ $(document).ready(() => {
     // Validate the fields.
     try {
       Contacts.validateNewContactFields(newContactAddress.val(), newContactNickname.val());
+
+      if (newContactAddress.val().trim() === address) {
+        throw new Error('Contact address cannot be as same as your address!');
+      }
     } catch (err) {
       alert(err.message);
       return;
@@ -185,8 +189,8 @@ $(document).ready(() => {
     // Add the new contact.
     try {
       await Contacts.addNewContact({
-        address: newContactAddress.val(),
-        nickname: newContactNickname.val(),
+        contact_address: newContactAddress.val(),
+        contact_nickname: newContactNickname.val(),
         address: address
       });
     } catch (err) {
@@ -196,8 +200,7 @@ $(document).ready(() => {
     }
 
     // Send an invite to the contact.
-    if (confirm("Do you want to share this website with this contact \
-                 through an ETH transaction (gas costs included)?")) {
+    if (confirm("Do you want to invite this contact through an ETH transaction (gas costs included)?")) {
       const rawTransaction = {
         "from": address,
         "to": newContactAddress.val(),
@@ -208,6 +211,12 @@ $(document).ready(() => {
         await window.web3.eth.sendTransaction(rawTransaction);
       } catch(err) {}
     }
+
+    // Load all the contacts
+    try {
+      const contacts = Contacts.loadContacts(address);
+      contactsDisplayHandler(await contacts);
+    } catch (err) {}
 
     btn.html(btn.data('original-text'));
     addContactDialog.modal('hide');
