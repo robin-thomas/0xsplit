@@ -3,9 +3,10 @@
   <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400|Audiowide" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400|Audiowide">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <link rel="stylesheet" href="./css/index.css">
     <link rel="stylesheet" href="./css/styles.css">
     <title>0xsplit</title>
@@ -97,6 +98,27 @@
           </div>
         </div>
       </div>
+      <div id="add-expense-notes-dialog" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Add notes</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <input type="text" class="form-control" id="expense-notes" style="border:0;box-shadow:none;border-bottom:1px solid black;border-radius:0;padding:0;" placeholder="Notes" maxlength="50">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="confirm-add-contact">Add Notes</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="add-expense-dialog" class="modal fade" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -107,23 +129,52 @@
               </button>
             </div>
             <div class="modal-body">
-              <div class="form-group">
-                <label for="new-contact-address">Description for the expense:</label>
-                <input type="text" class="form-control" id="expense-description" maxlength="50">
-              </div>
               <div class="input-group">
-                <select class="form-control" id="expense-supported-currencies"></select>
-                <input type="text" class="form-control" id="expense-amount" maxlength="50" placeholder="0.00">
+                <span>With&nbsp;<b>you</b>&nbsp;and:&nbsp;</span>
+                <input type"text" class="form-control autocomplete" id="expense-contacts" placeholder="Enter names" style="border:0;box-shadow:none;" />
               </div><br />
-              <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                <span>Paid by&nbsp;&nbsp;</span>
-                <select class="form-control" id="expense-contacts"></select>
-                <input type="hidden" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
-                <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
-                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              <div class="form-group">
+                <input type="text" class="form-control" id="expense-description" placeholder="Enter a description" maxlength="50">
+              </div>
+              <div class="form-row">
+                <div class="col-4">
+                  <select class="form-control" id="expense-supported-currencies"></select>
+                </div>
+                <div class="col-8">
+                  <input type="text" class="form-control" id="expense-amount" maxlength="50" placeholder="0.00">
+                </div>
+              </div><br />
+              <div class="row">
+                <div class="col-md-9">
+                  <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
+                    <input type="hidden" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+                    <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fas fa-calendar-alt" title="Set the time"></i></div>
+                    </div>
+                    <input type="text" id="expense-datepicker" style="visibility:hidden">
+                  </div>
+                </div>
+                <div class="col-md-1">
+                  <div class="input-group">
+                    <div class="input-group-text">
+                      <label style="cursor:pointer;margin-bottom:0 !important;">
+                        <input type="file" hidden />
+                        <i class="fas fa-camera" title="Add a picture"></i>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="input-group">
+                    &nbsp;&nbsp;
+                    <div class="input-group-text">
+                      <label style="cursor:pointer;margin-bottom:0 !important;">
+                        <i id="expense-add-notes" class="fas fa-sticky-note" style="cursor:pointer" title="Add a note"></i>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <input type="text" id="expense-datepicker" style="visibility:hidden">
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary" id="confirm-add-expense">Add Expense</button>
@@ -151,8 +202,8 @@
               </svg>
             </div>
             <div class="col-md-3">
-              <svg width="60" height="28">
-                <rect width="50" height="14" fill="#12131f"></rect>
+              <svg width="40" height="28">
+                <rect width="40" height="14" fill="#12131f"></rect>
               </svg>
             </div>
           </div>
@@ -172,8 +223,8 @@
               </svg>
             </div>
             <div class="col-md-3">
-              <svg width="60" height="28">
-                <rect width="50" height="14" fill="#12131f"></rect>
+              <svg width="40" height="28">
+                <rect width="40" height="14" fill="#12131f"></rect>
               </svg>
             </div>
           </div>
@@ -193,8 +244,8 @@
               </svg>
             </div>
             <div class="col-md-3">
-              <svg width="60" height="28">
-                <rect width="50" height="14" fill="#12131f"></rect>
+              <svg width="40" height="28">
+                <rect width="40" height="14" fill="#12131f"></rect>
               </svg>
             </div>
           </div>
@@ -214,8 +265,8 @@
               </svg>
             </div>
             <div class="col-md-3">
-              <svg width="60" height="28">
-                <rect width="50" height="14" fill="#12131f"></rect>
+              <svg width="40" height="28">
+                <rect width="40" height="14" fill="#12131f"></rect>
               </svg>
             </div>
           </div>
@@ -235,8 +286,8 @@
               </svg>
             </div>
             <div class="col-md-3">
-              <svg width="60" height="28">
-                <rect width="50" height="14" fill="#12131f"></rect>
+              <svg width="40" height="28">
+                <rect width="40" height="14" fill="#12131f"></rect>
               </svg>
             </div>
           </div>
@@ -256,8 +307,8 @@
               </svg>
             </div>
             <div class="col-md-3">
-              <svg width="60" height="28">
-                <rect width="50" height="14" fill="#12131f"></rect>
+              <svg width="40" height="28">
+                <rect width="40" height="14" fill="#12131f"></rect>
               </svg>
             </div>
           </div>
@@ -403,15 +454,18 @@
       <div id="expenses-after-connect">
         <i id="add-new-expense" class="fa fa-plus-circle" title="Add new expense"></i>
       </div>
+      <div class="contacts" id="contacts-connect">
+        <div id="contacts-right-connect">Connect a wallet</div>
+      </div>
       <div class="contacts" id="contacts-after-connect">
-        <h5>Your Contacts</h5><br />
-        <i id="add-new-contact" class="fa fa-plus-circle" style="font-size:5em;cursor:pointer;"></i><br /><br />
         <div class="container-fluid"></div>
+        <i id="add-new-contact" class="fa fa-address-book" title="Add new contact"></i>
       </div>
     </div>
     <div id="footer"></div>
   </body>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>

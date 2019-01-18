@@ -136,14 +136,14 @@ body {
   height: 10% !important;
 }
 
-#wallet-connect {
+#wallet-connect, #contacts-connect  {
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-#wallet-left-connect {
+#wallet-left-connect, #contacts-right-connect {
   border-radius: 10px;
   border-width: 1px;
   border-style: solid;
@@ -213,9 +213,21 @@ body {
   padding: 40px 0;
 }
 
+#contacts-after-connect .row {
+  border: 0 !important;
+}
+
 #contacts-after-connect {
   display: none;
   z-index: 10;
+}
+
+#add-new-contact {
+  font-size: 3em;
+  cursor: pointer;
+  position: absolute;
+  right: 25px;
+  bottom: 25px;
 }
 
 #footer {
@@ -223,6 +235,12 @@ body {
   height: 50px;
   position:absolute;
   bottom: 0;
-  border-width: 0 0 1px 0;
+  border-width: 1px 0 0 0;
   border-style: solid;
+}
+
+.ui-autocomplete {
+  z-index: 9999;
+  border-radius: 4px;
+  padding: 1% !important;
 }

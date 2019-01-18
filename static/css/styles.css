@@ -7,12 +7,12 @@ body {
 }
 
 #logo {
-  border-color: rgba(181,187,202,.08);
+  border-color: rgba(181,187,202,.1);
   color: #fff;
 }
 
 .wallet-toggle-button {
-  border-color: rgba(181,187,202,.08);
+  border-color: rgba(181,187,202,.1);
 }
 
 .wallet-toggle-button:after {
@@ -32,35 +32,40 @@ body {
 }
 
 .wallet-left .row {
-  border-color: rgba(181,187,202,.08);
+  border-color: rgba(181,187,202,.1);
 }
 
-#wallet-connect {
-  background: rgba(255, 255, 255, 0.2);
+#wallet-connect, #contacts-connect {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 #wallet-after-connect .row {
   color: #fff;
 }
 
-#wallet-left-connect {
-  border-color: rgba(181,187,202,.08);
+#wallet-left-connect, #contacts-right-connect {
+  border-color: rgba(181,187,202,.1);
   color: #fff;
   background: #12131f;
 }
 
 .contacts {
-  background: rgba(0, 0, 0, 0.1);
+  background: #1c1e2d;
   color: white;
   box-shadow: inset 0 -1px 0 0 hsla(0,0%,100%,.02), inset 0 1px 0 0 hsla(0,0%,100%,.02), inset 0 0 0 1px hsla(0,0%,100%,.02);
-  border-color: rgba(181,187,202,.08);
+  border-color: rgba(181,187,202,0.1);
 }
 
 .contacts .row {
-  border-color: rgba(181,187,202,.08);
+  border-color: rgba(181,187,202,.1);
+}
+
+#add-new-contact {
+  color: #17a2b8;
 }
 
 #footer {
-  border-color: rgba(181,187,202,.08);
-  background: black;
+  border-color: rgba(181,187,202,.1);
+  background-color: #1c1e2d;
+  z-index:99;
 }

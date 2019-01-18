@@ -12,16 +12,19 @@ $(document).ready(() => {
         walletAddressDisplay    = walletLogoutButton.find('.wallet-label-bottom'),
         confirmAddrButton       = $('#confirm-eth-addr'),
         walletLeftConnect       = $('#wallet-left-connect'),
+        contactsRightConnect     = $('#contacts-right-connect'),
         newContactAddress       = $('#new-contact-address'),
         newContactNickname      = $('#new-contact-nickname'),
         confirmNewContactButton = $('#confirm-add-contact'),
         addNewContactButton     = $('#add-new-contact'),
-        addNewExpenseButton     = $('#add-new-expense');
+        addNewExpenseButton     = $('#add-new-expense'),
+        expenseAddNoteButton    = $('#expense-add-notes');
 
   const walletBeforeConnect      = $('#wallet-before-connect'),
         walletConnect            = $('#wallet-connect'),
         walletAfterConnect       = $('#wallet-after-connect'),
         contactsBeforeConnect    = $('#contacts-before-connect'),
+        contactsConnect           = $('#contacts-connect'),
         contactsAfterConnect     = $('#contacts-after-connect'),
         expensesAfterConnect     = $('#expenses-after-connect');
 
@@ -29,42 +32,55 @@ $(document).ready(() => {
         expenseCurrencies = $('#expense-supported-currencies'),
         expenseContacts   = $('#expense-contacts'),
         expenseCalendar   = $('#expense-calendar'),
-        expenseDatepicker = $('#expense-datepicker');
+        expenseDatepicker = $('#expense-datepicker'),
+        expenseNotes      = $('#expense-notes');
 
   const walletConnectDialog = $('#wallet-connect-dialog'),
         addContactDialog    = $('#add-contact-dialog'),
-        addExpenseDialog    = $('#add-expense-dialog');
+        addExpenseDialog    = $('#add-expense-dialog'),
+        expenseNotesDialog  = $('#add-expense-notes-dialog');
 
   const contactsDisplayHandler = (contacts) => {
+    let names = [];
+    for (const i in contacts) {
+      names.push(contacts[i].nickname);
+    }
+
+    try {
+      expenseContacts.autocomplete({
+        source: names
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
     let options = '<option value="' + address + '">YOU</option>';
     let rows = '';
     for (let i in contacts) {
       const contactName = contacts[i].nickname;
       const contactAddress = contacts[i].address;
       const row = '<div class="row">\
-                    <div class="col-md-2">\
-                      <svg width="28" height="28">\
-                        <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
-                      </svg>\
+                    <div class="col-md-3">\
+                      <i class="fas fa-user-circle" style="font-size:3em;color:#17a2b8;"></i>\
                     </div>\
-                    <div class="col-md-7">'
+                    <div class="col-md-6" style="text-align:left;padding-left:0 !important">'
                      + contactName +
                     '</div>\
                     <div class="col-md-3">\
                       <input type="hidden" class="contact-name" value="' + contactName + '" />\
                       <input type="hidden" class="contact-address" value="' + contactAddress + '" />\
-                      <i class="fas fa-trash-alt" style="cursor:pointer"></i>\
+                      <i class="fas fa-times-circle" style="cursor:pointer;color:#17a2b8;" title="Delete contact"></i>\
                     </div>\
                   </div>';
 
       rows += row;
 
-      const option = '<option value="' + contactAddress + '">' + contactName + '</option>';
-      options += option;
+      // const option = '<option value="' + contactAddress + '">' + contactName + '</option>';
+      // options += option;
     }
 
     contactsAfterConnect.find('.container-fluid').html(rows);
-    expenseContacts.html(options);
+    // expenseContacts.html(options);
   }
   const walletDisplayHandler = (tokens) => {
     let options = '';
@@ -91,8 +107,8 @@ $(document).ready(() => {
                       '</div>\
                     </div>\
                     <div class="col-md-3">\
-                      <svg width="60" height="28">\
-                        <rect width="50" height="14" fill="#12131f"></rect>\
+                      <svg width="40" height="28">\
+                        <rect width="40" height="14" fill="#12131f"></rect>\
                       </svg>\
                     </div>\
                   </div>';
@@ -173,7 +189,10 @@ $(document).ready(() => {
         walletLoginButton.fadeOut();
         walletLogoutButton.css('display', 'flex').hide().fadeIn(500, () => btn.html(btn.data('original-text')));
 
-        contactsBeforeConnect.fadeOut(600, () => contactsAfterConnect.fadeIn());
+        contactsBeforeConnect.fadeOut();
+        contactsConnect.fadeOut();
+        contactsAfterConnect.fadeIn();
+
         expensesAfterConnect.fadeIn();
       } else {
         btn.html(btn.data('original-text'));
@@ -192,7 +211,10 @@ $(document).ready(() => {
       walletLoginButton.css('display', 'flex').hide().fadeIn();
 
       contactsAfterConnect.fadeOut();
+      contactsConnect.fadeIn();
       contactsBeforeConnect.fadeIn();
+
+      expensesAfterConnect.fadeOut();
     }
   };
   const addNewContactHandler = async (btn) => {
@@ -266,13 +288,19 @@ $(document).ready(() => {
 
   walletLoginButton.on('click', async (e) => walletConnectHandler(e));
   walletLeftConnect.on('click', async (e) => walletConnectHandler(e));
+  contactsRightConnect.on('click', async (e) => walletConnectHandler(e));
   confirmAddrButton.on('click', () => walletConnectConfirmHandler(confirmAddrButton));
   walletLogoutButton.on('click', walletLogoutHandler);
 
   confirmNewContactButton.on('click', () => addNewContactHandler(confirmNewContactButton));
   addNewContactButton.on('click', () => addContactDialog.modal('show'));
-  addNewExpenseButton.on('click', () => addExpenseDialog.modal('show'));
-  contactsAfterConnect.on('click', '.fa-trash-alt', (e) => deleteContactHandler(e.target));
+  addNewExpenseButton.on('click', () => {
+    expenseContacts.val('');
+    addExpenseDialog.modal('show');
+  });
+  contactsAfterConnect.on('click', '.fa-times-circle', (e) => deleteContactHandler(e.target));
+
+  expenseAddNoteButton.on('click', () => expenseNotesDialog.modal('show'));
 
   $('#datetimepicker1').datetimepicker({
     icons: {
@@ -282,4 +310,23 @@ $(document).ready(() => {
         down: "fa fa-arrow-down"
     }
   });
+
+  $('.modal').on('show.bs.modal', function(event) {
+    var idx = $('.modal:visible').length;
+    $(this).css('z-index', 1040 + (10 * idx));
+  });
+  $('.modal').on('shown.bs.modal', function(event) {
+      var idx = ($('.modal:visible').length) -1; // raise backdrop after animation.
+      $('.modal-backdrop').not('.stacked').css('z-index', 1039 + (10 * idx));
+      $('.modal-backdrop').not('.stacked').addClass('stacked');
+  });
+
+  addExpenseDialog.on('shown.bs.modal', () => {
+    expenseContacts.focus();
+  });
+  expenseNotesDialog.on('shown.bs.modal', () => {
+    expenseNotes.focus();
+  });
+
+  // addExpenseDialog.modal('show');
 });
