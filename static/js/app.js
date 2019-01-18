@@ -15,20 +15,28 @@ $(document).ready(() => {
         newContactAddress       = $('#new-contact-address'),
         newContactNickname      = $('#new-contact-nickname'),
         confirmNewContactButton = $('#confirm-add-contact'),
-        addNewContactButton     = $('#add-new-contact');
+        addNewContactButton     = $('#add-new-contact'),
+        addNewExpenseButton     = $('#add-new-expense');
 
   const walletBeforeConnect      = $('#wallet-before-connect'),
         walletConnect            = $('#wallet-connect'),
         walletAfterConnect       = $('#wallet-after-connect'),
         contactsBeforeConnect    = $('#contacts-before-connect'),
-        contactsAfterConnect     = $('#contacts-after-connect');
+        contactsAfterConnect     = $('#contacts-after-connect'),
+        expensesAfterConnect     = $('#expenses-after-connect');
 
-  const walletAddreses = $('#eth-addresses');
+  const walletAddreses    = $('#eth-addresses'),
+        expenseCurrencies = $('#expense-supported-currencies'),
+        expenseContacts   = $('#expense-contacts'),
+        expenseCalendar   = $('#expense-calendar'),
+        expenseDatepicker = $('#expense-datepicker');
 
   const walletConnectDialog = $('#wallet-connect-dialog'),
-        addContactDialog    = $('#add-contact-dialog');
+        addContactDialog    = $('#add-contact-dialog'),
+        addExpenseDialog    = $('#add-expense-dialog');
 
   const contactsDisplayHandler = (contacts) => {
+    let options = '<option value="' + address + '">YOU</option>';
     let rows = '';
     for (let i in contacts) {
       const contactName = contacts[i].nickname;
@@ -50,11 +58,16 @@ $(document).ready(() => {
                   </div>';
 
       rows += row;
+
+      const option = '<option value="' + contactAddress + '">' + contactName + '</option>';
+      options += option;
     }
 
     contactsAfterConnect.find('.container-fluid').html(rows);
+    expenseContacts.html(options);
   }
   const walletDisplayHandler = (tokens) => {
+    let options = '';
     let rows = '';
     for (let i in tokens) {
       const tokenName = tokens[i].token;
@@ -85,6 +98,9 @@ $(document).ready(() => {
                   </div>';
 
       rows += row;
+
+      const option = '<option value="' + tokenName + '">' + tokenName + '</option>';
+      options += option;
     }
     rows += '<div class="row"></div>';
 
@@ -113,6 +129,8 @@ $(document).ready(() => {
     walletAfterConnect.html(html);
 
     const el = new SimpleBar(walletAfterConnect.find('#wallet-erc20-display')[0]);
+
+    expenseCurrencies.html(options);
   }
   const walletConnectHandler = async (e) => {
     try {
@@ -156,6 +174,7 @@ $(document).ready(() => {
         walletLogoutButton.css('display', 'flex').hide().fadeIn(500, () => btn.html(btn.data('original-text')));
 
         contactsBeforeConnect.fadeOut(600, () => contactsAfterConnect.fadeIn());
+        expensesAfterConnect.fadeIn();
       } else {
         btn.html(btn.data('original-text'));
       }
@@ -252,5 +271,9 @@ $(document).ready(() => {
 
   confirmNewContactButton.on('click', () => addNewContactHandler(confirmNewContactButton));
   addNewContactButton.on('click', () => addContactDialog.modal('show'));
+  addNewExpenseButton.on('click', () => addExpenseDialog.modal('show'));
   contactsAfterConnect.on('click', '.fa-trash-alt', (e) => deleteContactHandler(e.target));
+  expenseCalendar.on('click', () => {
+    expenseDatepicker.datetimepicker();
+  });
 });

@@ -161,6 +161,37 @@ body {
   padding: 0 15px;
 }
 
+#expenses-after-connect {
+  margin: 1%;
+  position:absolute;
+  right: 350px;
+  width: calc(100% - (50px + 18% + 350px));
+  height: calc(100% - 50px);
+  overflow: hidden;
+  display: none;
+}
+
+#add-new-expense {
+  color:#dc3545;
+  font-size:5em;
+  cursor:pointer;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+#add-expense-dialog span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#expense-calendar {
+  font-size:2em;
+  margin-left:10px;
+  cursor:pointer;
+}
+
 .contacts {
   position: absolute;
   width: 350px;

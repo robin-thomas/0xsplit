@@ -5,7 +5,7 @@ const Contacts = require('./src/modules/contacts.js');
 const config = require('./config.json');
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 80;
 
 app.use(cors());
 app.use(express.json());
