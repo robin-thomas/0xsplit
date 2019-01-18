@@ -273,7 +273,13 @@ $(document).ready(() => {
   addNewContactButton.on('click', () => addContactDialog.modal('show'));
   addNewExpenseButton.on('click', () => addExpenseDialog.modal('show'));
   contactsAfterConnect.on('click', '.fa-trash-alt', (e) => deleteContactHandler(e.target));
-  expenseCalendar.on('click', () => {
-    expenseDatepicker.datetimepicker();
+
+  $('#datetimepicker1').datetimepicker({
+    icons: {
+        time: "fa fa-clock-o",
+        date: "fa fa-calendar",
+        up: "fa fa-arrow-up",
+        down: "fa fa-arrow-down"
+    }
   });
 });

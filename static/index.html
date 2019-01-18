@@ -115,10 +115,13 @@
                 <select class="form-control" id="expense-supported-currencies"></select>
                 <input type="text" class="form-control" id="expense-amount" maxlength="50" placeholder="0.00">
               </div><br />
-              <div class="input-group">
+              <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
                 <span>Paid by&nbsp;&nbsp;</span>
                 <select class="form-control" id="expense-contacts"></select>
-                <i id="expense-calendar" class="fas fa-calendar-alt"></i>
+                <input type="hidden" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+                <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
               </div>
               <input type="text" id="expense-datepicker" style="visibility:hidden">
             </div>
