@@ -292,6 +292,7 @@ $(document).ready(() => {
     // Reset the form.
     expenseSplitDialog.find('.split-third-col').hide();
     expenseSplitDialog.find('.split-equally-third-col').show();
+    expenseSplitDialog.find('select').val('1');
 
     const currency = addExpenseDialog.find('#expense-supported-currencies').val();
     let amount = addExpenseDialog.find('#expense-amount').val();
@@ -335,18 +336,56 @@ $(document).ready(() => {
     expenseSplitDialog.find('input[type="text"]').val('');
     expenseSplitDialog.find('.split-third-col').hide();
     expenseSplitDialog.find('.split-unequally-third-col').show();
+    expenseSplitDialog.find('select').val('2');
+    amountContactOwe.html('0.00');
+    amountYouOwe.html('0.00');
+    expenseSplitDialog.find('#amount-now').html('0.00');
   };
   const expenseSplitUnequallyChangeHandler = () => {
-    const doesYouOwe = $('#you-owe-textbox').val() != $('#you-owe-textbox').attr('placeholder');
-    const doesContactOwe = $('#contact-owe-textbox').val() != $('#you-owe-textbox').attr('placeholder');
+    const doesYouOwe = $('#you-owe-textbox').val() != '';
+    const doesContactOwe = $('#contact-owe-textbox').val() != '';
 
     let amountYou = 0.00;
     if (doesYouOwe) {
       amountYou = parseFloat($('#you-owe-textbox').val());
     }
+    console.log('amountYou = ' + amountYou);
+    console.log($('#you-owe-textbox').attr('placeholder'));
     let amountContact = 0.00;
     if (doesContactOwe) {
       amountContact = parseFloat($('#contact-owe-textbox').val());
+    }
+    console.log('amountContact = ' + amountContact);
+    const amountNow = (amountYou == '0.00' && amountContact == '0.00' ? '0.00' : (amountContact + amountYou));
+
+    amountContactOwe.html(amountContact);
+    amountYouOwe.html(amountYou);
+    expenseSplitDialog.find('#amount-now').html(amountNow);
+  };
+  const expenseSplitPercentageHandler = () => {
+    // Reset the form.
+    expenseSplitDialog.find('input[type="text"]').val('');
+    expenseSplitDialog.find('.split-third-col').hide();
+    expenseSplitDialog.find('.split-percentage-third-col').show();
+    expenseSplitDialog.find('select').val('3');
+    amountContactOwe.html('0');
+    amountYouOwe.html('0');
+    expenseSplitDialog.find('#amount-now').html('0');
+  };
+  const expenseSplitPercentageChangeHandler = () => {
+    let amount = addExpenseDialog.find('#expense-amount').val();
+    amount = amount == '' ? 0.00 : parseFloat(amount);
+
+    const doesYouOwe = $('#you-owe-percentage-textbox').val() != '';
+    const doesContactOwe = $('#contact-owe-percentage-textbox').val() != '';
+
+    let amountYou = 0.00;
+    if (doesYouOwe) {
+      amountYou = (parseFloat(amount) * $('#you-owe-percentage-textbox').val()) / 100.0;
+    }
+    let amountContact = 0.00;
+    if (doesContactOwe) {
+      amountContact = (parseFloat(amount) * $('#contact-owe-percentage-textbox').val()) / 100.0;
     }
     const amountNow = (amountContact + amountYou);
 
@@ -408,10 +447,15 @@ $(document).ready(() => {
       case '2':
         expenseSplitUnequallyHandler();
         break;
+      case '3':
+        expenseSplitPercentageHandler();
+        break;
     }
   });
   expenseSplitDialog.find('#contact-owe-textbox').on('input', expenseSplitUnequallyChangeHandler);
   expenseSplitDialog.find('#you-owe-textbox').on('input', expenseSplitUnequallyChangeHandler);
+  expenseSplitDialog.find('#contact-owe-percentage-textbox').on('input', expenseSplitPercentageChangeHandler);
+  expenseSplitDialog.find('#you-owe-percentage-textbox').on('input', expenseSplitPercentageChangeHandler);
 
   expenseSplitDialog.on('change', 'input[type=checkbox]', expenseSplitEquallyHandler);
 
