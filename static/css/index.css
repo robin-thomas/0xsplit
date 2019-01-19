@@ -180,10 +180,19 @@ body {
   right: 0;
 }
 
-#add-expense-dialog span {
+#add-expense-dialog .search-contact-name {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+#expense-contacts {
+  border:0;
+  box-shadow: none;
+  border-bottom: 1px solid #000;
+  padding: 0;
+  margin-left: 15px;
+  border-radius: 0;
 }
 
 #expense-calendar {
@@ -252,49 +261,66 @@ body {
 .ui-autocomplete {
   z-index: 9999;
   border-radius: 4px;
-  padding: 1% !important;
+  padding: 0.5% !important;
 }
 
 .checkbox label:after {
-    content: '';
-    display: table;
-    clear: both;
+  content: '';
+  display: table;
+  clear: both;
 }
 
 .checkbox .cr {
-    position: relative;
-    display: inline-block;
-    border: 1px solid #a9a9a9;
-    border-radius: .25em;
-    width: 1.3em;
-    height: 1.3em;
-    float: left;
-    margin-right: .5em;
+  position: relative;
+  display: inline-block;
+  border: 1px solid #a9a9a9;
+  border-radius: .25em;
+  width: 1.3em;
+  height: 1.3em;
+  float: left;
+  margin-right: .5em;
 }
 
 .checkbox .cr .cr-icon {
-    position: absolute;
-    font-size: .8em;
-    line-height: 0;
-    top: 50%;
-    left: 20%;
+  position: absolute;
+  font-size: .8em;
+  line-height: 0;
+  top: 50%;
+  left: 20%;
 }
 
 .checkbox label input[type="checkbox"] {
-    display: none;
+  display: none;
 }
 
 .checkbox label input[type="checkbox"] + .cr > .cr-icon {
-    transform: scale(3) rotateZ(-20deg);
-    opacity: 0;
-    transition: all .3s ease-in;
+  transform: scale(3) rotateZ(-20deg);
+  opacity: 0;
+  transition: all .3s ease-in;
 }
 
 .checkbox label input[type="checkbox"]:checked + .cr > .cr-icon {
-    transform: scale(1) rotateZ(0deg);
-    opacity: 1;
+  transform: scale(1) rotateZ(0deg);
+  opacity: 1;
 }
 
 .checkbox label input[type="checkbox"]:disabled + .cr {
-    opacity: .5;
+  opacity: .5;
+}
+
+.dropdown-menu {
+  min-width: 21rem !important;
+}
+
+.dropdown-menu .table thead th {
+  border: 0 !important;
+  padding: 10px !important;
+}
+
+.dropdown-menu .bootstrap-datetimepicker-widget table th {
+  padding: 15px !important;
+}
+
+.bootstrap-datetimepicker-widget table td.day {
+  padding: 10px !important;
 }
