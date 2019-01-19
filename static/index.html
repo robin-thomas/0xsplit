@@ -43,7 +43,7 @@
       </div>
     </div>
     <div id="content">
-      <div id="wallet-connect-dialog" class="modal fade" role="dialog" aria-hidden="true">
+      <div id="wallet-connect-dialog" class="modal fade" role="dialog" aria-hidden="true" data-keyboard="false">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -69,7 +69,7 @@
           </div>
         </div>
       </div>
-      <div id="add-contact-dialog" class="modal fade" role="dialog" aria-hidden="true">
+      <div id="add-contact-dialog" class="modal fade" role="dialog" aria-hidden="true" data-keyboard="false">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -98,7 +98,7 @@
           </div>
         </div>
       </div>
-      <div id="add-expense-notes-dialog" class="modal fade" role="dialog" aria-hidden="true">
+      <div id="add-expense-notes-dialog" class="modal fade" role="dialog" aria-hidden="true" data-keyboard="false">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -119,7 +119,113 @@
           </div>
         </div>
       </div>
-      <div id="add-expense-dialog" class="modal fade" role="dialog" aria-hidden="true">
+      <div id="expense-split-dialog" class="modal fade" role="dialog" aria-hidden="true" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">How was this bill split?</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <select class="form-control">
+                  <option value="1" selected="selected">Split equally</option>
+                  <option value="2">Split unequally</option>
+                  <option value="3">Split by percentages</option>
+                </select>
+              </div><br />
+              <div class="form-group">
+                <div class="row">
+                  <div class="col-md-3">
+                    &nbsp;&nbsp;&nbsp;
+                    <i class="fas fa-user-circle" style="font-size:3em;color:#000;"></i>
+                  </div>
+                  <div class="col-md-5" style="padding-left:0 !important;display:flex;align-items:center;">Contact</div>
+                  <div class="col-md-4" style="padding-left:0 !important;display:flex;align-items:center;margin-top:20px;">
+                    <div class="split-third-col split-equally-third-col">
+                      <div id="contact-owe-checkbox" class="checkbox">
+                        <label>
+                          <input type="checkbox" value="" checked />
+                          <span class="cr"><i class="cr-icon fas fa-check"></i></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="split-third-col split-unequally-third-col" style="display:none">
+                      <div class="form-row">
+                        <div class="col-3">
+                          <span class="symbol" style="font-weight:bold;font-size:13px;"></span>&nbsp;
+                        </div>
+                        <div class="col-9">
+                          <input type="text" id="contact-owe-textbox" class="form-control" style="border:0;box-shadow:none;border-bottom:1px solid black;border-radius:0;padding:0;" placeholder="0.00" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="row">
+                  <div class="col-md-3">
+                    &nbsp;&nbsp;&nbsp;
+                    <i class="fas fa-user-circle" style="font-size:3em;color:#000;"></i>
+                  </div>
+                  <div class="col-md-5" style="padding-left:0 !important;display:flex;align-items:center;">You</div>
+                  <div class="col-md-4" style="padding-left:0 !important;display:flex;align-items:center;margin-top:15px;">
+                    <div class="split-third-col split-equally-third-col">
+                      <div id="you-owe-checkbox" class="checkbox">
+                        <label>
+                          <input type="checkbox" value="" checked />
+                          <span class="cr"><i class="cr-icon fas fa-check"></i></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="split-third-col split-unequally-third-col" style="display:none">
+                      <div class="form-row">
+                        <div class="col-3">
+                          <span class="symbol" style="font-weight:bold;font-size:13px;"></span>&nbsp;
+                        </div>
+                        <div class="col-9">
+                          <input type="text" id="you-owe-textbox" class="form-control" style="border:0;box-shadow:none;border-bottom:1px solid black;border-radius:0;padding:0;" placeholder="0.00" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div style="text-align:center;padding:2% 0;width:100%;">
+                  Contact owes you:&nbsp;
+                  <span class="symbol" style="font-weight:bold;font-size:13px;"></span>&nbsp;
+                  <span id=amount-contact-owe></span>
+                </div>
+              </div>
+              <div class="row">
+                <div style="text-align:center;padding:2% 0;width:100%;">
+                  You owe contact:&nbsp;
+                  <span class="symbol" style="font-weight:bold;font-size:13px;"></span>&nbsp;
+                  <span id=amount-you-owe></span>
+                </div>
+              </div>
+              <div class="row">
+                <div style="text-align:center;padding:2% 0;width:100%;">
+                  Total:&nbsp;
+                  <span class="symbol" style="font-weight:bold;font-size:13px;"></span>&nbsp;
+                  <span id=amount-now></span>&nbsp;of&nbsp;
+                  <span class="symbol" style="font-weight:bold;font-size:13px;"></span>&nbsp;
+                  <span id=amount-full></span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="confirm-expense-split">Done</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="add-expense-dialog" class="modal fade" role="dialog" aria-hidden="true" data-keyboard="false">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -131,7 +237,7 @@
             <div class="modal-body">
               <div class="input-group">
                 <span>With&nbsp;<b>you</b>&nbsp;and:&nbsp;</span>
-                <input type"text" class="form-control autocomplete" id="expense-contacts" placeholder="Enter names" style="border:0;box-shadow:none;" />
+                <input type"text" class="form-control autocomplete" id="expense-contacts" placeholder="Enter contact name" style="border:0;box-shadow:none;" />
               </div><br />
               <div class="form-group">
                 <input type="text" class="form-control" id="expense-description" placeholder="Enter a description" maxlength="50">
@@ -145,13 +251,27 @@
                 </div>
               </div><br />
               <div class="row">
-                <div class="col-md-9">
+                <div class="col-md-1">
                   <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
                     <input type="hidden" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
                     <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
-                      <div class="input-group-text"><i class="fas fa-calendar-alt" title="Set the time"></i></div>
+                      <div class="input-group-text">
+                        <label style="cursor:pointer;margin-bottom:0 !important;">
+                          <i class="fas fa-calendar-alt" title="Set the time"></i>
+                        </label>
+                      </div>
                     </div>
                     <input type="text" id="expense-datepicker" style="visibility:hidden">
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="input-group">&nbsp;&nbsp;&nbsp;
+                    <div class="input-group-text">
+                      <label id="expense-bill-split" style="cursor:pointer;margin-bottom:0 !important;">
+                        <i class="far fa-money-bill-alt"></i>&nbsp;&nbsp;
+                        <span style="float:right">How was this bill split?</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-1">

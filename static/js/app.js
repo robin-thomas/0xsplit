@@ -18,7 +18,8 @@ $(document).ready(() => {
         confirmNewContactButton = $('#confirm-add-contact'),
         addNewContactButton     = $('#add-new-contact'),
         addNewExpenseButton     = $('#add-new-expense'),
-        expenseAddNoteButton    = $('#expense-add-notes');
+        expenseAddNoteButton    = $('#expense-add-notes'),
+        expenseSplitButton  = $('#expense-bill-split');
 
   const walletBeforeConnect      = $('#wallet-before-connect'),
         walletConnect            = $('#wallet-connect'),
@@ -33,12 +34,15 @@ $(document).ready(() => {
         expenseContacts   = $('#expense-contacts'),
         expenseCalendar   = $('#expense-calendar'),
         expenseDatepicker = $('#expense-datepicker'),
-        expenseNotes      = $('#expense-notes');
+        expenseNotes      = $('#expense-notes'),
+        amountContactOwe  = $('#amount-contact-owe'),
+        amountYouOwe      = $('#amount-you-owe');
 
   const walletConnectDialog = $('#wallet-connect-dialog'),
         addContactDialog    = $('#add-contact-dialog'),
         addExpenseDialog    = $('#add-expense-dialog'),
-        expenseNotesDialog  = $('#add-expense-notes-dialog');
+        expenseNotesDialog  = $('#add-expense-notes-dialog'),
+        expenseSplitDialog  = $('#expense-split-dialog');
 
   const contactsDisplayHandler = (contacts) => {
     let names = [];
@@ -120,9 +124,7 @@ $(document).ready(() => {
     }
     rows += '<div class="row"></div>';
 
-    const walletLogo = '<svg width="28" height="28">\
-      <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
-    </svg>';
+    const walletLogo = '<i class="fas fa-wallet" style="color:#17a2b8"></i>';
 
     const addressDisplay = address.substr(0, 5) + '...' + address.substr(37);
     const html = '<div class="container-fluid" \
@@ -168,7 +170,7 @@ $(document).ready(() => {
     btn.html(loadingText);
 
     address = walletAddreses.val();
-    network = Wallet.getNetwork();
+    network = await Wallet.getNetwork();
     const message = 'Signing this message proves to us you are in control of your account while never storing any sensitive account information.';
 
     try {
@@ -286,6 +288,73 @@ $(document).ready(() => {
     }
   };
 
+  const expenseSplitEquallyHandler = () => {
+    // Reset the form.
+    expenseSplitDialog.find('.split-third-col').hide();
+    expenseSplitDialog.find('.split-equally-third-col').show();
+
+    const currency = addExpenseDialog.find('#expense-supported-currencies').val();
+    let amount = addExpenseDialog.find('#expense-amount').val();
+    amount = amount == '' ? '0.00' : amount;
+
+    expenseSplitDialog.find('.symbol').html(currency);
+    expenseSplitDialog.find('#amount-full').html(amount);
+
+    const doesYouOwe = $('#you-owe-checkbox').find('input[type=checkbox]').is(':checked');
+    const doesContactOwe = $('#contact-owe-checkbox').find('input[type=checkbox]').is(':checked');
+
+    let amountYou = 0.00;
+    if (doesYouOwe) {
+      if (amount == '0.00') {
+        amountYou = 0.00;
+      } else if (doesContactOwe) {
+        amountYou = parseFloat(amount) / 2.0;
+      } else {
+        amountYou = parseFloat(amount);
+      }
+    }
+
+    let amountContact = 0.00;
+    if (doesContactOwe) {
+      if (amount == '0.00') {
+        amountContact = 0.00;
+      } else if (doesYouOwe) {
+        amountContact = parseFloat(amount) / 2.0;
+      } else {
+        amountContact = parseFloat(amount);
+      }
+    }
+    const amountNow = (amountContact + amountYou);
+
+    amountContactOwe.html(amountContact);
+    amountYouOwe.html(amountYou);
+    expenseSplitDialog.find('#amount-now').html(amountNow);
+  };
+  const expenseSplitUnequallyHandler = () => {
+    // Reset the form.
+    expenseSplitDialog.find('input[type="text"]').val('');
+    expenseSplitDialog.find('.split-third-col').hide();
+    expenseSplitDialog.find('.split-unequally-third-col').show();
+  };
+  const expenseSplitUnequallyChangeHandler = () => {
+    const doesYouOwe = $('#you-owe-textbox').val() != $('#you-owe-textbox').attr('placeholder');
+    const doesContactOwe = $('#contact-owe-textbox').val() != $('#you-owe-textbox').attr('placeholder');
+
+    let amountYou = 0.00;
+    if (doesYouOwe) {
+      amountYou = parseFloat($('#you-owe-textbox').val());
+    }
+    let amountContact = 0.00;
+    if (doesContactOwe) {
+      amountContact = parseFloat($('#contact-owe-textbox').val());
+    }
+    const amountNow = (amountContact + amountYou);
+
+    amountContactOwe.html(amountContact);
+    amountYouOwe.html(amountYou);
+    expenseSplitDialog.find('#amount-now').html(amountNow);
+  };
+
   walletLoginButton.on('click', async (e) => walletConnectHandler(e));
   walletLeftConnect.on('click', async (e) => walletConnectHandler(e));
   contactsRightConnect.on('click', async (e) => walletConnectHandler(e));
@@ -301,6 +370,7 @@ $(document).ready(() => {
   contactsAfterConnect.on('click', '.fa-times-circle', (e) => deleteContactHandler(e.target));
 
   expenseAddNoteButton.on('click', () => expenseNotesDialog.modal('show'));
+  expenseSplitButton.on('click', () => expenseSplitDialog.modal('show'));
 
   $('#datetimepicker1').datetimepicker({
     icons: {
@@ -327,6 +397,23 @@ $(document).ready(() => {
   expenseNotesDialog.on('shown.bs.modal', () => {
     expenseNotes.focus();
   });
+  expenseSplitDialog.on('shown.bs.modal', expenseSplitEquallyHandler);
+
+  expenseSplitDialog.find('select').on('change', function() {
+    const val = $(this).val();
+    switch (val) {
+      case '1':
+        expenseSplitEquallyHandler();
+        break;
+      case '2':
+        expenseSplitUnequallyHandler();
+        break;
+    }
+  });
+  expenseSplitDialog.find('#contact-owe-textbox').on('input', expenseSplitUnequallyChangeHandler);
+  expenseSplitDialog.find('#you-owe-textbox').on('input', expenseSplitUnequallyChangeHandler);
+
+  expenseSplitDialog.on('change', 'input[type=checkbox]', expenseSplitEquallyHandler);
 
   // addExpenseDialog.modal('show');
 });
