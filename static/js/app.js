@@ -7,19 +7,20 @@ let token = null;
 let address = null;
 
 $(document).ready(() => {
-  const walletLoginButton       = $('#wallet-login-button'),
-        walletLogoutButton      = $('#wallet-logout-button'),
-        walletAddressDisplay    = walletLogoutButton.find('.wallet-label-bottom'),
-        confirmAddrButton       = $('#confirm-eth-addr'),
-        walletLeftConnect       = $('#wallet-left-connect'),
-        contactsRightConnect     = $('#contacts-right-connect'),
-        newContactAddress       = $('#new-contact-address'),
-        newContactNickname      = $('#new-contact-nickname'),
-        confirmNewContactButton = $('#confirm-add-contact'),
-        addNewContactButton     = $('#add-new-contact'),
-        addNewExpenseButton     = $('#add-new-expense'),
-        expenseAddNoteButton    = $('#expense-add-notes'),
-        expenseSplitButton  = $('#expense-bill-split');
+  const walletLoginButton         = $('#wallet-login-button'),
+        walletLogoutButton        = $('#wallet-logout-button'),
+        walletAddressDisplay      = walletLogoutButton.find('.wallet-label-bottom'),
+        confirmAddrButton         = $('#confirm-eth-addr'),
+        walletLeftConnect         = $('#wallet-left-connect'),
+        contactsRightConnect      = $('#contacts-right-connect'),
+        newContactAddress         = $('#new-contact-address'),
+        newContactNickname        = $('#new-contact-nickname'),
+        confirmNewContactButton   = $('#confirm-add-contact'),
+        addNewContactButton       = $('#add-new-contact'),
+        addNewExpenseButton       = $('#add-new-expense'),
+        expenseAddNoteButton      = $('#expense-add-notes'),
+        expenseSplitButton        = $('#expense-bill-split'),
+        confirmExpenseSplitButton = $('#confirm-expense-split');
 
   const walletBeforeConnect      = $('#wallet-before-connect'),
         walletConnect            = $('#wallet-connect'),
@@ -393,6 +394,29 @@ $(document).ready(() => {
     amountYouOwe.html(amountYou);
     expenseSplitDialog.find('#amount-now').html(amountNow);
   };
+  const expenseSplitConfirmHandler = () => {
+    const amountGot = parseFloat(expenseSplitDialog.find('#amount-now').html()).toFixed(2);
+    const amountExpected = parseFloat(expenseSplitDialog.find('#amount-full').html()).toFixed(2);
+
+    if (amountGot !== amountExpected) {
+      alert('Expected amount = ' + amountGot + ' do not match ' + amountExpected);
+      return;
+    }
+
+    // Validate based on the mode.
+    // const val = expenseSplitDialog.find('select').val();
+    // switch (val) {
+    //   case '1':
+    //
+    //     break;
+    //   case '2':
+    //     break;
+    //   case '3':
+    //     break;
+    // }
+
+    expenseSplitDialog.modal('hide');
+  }
 
   walletLoginButton.on('click', async (e) => walletConnectHandler(e));
   walletLeftConnect.on('click', async (e) => walletConnectHandler(e));
@@ -410,6 +434,7 @@ $(document).ready(() => {
 
   expenseAddNoteButton.on('click', () => expenseNotesDialog.modal('show'));
   expenseSplitButton.on('click', () => expenseSplitDialog.modal('show'));
+  confirmExpenseSplitButton.on('click', expenseSplitConfirmHandler);
 
   $('#datetimepicker1').datetimepicker({
     icons: {
