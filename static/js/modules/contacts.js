@@ -1,9 +1,10 @@
 const ethUtil = require('ethereumjs-util');
 const config = require('../../../config.json');
+const Wallet = require('./metamask.js');
 const Session = require('./session.js');
 
 const Contacts = {
-  validateNewContactFields: (address, name) => {
+  validateNewContactFields: async (address, name) => {
     // Validate Name.
     if (name.trim().length === 0) {
       throw new Error('Nickname cannot be empty!');
@@ -22,11 +23,24 @@ const Contacts = {
       throw new Error('ETH Address not valid!');
     }
 
-    // TODO: add a validation to see that this contact
-    // hasnt been added under a different name.
+    if (address.trim() === Wallet.address) {
+      throw new Error('Contact address cannot be as same as your address!');
+    }
 
-    // TODO: validate to see that there is no other contact
-    // with the same name.
+    // Validate that this address or name hasnt been used before.
+    try {
+      const data = {
+        address: Wallet.address,
+        contactAddress: address,
+        contactName: name,
+      };
+      const out = await Session.api(config.api.searchContacts.name, data);
+      if (out.length >= 1) {
+        throw new Error('This contact name or address had been used before!');
+      }
+    } catch (err) {
+      throw err;
+    }
   },
 
   addNewContact: async (data) => {

@@ -28,6 +28,15 @@
         "x-access-token": "%token"
       }
     },
+    "searchContacts": {
+      "name": "searchContacts",
+      "path": "/contacts/search",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
+    },
     "getAllContacts": {
       "name": "getAllContacts",
       "path": "/contacts",

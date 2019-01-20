@@ -54,11 +54,7 @@ const ContactsHandler = {
   addNewContactHandler: async (btn) => {
     // Validate the fields.
     try {
-      Contacts.validateNewContactFields(newContactAddress.val(), newContactNickname.val());
-
-      if (newContactAddress.val().trim() === Wallet.address) {
-        throw new Error('Contact address cannot be as same as your address!');
-      }
+      await Contacts.validateNewContactFields(newContactAddress.val(), newContactNickname.val());
     } catch (err) {
       alert(err.message);
       return;

@@ -60,6 +60,26 @@ app.get(config.api.getAllContacts.path, Auth.validate, async (req, res) => {
   }
 });
 
+app.get(config.api.searchContacts.path, Auth.validate, async (req, res) => {
+  const address = req.query.address;
+  const contactAddress = req.query.contactAddress;
+  const contactName = req.query.contactName;
+
+  try {
+    const contacts = await Contacts.searchContacts(address, contactAddress, contactName);
+
+    res.status(200).send({
+      status: "ok",
+      msg: contacts
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
+});
+
 app.delete(config.api.deleteContact.path, Auth.validate, async (req, res) => {
   const address = req.body.address;
   const contactAddress = req.body.contactAddress;
@@ -80,8 +100,6 @@ app.delete(config.api.deleteContact.path, Auth.validate, async (req, res) => {
 });
 
 app.post(config.api.addExpense.path, Auth.validate, async (req, res) => {
-  console.log(req.body);
-
   res.status(200).send({
     status: "ok",
     msg: null

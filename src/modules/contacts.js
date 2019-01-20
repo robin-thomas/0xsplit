@@ -32,6 +32,23 @@ const Contacts = {
     }
   },
 
+  searchContacts: async (address, contactAddress, contactName) => {
+    const query = {
+      sql: 'SELECT contact_address as address, contact_nickname as nickname \
+            FROM contacts WHERE address = ? AND \
+            (contact_address = ? OR contact_nickname = ?)',
+      timeout: 6 * 1000, // 6s
+      values: [ address, contactAddress, contactName ],
+    };
+
+    try {
+      const results = await DB.select(query);
+      return results;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   deleteContact: async (address, contactAddress) => {
     const query = {
       sql: 'DELETE FROM contacts WHERE address = ? AND contact_address = ?',
