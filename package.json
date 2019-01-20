@@ -15,6 +15,7 @@
     "ethereumjs-util": "^6.0.0",
     "express": "^4.16.4",
     "ipfs-api": "^26.1.2",
+    "jquery": "^3.3.1",
     "jsonwebtoken": "^8.4.0",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",

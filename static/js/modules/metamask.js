@@ -4,6 +4,8 @@ const contractABI = require('./abi.json');
 const logos = require('./tokens.json');
 
 const Metamask = {
+  address: null,
+
   hasMetamask: () => {
     return window.web3 && window.web3.currentProvider.isMetaMask;
   },

@@ -241,6 +241,18 @@ body {
   z-index: 10;
 }
 
+#contacts-after-connect .container-fluid {
+  height: 80%;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(181,187,202,.1);
+}
+
+#contacts-display {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 #add-new-contact {
   font-size: 3em;
   cursor: pointer;

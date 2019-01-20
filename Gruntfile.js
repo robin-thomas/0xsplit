@@ -3,7 +3,7 @@ module.exports = (grunt) => {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     eslint: {
-      target: ['./static/js/modules/*.js', './static/js/app.js'],
+      target: ['./static/js/modules/*.js', './static/js/modules/**/*.js', './static/js/app.js'],
       options: {
         configFile: './eslint.json',
         globals: ['$', 'SimpleBar'],
