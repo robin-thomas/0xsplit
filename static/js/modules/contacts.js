@@ -21,6 +21,12 @@ const Contacts = {
     if (!addressValid) {
       throw new Error('ETH Address not valid!');
     }
+
+    // TODO: add a validation to see that this contact
+    // hasnt been added under a different name.
+
+    // TODO: validate to see that there is no other contact
+    // with the same name.
   },
 
   addNewContact: async (data) => {

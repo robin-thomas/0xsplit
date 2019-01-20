@@ -33,12 +33,11 @@ const ContactsHandler = {
                     <div class="col-md-6" style="text-align:left;padding-left:0 !important">'
                      + contactName +
                     '</div>\
-                    <div class="col-md-1">\
+                    <div class="col-md-2">\
                       <input type="hidden" class="contact-name" value="' + contactName + '" />\
                       <input type="hidden" class="contact-address" value="' + contactAddress + '" />\
                       <i class="fas fa-times-circle" style="cursor:pointer;color:#17a2b8;" title="Delete contact"></i>\
                     </div>\
-                    <div class="col-md-1">&nbsp;</div>\
                   </div>';
 
       rows += row;
@@ -56,12 +55,6 @@ const ContactsHandler = {
     // Validate the fields.
     try {
       Contacts.validateNewContactFields(newContactAddress.val(), newContactNickname.val());
-
-      // TODO: add a validation to see that this contact
-      // hasnt been added under a different name.
-
-      // TODO: validate to see that there is no other contact
-      // with the same name.
 
       if (newContactAddress.val().trim() === Wallet.address) {
         throw new Error('Contact address cannot be as same as your address!');
@@ -105,7 +98,6 @@ const ContactsHandler = {
 
     // Load all the contacts
     ContactsHandler.contactsList.push({address: newContactAddress.val(), nickname: newContactNickname.val()});
-    console.log(ContactsHandler.contactsList);
     ContactsHandler.contactsDisplayHandler();
 
     btn.html(btn.data('original-text'));
@@ -118,10 +110,8 @@ const ContactsHandler = {
     try {
       if (confirm('Are you sure you want to delete ' + contactName + ' from your contacts?')) {
         await Contacts.deleteContact({address: Wallet.address, contactAddress: contactAddress});
-        console.log({address: Wallet.address, contactAddress: contactAddress});
 
         ContactsHandler.contactsList = ContactsHandler.contactsList.filter(e => e.address !== contactAddress);
-        console.log(ContactsHandler.contactsList);
         ContactsHandler.contactsDisplayHandler();
       }
     } catch (err) {

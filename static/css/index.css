@@ -239,12 +239,14 @@ body {
 #contacts-after-connect {
   display: none;
   z-index: 10;
+  padding: 0 !important;
 }
 
 #contacts-after-connect .container-fluid {
   height: 80%;
   overflow: hidden;
   border-bottom: 1px solid rgba(181,187,202,.1);
+  padding-right: 0 !important;
 }
 
 #contacts-display {

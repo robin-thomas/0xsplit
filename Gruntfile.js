@@ -19,7 +19,7 @@ module.exports = (grunt) => {
       },
     },
     uglify: {
-      build: {
+      target: {
         src: './static/js/index.js',
         dest: './static/js/index.min.js'
       }
