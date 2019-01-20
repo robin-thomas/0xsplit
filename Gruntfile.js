@@ -2,6 +2,13 @@ module.exports = (grunt) => {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    eslint: {
+      target: ['./static/js/modules/*.js', './static/js/app.js'],
+      options: {
+        configFile: './eslint.json',
+        globals: ['$', 'SimpleBar'],
+      },
+    },
     browserify: {
       target: {
         src: [ './static/js/app.js' ],
@@ -20,8 +27,10 @@ module.exports = (grunt) => {
   });
 
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-contrib-uglify-es');
   grunt.registerTask('default', [
+    'eslint',
     'browserify',
     'uglify',
   ]);
