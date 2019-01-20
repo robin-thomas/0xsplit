@@ -95,4 +95,7 @@ $(document).ready(() => {
   expenseSplitDialog.on('change', 'input[type=checkbox]', ExpensesHandler.expenseSplitEquallyHandler);
   $('#cancel-add-notes').on('click', ExpensesHandler.cancelAddNotesHandler);
   $('#confirm-add-notes').on('click', ExpensesHandler.confirmAddNotesHandler);
+
+  // Check if already logged in.
+  WalletHandler.walletConnectConfirmHandler();
 });
