@@ -6,6 +6,7 @@ const Wallet = require('../metamask.js');
 const config = require('../../../../config.json');
 
 const addExpenseDialog    = $('#add-expense-dialog'),
+      expenseNotesDialog  = $('#add-expense-notes-dialog'),
       expenseSplitDialog  = $('#expense-split-dialog');
 
 const expenseAmount       = $('#expense-amount'),
@@ -137,7 +138,7 @@ const ExpensesHandlers = {
     expenseContacts.val('');
     addExpenseDialog.modal('show');
   },
-  confirmNewExpenseHandler: async () => {
+  confirmNewExpenseHandler: async (btn) => {
     if (expenseContacts.val().trim().length === 0) {
       expenseContacts.css('border-color', 'red').focus();
       return;
@@ -205,12 +206,18 @@ const ExpensesHandlers = {
         notes: expenseNotes.val(),
       };
 
+      // Change the button to loading.
+      const loadingText = '<i class="fas fa-spinner fa-spin"></i>&nbsp;Adding...';
+      btn.data('original-text', btn.html());
+      btn.html(loadingText);
+
       if (typeof expensePicture.prop('files')[0] !== 'undefined') {
         try {
           const hash = await Infura.uploadFileToIPFS(expensePicture.prop('files')[0]);
-          expense.img = config.infura.gateway + hash;
+          expense.img = config.infura.ipfs.gateway + hash;
         } catch (err) {
           console.log(err);
+          btn.html(btn.data('original-text'));
           alert('Unable to upload the file!');
           return;
         }
@@ -218,15 +225,29 @@ const ExpensesHandlers = {
       console.log(expense);
 
       try {
-        await Expenses.addNewExpense(expense);
+        await Expenses.addNewExpense({
+          address: expense.address,
+          contactAddress: expense.contactAddress,
+          expense: JSON.stringify(expense),
+        });
+
+        btn.html(btn.data('original-text'));
+        addExpenseDialog.modal('hide');
       } catch (err) {
         console.log(err.message);
+        btn.html(btn.data('original-text'));
         alert('Some error has occured!');
-        return;
       }
-
-      addExpenseDialog.modal('hide');
     }
+  },
+  addNotesDisplayHandler: () => {
+    expenseNotesDialog.modal('show');
+  },
+  cancelAddNotesHandler: () => {
+    expenseNotes.val('');
+  },
+  confirmAddNotesHandler: () => {
+    expenseNotesDialog.modal('hide')
   },
 };
 

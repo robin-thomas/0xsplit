@@ -1,7 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+
 const Auth = require('./src/modules/auth.js');
 const Contacts = require('./src/modules/contacts.js');
+const Expenses = require('./src/modules/expenses.js');
+
 const config = require('./config.json');
 
 const app = express();
@@ -100,10 +103,23 @@ app.delete(config.api.deleteContact.path, Auth.validate, async (req, res) => {
 });
 
 app.post(config.api.addExpense.path, Auth.validate, async (req, res) => {
-  res.status(200).send({
-    status: "ok",
-    msg: null
-  });
+  const address = req.body.address;
+  const contactAddress = req.body.contactAddress;
+  const expense = req.body.expense;
+
+  try {
+    await Expenses.addExpense(address, contactAddress, expense);
+
+    res.status(200).send({
+      status: "ok",
+      msg: null
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
 });
 
 app.listen(port, () => console.log(`app listening on ${port}`));

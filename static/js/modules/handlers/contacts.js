@@ -72,7 +72,7 @@ const ContactsHandler = {
         address: Wallet.address
       });
     } catch (err) {
-      btn.html(btn.data('original-text'))
+      btn.html(btn.data('original-text'));
       alert(err.message);
       return;
     }

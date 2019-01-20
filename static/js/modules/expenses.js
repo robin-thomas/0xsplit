@@ -9,7 +9,7 @@ const Expenses = {
     } catch (err) {
       throw err;
     }
-  },
+  }
 };
 
 module.exports = Expenses;

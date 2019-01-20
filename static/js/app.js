@@ -4,7 +4,8 @@ const WalletHandler = require('./modules/handlers/wallet.js');
 
 $(document).ready(() => {
   const confirmAddrButton       = $('#confirm-eth-addr'),
-        confirmNewContactButton = $('#confirm-add-contact');
+        confirmNewContactButton = $('#confirm-add-contact'),
+        confirmNewExpenseButton = $('#confirm-add-expense');
 
   const expenseContacts = $('#expense-contacts'),
         expenseNotes    = $('#expense-notes'),
@@ -37,7 +38,7 @@ $(document).ready(() => {
     expenseSplitDialog.modal('show');
   });
   $('#confirm-expense-split').on('click', ExpensesHandler.expenseSplitConfirmHandler);
-  $('#confirm-add-expense').on('click', ExpensesHandler.confirmNewExpenseHandler);
+  confirmNewExpenseButton.on('click', () => ExpensesHandler.confirmNewExpenseHandler(confirmNewExpenseButton));
 
   $('#datetimepicker1').datetimepicker({
     icons: {
@@ -92,6 +93,6 @@ $(document).ready(() => {
   expenseSplitDialog.find('#contact-owe-percentage-textbox').on('input', ExpensesHandler.expenseSplitPercentageChangeHandler);
   expenseSplitDialog.find('#you-owe-percentage-textbox').on('input', ExpensesHandler.expenseSplitPercentageChangeHandler);
   expenseSplitDialog.on('change', 'input[type=checkbox]', ExpensesHandler.expenseSplitEquallyHandler);
-  $('#cancel-add-notes').on('click', () => expenseNotes.val(''));
-  $('#confirm-add-notes').on('click', () => expenseNotesDialog.modal('hide'));
+  $('#cancel-add-notes').on('click', ExpensesHandler.cancelAddNotesHandler);
+  $('#confirm-add-notes').on('click', ExpensesHandler.confirmAddNotesHandler);
 });

@@ -56,7 +56,7 @@ const Session = {
 
       const json = await ret.json();
       if (json.status !== 'ok') {
-        throw new Error(apiName + ' failed: ' + json.error);
+        throw new Error(apiName + ' failed: ' + json.msg);
       }
       return json.msg;
     } catch (err) {

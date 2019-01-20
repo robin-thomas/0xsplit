@@ -42,7 +42,6 @@ const Contacts = {
       throw err;
     }
   },
-
   addNewContact: async (data) => {
     try {
       const out = await Session.api(config.api.addContact.name, data);
@@ -51,7 +50,6 @@ const Contacts = {
       throw err;
     }
   },
-
   loadContacts: async(address) => {
     try {
       const out = await Session.api(config.api.getAllContacts.name, {address: address});
@@ -60,7 +58,6 @@ const Contacts = {
       throw err;
     }
   },
-
   deleteContact: async(data) => {
     try {
       await Session.api(config.api.deleteContact.name, data);
