@@ -1,5 +1,4 @@
 const ethUtil = require('ethereumjs-util');
-const fetch = require('node-fetch');
 const config = require('../../../config.json');
 const Session = require('./session.js');
 

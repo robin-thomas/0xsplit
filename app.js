@@ -79,4 +79,13 @@ app.delete(config.api.deleteContact.path, Auth.validate, async (req, res) => {
   }
 });
 
+app.post(config.api.addExpense.path, Auth.validate, async (req, res) => {
+  console.log(req.body);
+
+  res.status(200).send({
+    status: "ok",
+    msg: null
+  });
+});
+
 app.listen(port, () => console.log(`app listening on ${port}`));

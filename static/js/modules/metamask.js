@@ -10,11 +10,10 @@ const Metamask = {
 
   loadWeb3: async () => {
     if (window.ethereum) {
-      window.web3 = new Web3New(ethereum);
+      window.web3 = new Web3New(window.ethereum);
 
       try {
         await window.ethereum.enable();
-        console.log('already connected');
 
         return await Metamask.getAddress();
       } catch (err) {

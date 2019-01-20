@@ -1,9 +1,10 @@
 const Wallet = require('./modules/metamask.js');
 const Session = require('./modules/session.js');
 const Contacts = require('./modules/contacts.js');
+const Expenses = require('./modules/expenses.js');
+const Infura = require('./modules/infura.js');
 const config = require('../../config.json');
 
-let token = null;
 let address = null;
 let contactsList = [];
 
@@ -37,8 +38,9 @@ $(document).ready(() => {
   const walletAddreses      = $('#eth-addresses'),
         expenseCurrencies   = $('#expense-supported-currencies'),
         expenseContacts     = $('#expense-contacts'),
-        expenseCalendar     = $('#expense-calendar'),
-        expenseDatepicker   = $('#expense-datepicker'),
+        // expenseCalendar     = $('#expense-calendar'),
+        expensePicture      = $('#expense-picture'),
+        // expenseDatepicker   = $('#expense-datepicker'),
         expenseNotes        = $('#expense-notes'),
         expenseAmount       = $('#expense-amount'),
         expenseDescription  = $('#expense-description'),
@@ -60,10 +62,9 @@ $(document).ready(() => {
         source: names
       });
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
 
-    let options = '<option value="' + address + '">YOU</option>';
     let rows = '';
     for (let i in contacts) {
       const contactName = contacts[i].nickname;
@@ -148,6 +149,7 @@ $(document).ready(() => {
     walletAfterConnect.html(html);
 
     const el = new SimpleBar(walletAfterConnect.find('#wallet-erc20-display')[0]);
+    el.recalculate();
 
     expenseCurrencies.html(options);
   }
@@ -155,7 +157,7 @@ $(document).ready(() => {
     try {
       const addrs = await Wallet.walletButtonClick(e);
       let select = '';
-      for (addr of addrs) {
+      for (const addr of addrs) {
         select += '<option value="' + addr + '">' + addr + '</option>';
       }
       walletAddreses.html(select);
@@ -171,7 +173,7 @@ $(document).ready(() => {
     btn.html(loadingText);
 
     address = walletAddreses.val();
-    network = await Wallet.getNetwork();
+    const network = await Wallet.getNetwork();
     const message = 'Signing this message proves to us you are in control of your account while never storing any sensitive account information.';
 
     try {
@@ -260,14 +262,18 @@ $(document).ready(() => {
       };
       try {
         await window.web3.eth.sendTransaction(rawTransaction);
-      } catch(err) {}
+      } catch(err){
+        alert('Failed to send the transaction!');
+      }
     }
 
     // Load all the contacts
     try {
       const contacts = Contacts.loadContacts(address);
       contactsDisplayHandler(await contacts);
-    } catch (err) {}
+    } catch (err) {
+      console.log('Unable to load the contacts');
+    }
 
     btn.html(btn.data('original-text'));
     addContactDialog.modal('hide');
@@ -403,7 +409,7 @@ $(document).ready(() => {
 
     expenseSplitDialog.modal('hide');
   };
-  const confirmNewExpenseHandler = () => {
+  const confirmNewExpenseHandler = async () => {
     if (expenseContacts.val().trim().length === 0) {
       expenseContacts.css('border-color', 'red').focus();
       return;
@@ -447,9 +453,17 @@ $(document).ready(() => {
       return;
     }
 
+    if (typeof expensePicture.prop('files')[0] !== 'undefined') {
+      const fileSize = expensePicture.prop('files')[0].size;
+      if (fileSize > (2 * 1024 * 1024)) {
+        alert('File size greater than 2 MB!');
+        return;
+      }
+    }
+
     if (confirm('Are you sure you want to add this expense?')) {
       // Create the JSON object of the expense.
-      const expense = {
+      let expense = {
         address: address,
         contactAddress: contactAddress,
         description: expenseDescription.val(),
@@ -462,7 +476,27 @@ $(document).ready(() => {
         timestamp: $('#datetimepicker1').find('input[type="text"]').val(),
         notes: expenseNotes.val(),
       };
+
+      if (typeof expensePicture.prop('files')[0] !== 'undefined') {
+        try {
+          const hash = await Infura.uploadFileToIPFS(expensePicture.prop('files')[0]);
+          expense.img = config.infura.gateway + hash;
+        } catch (err) {
+          console.log(err);
+          alert('Unable to upload the file!');
+          return;
+        }
+      }
       console.log(expense);
+
+      try {
+        await Expenses.addNewExpense(expense);
+      } catch (err) {
+        console.log(err.message);
+        alert('Some error has occured!');
+        return;
+      }
+
       addExpenseDialog.modal('hide');
     }
   };
@@ -506,19 +540,20 @@ $(document).ready(() => {
     format: 'YYYY-MM-DD hh:mm:ss',
   });
 
-  $('.modal').on('show.bs.modal', function(event) {
-    var idx = $('.modal:visible').length;
+  $('.modal').on('show.bs.modal', function() {
+    const idx = $('.modal:visible').length;
     $(this).css('z-index', 1040 + (10 * idx));
   });
-  $('.modal').on('shown.bs.modal', function(event) {
-      var idx = ($('.modal:visible').length) -1; // raise backdrop after animation.
-      $('.modal-backdrop').not('.stacked').css('z-index', 1039 + (10 * idx));
-      $('.modal-backdrop').not('.stacked').addClass('stacked');
+  $('.modal').on('shown.bs.modal', function() {
+    const idx = ($('.modal:visible').length) -1; // raise backdrop after animation.
+    $('.modal-backdrop').not('.stacked').css('z-index', 1039 + (10 * idx));
+    $('.modal-backdrop').not('.stacked').addClass('stacked');
   });
 
   addExpenseDialog.on('shown.bs.modal', () => {
     expenseContacts.focus();
     addExpenseDialog.find('input[type="text"]').val('');
+    addExpenseDialog.find('input[type="file"]').val('');
     expenseNotesDialog.find('input[type="text"]').val('');
     expenseSplitDialog.find('select').prepend('<option value="0" selected></option>');
   });

@@ -45,6 +45,15 @@
         "Content-Type": "application/json",
         "x-access-token": "%token"
       }
+    },
+    "addExpense": {
+      "name": "addExpense",
+      "path": "/expense",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
     }
   },
   "jwt": {
@@ -58,6 +67,14 @@
       "user": "robin",
       "password": "aAbBcCdDeE",
       "database": "oxhacks"
+    }
+  },
+  "infura": {
+    "ipfs": {
+      "host": "ipfs.infura.io",
+      "gateway": "https://ipfs.infura.io/ipfs/",
+      "port": 5001,
+      "protocol": "https"
     }
   }
 }
