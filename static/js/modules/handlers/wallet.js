@@ -104,6 +104,9 @@ const WalletHandler = {
   walletConnectConfirmHandler: async (btn) => {
     const isLoggedIn = Cookies.isLoggedIn();
     if (!isLoggedIn && !btn) {
+      $('#header').fadeIn();
+      $('#content').fadeIn();
+      $('#footer').fadeIn();
       return;
     }
 
@@ -156,6 +159,9 @@ const WalletHandler = {
           Cookies.login(Wallet.address, Session.token);
         } else {
           $('#cookie-login-loading').fadeOut();
+          $('#header').fadeIn();
+          $('#content').fadeIn();
+          $('#footer').fadeIn();
         }
       } else if (!isLoggedIn) {
         btn.html(btn.data('original-text'));
