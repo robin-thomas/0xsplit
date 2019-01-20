@@ -9,6 +9,20 @@ const Expenses = {
     } catch (err) {
       throw err;
     }
+  },
+
+  searchExpenses: async (address, offset) => {
+    offset = offset || 0;
+
+    try {
+      const out = await Session.api(config.api.searchExpenses.name, {
+        address: address,
+        offset: offset,
+      });
+      return out;
+    } catch (err) {
+      throw err;
+    }
   }
 };
 

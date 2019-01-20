@@ -122,4 +122,24 @@ app.post(config.api.addExpense.path, Auth.validate, async (req, res) => {
   }
 });
 
+app.get(config.api.searchExpenses.path, Auth.validate, async (req, res) => {
+  const address = req.query.address;
+  const offset = req.query.offset || 0;
+  const limit = 20;
+
+  try {
+    const expenses = await Expenses.searchExpenses(address, offset, limit);
+
+    res.status(200).send({
+      status: "ok",
+      msg: expenses
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
+});
+
 app.listen(port, () => console.log(`app listening on ${port}`));

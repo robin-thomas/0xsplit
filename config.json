@@ -63,6 +63,15 @@
         "Content-Type": "application/json",
         "x-access-token": "%token"
       }
+    },
+    "searchExpenses": {
+      "name": "searchExpenses",
+      "path": "/expenses/search",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
     }
   },
   "jwt": {
