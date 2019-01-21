@@ -2,6 +2,7 @@ const Cookies = require('../cookies.js');
 const Contacts = require('../contacts.js');
 const ContactsHandler = require('./contacts.js');
 const Expenses = require('../expenses.js');
+const ExpensesHandler = require('./expenses.js');
 const Session = require('../session.js');
 const Wallet = require('../metamask.js');
 
@@ -134,7 +135,7 @@ const WalletHandler = {
         ContactsHandler.contactsList = await Contacts.loadContacts(Wallet.address);
         ContactsHandler.contactsDisplayHandler();
 
-        console.log(await Expenses.searchExpenses(Wallet.address));
+        ExpensesHandler.displayExpenses(await Expenses.searchExpenses(Wallet.address));
 
         const addressDisplay = Wallet.address.substr(0, 5) + '...' + Wallet.address.substr(37);
         walletAddressDisplay.text(addressDisplay);

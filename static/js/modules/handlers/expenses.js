@@ -14,12 +14,15 @@ const expenseAmount       = $('#expense-amount'),
       expenseCurrencies   = $('#expense-supported-currencies'),
       expenseDescription  = $('#expense-description'),
       expenseNotes        = $('#expense-notes'),
-      expensePicture      = $('#expense-picture');
+      expensePicture      = $('#expense-picture'),
+      expenseDisplay      = $('#display-expenses').find('.container-fluid');
 
 const amountContactOwe    = $('#amount-contact-owe'),
       amountYouOwe        = $('#amount-you-owe');
 
 const ExpensesHandlers = {
+  expenseOffset: 0,
+  expenseLimit: 20,
   expenseSplitEquallyHandler: () => {
     // Reset the form.
     expenseSplitDialog.find('.split-third-col').hide();
@@ -248,6 +251,49 @@ const ExpensesHandlers = {
   },
   confirmAddNotesHandler: () => {
     expenseNotesDialog.modal('hide')
+  },
+  displayExpenses: (expenses) => {
+    for (let expense of expenses) {
+      expense = JSON.parse(expense.expense);
+
+      let paid = '';
+      if (expense.address === Wallet.address) {
+        paid = 'You paid ' + expense.token + ' ' + expense.amount.total;
+      } else {
+        paid = expense.contactName + ' paid ' + expense.token + ' ' + expense.amount.total;
+      }
+
+      let owe = '';
+      let owedAmount = '';
+      if (expense.address === Wallet.address) {
+        owe = '<div class="row" style="color:#28a745;">You lent</div>';
+        owedAmount = '<div class="row" style="color:#28a745;">' + expense.token + ' ' + expense.amount.contactOwe + '</div>';
+      } else {
+        owe = '<div class="row" style="color:#dc3545;">You borrowed</div>';
+        owedAmount = '<div class="row" style="color:#dc3545;">' + expense.token + ' ' + expense.amount.youOwe + '</div>';
+      }
+
+      const row = '<div class="row">\
+                    <div class="col-md-1">\
+                      <i class="fas fa-receipt"></i>\
+                    </div>\
+                    <div class="col-md-9">\
+                      <div class="row row-desc">'
+                        + expense.description +
+                      '</div>\
+                      <div class="row row-paid">'
+                        + paid +
+                      '</div>\
+                    </div>\
+                    <div class="col-md-2">'
+                      + owe
+                      + owedAmount +
+                    '</div>\
+                  </div>';
+
+      expenseDisplay.append(row);
+    }
+    ExpensesHandlers.expenseOffset += expenses.length;
   },
 };
 

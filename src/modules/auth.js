@@ -25,7 +25,7 @@ const Auth = {
     } else {
       res.status(400).send({
         status: "not ok",
-        error: "unable to verify the signature"
+        msg: "unable to verify the signature"
       });
     }
   },
@@ -42,13 +42,13 @@ const Auth = {
       } else {
         res.status(400).send({
           status: "not ok",
-          error: "Failed to authenticate token"
+          msg: "Failed to authenticate the token"
         });
       }
     } catch (err) {
       res.status(400).send({
         status: "not ok",
-        error: err.message
+        msg: err.message
       });
     }
   }

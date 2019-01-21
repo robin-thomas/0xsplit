@@ -3,7 +3,7 @@ const Session = require('./session.js');
 const config = require('../../../config.json');
 
 const cookieName = config.app.name;
-const cookieExpiry = 24 * 60 * 60 * 1000; // 24h
+const cookieExpiry = 60 * 60 * 1000; // 1h
 const cookieTerminator = '00000';
 
 const Cookies = {

@@ -213,6 +213,34 @@ body {
   margin-top: -20px;
 }
 
+#display-expenses .container-fluid {
+  width: 60%;
+}
+
+#display-expenses .container-fluid > .row {
+  color: black;
+  border: 1px solid rgba(181,187,202,.1);
+  padding: 10px;
+  background: #1c1e2d;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+#display-expenses .row-desc {
+  font-weight: bold;
+  color: white;
+}
+
+#display-expenses .row-paid {
+  color: grey;
+}
+
+#display-expenses .fa-receipt {
+  font-size: 40px;
+  margin-left: -10px;
+  color: #17a2b8;
+}
+
 .contacts {
   position: absolute;
   width: 350px;
