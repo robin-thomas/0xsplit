@@ -60,18 +60,19 @@ const Expenses = {
   addExpense: async (address, contactAddress, expense) => {
     // Perform the validation.
     // NEVER EVER TRUST THE USER.
+    const jsonExpense = JSON.parse(expense);
     try {
-      validateExpense(JSON.parse(expense));
+      validateExpense(jsonExpense);
     } catch (err) {
       throw err;
     }
 
     // Add the expense.
     const query = {
-      sql: 'INSERT INTO expenses(address, contact_address, expense) \
-            VALUES(?, ?, ?)',
+      sql: 'INSERT INTO expenses(address, contact_address, expense, expense_timestamp) \
+            VALUES(?, ?, ?, ?)',
       timeout: 6 * 1000, // 6s
-      values: [ address, contactAddress, expense ],
+      values: [ address, contactAddress, expense, jsonExpense.timestamp ],
     };
     try {
       await DB.insert(query);
@@ -87,20 +88,11 @@ const Expenses = {
     const query = {
       sql: 'SELECT expense FROM expenses \
             WHERE address = ? OR contact_address = ? \
-            ORDER BY timestamp DESC \
+            ORDER BY expense_timestamp DESC \
             LIMIT ? OFFSET ?',
       timeout: 6 * 1000, // 6s
       values: [address, address, limit, offset],
     };
-
-    // const query = {
-    //   sql: 'SELECT expense FROM expenses \
-    //         WHERE address = ? OR contact_address = ? \
-    //         ORDER BY timestamp DESC ' +
-    //         (offset == '0') ? 'LIMIT ?' : 'LIMIT ?,?',
-    //   timeout: 6 * 1000, // 6s
-    //   values: [address, address] + (offset == '0' ? [limit] : [offset, limit]),
-    // };
 
     try {
       const out = await DB.select(query);

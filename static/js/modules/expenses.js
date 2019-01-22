@@ -11,13 +11,12 @@ const Expenses = {
     }
   },
 
-  searchExpenses: async (address, offset) => {
-    offset = offset || 0;
-
+  searchExpenses: async (address, offset, limit) => {
     try {
       const out = await Session.api(config.api.searchExpenses.name, {
         address: address,
         offset: offset,
+        limit: limit,
       });
       return out;
     } catch (err) {

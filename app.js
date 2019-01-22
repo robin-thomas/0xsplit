@@ -124,8 +124,8 @@ app.post(config.api.addExpense.path, Auth.validate, async (req, res) => {
 
 app.get(config.api.searchExpenses.path, Auth.validate, async (req, res) => {
   const address = req.query.address;
-  const offset = req.query.offset || 0;
-  const limit = 20;
+  const offset = req.query.offset;
+  const limit = req.query.limit;
 
   try {
     const expenses = await Expenses.searchExpenses(address, offset, limit);

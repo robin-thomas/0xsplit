@@ -213,16 +213,23 @@ body {
   margin-top: -20px;
 }
 
-#display-expenses .container-fluid {
-  width: 60%;
+#display-expenses {
+  height: 80%;
+  overflow: hidden;
 }
 
-#display-expenses .container-fluid > .row {
+#display-expenses .container-fluid {
+  width: 60%;
+  overflow: auto;
+}
+
+#display-expenses .row-month,
+#display-expenses .row-actual-expense {
   color: black;
   border: 1px solid rgba(181,187,202,.1);
   padding: 10px;
   background: #1c1e2d;
-  margin-top: 10px;
+  margin-top: 25px;
   cursor: pointer;
 }
 
@@ -230,7 +237,6 @@ body {
   color: #17a2b8 !important;
   font-weight: bold;
   cursor: default !important;
-  margin-left: -50px;
   width: 165px;
   display: flex;
   align-items: center;
@@ -250,6 +256,13 @@ body {
   font-size: 40px;
   margin-left: -10px;
   color: #17a2b8;
+}
+
+#display-expenses .row-expense-loading {
+  font-size: 50px;
+  color: #17a2b8;
+  width: 50px;
+  margin: 25px auto;
 }
 
 .contacts {

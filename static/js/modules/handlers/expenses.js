@@ -20,9 +20,9 @@ const expenseAmount       = $('#expense-amount'),
 const amountContactOwe    = $('#amount-contact-owe'),
       amountYouOwe        = $('#amount-you-owe');
 
-const ExpensesHandlers = {
+const ExpensesHandler = {
   expenseOffset: 0,
-  expenseLimit: 20,
+  expenseLimit: 5,
   expenseSplitEquallyHandler: () => {
     // Reset the form.
     expenseSplitDialog.find('.split-third-col').hide();
@@ -234,6 +234,8 @@ const ExpensesHandlers = {
           expense: JSON.stringify(expense),
         });
 
+        ExpensesHandler.displayExpenses([{expense: JSON.stringify(expense)}]);
+
         btn.html(btn.data('original-text'));
         addExpenseDialog.modal('hide');
       } catch (err) {
@@ -253,10 +255,12 @@ const ExpensesHandlers = {
     expenseNotesDialog.modal('hide')
   },
   displayExpenses: (expenses) => {
+    let el = new SimpleBar(expenseDisplay[0]);
+
     for (const currentExpense of expenses) {
       const expense = JSON.parse(currentExpense.expense);
 
-      let lastExpense = expenseDisplay.find('.row-actual-expense:last-child .expense-json').val();
+      let lastExpense = expenseDisplay.find('.row-actual-expense:last .expense-json').val();
       if (typeof lastExpense !== 'undefined') {
         lastExpense = decodeURIComponent(lastExpense);
       } else {
@@ -271,13 +275,13 @@ const ExpensesHandlers = {
           const rowMonthStr = window.moment(lastExpenseTimestamp).format('MMMM YYYY').toUpperCase();
           const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
 
-          expenseDisplay.append(rowMonth);
+          expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(rowMonth);
         }
       } else {
         const rowMonthStr = window.moment(expense.timestamp).format('MMMM YYYY').toUpperCase();
         const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
 
-        expenseDisplay.append(rowMonth);
+        expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(rowMonth);
       }
 
       let paid = '';
@@ -318,10 +322,20 @@ const ExpensesHandlers = {
                     '</div>\
                   </div>';
 
-      expenseDisplay.append(row);
+      expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(row);
+
+      el.recalculate();
     }
-    ExpensesHandlers.expenseOffset += expenses.length;
+    ExpensesHandler.expenseOffset += expenses.length;
+  },
+  loadNextBatch: async () => {
+    try {
+      const expenses = await Expenses.searchExpenses(Wallet.address, ExpensesHandler.expenseOffset, ExpensesHandler.expenseLimit);
+      ExpensesHandler.displayExpenses(expenses);
+    } catch (err) {
+      throw err;
+    }
   },
 };
 
-module.exports = ExpensesHandlers;
+module.exports = ExpensesHandler;

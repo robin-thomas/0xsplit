@@ -96,6 +96,21 @@ $(document).ready(() => {
   $('#cancel-add-notes').on('click', ExpensesHandler.cancelAddNotesHandler);
   $('#confirm-add-notes').on('click', ExpensesHandler.confirmAddNotesHandler);
 
+  const el = new SimpleBar($('#display-expenses .container-fluid')[0]);
+  el.getScrollElement().addEventListener('scroll', async function() {
+    if ($(this).scrollTop() + $(this).innerHeight() + 25 >= $(this)[0].scrollHeight) {
+      const ele = $('#display-expenses').find('.simplebar-content');
+      if (ele.find('.row-expense-loading').length > 0) {
+        return;
+      }
+      ele.append('<div class="row row-expense-loading"><i class="fas fa-spinner fa-spin"></i></div>');
+      el.recalculate();
+
+      await ExpensesHandler.loadNextBatch();
+      ele.find('.row-expense-loading').remove();
+    }
+  });
+
   // Check if already logged in.
   WalletHandler.walletConnectConfirmHandler();
 });
