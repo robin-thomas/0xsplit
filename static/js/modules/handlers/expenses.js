@@ -253,8 +253,32 @@ const ExpensesHandlers = {
     expenseNotesDialog.modal('hide')
   },
   displayExpenses: (expenses) => {
-    for (let expense of expenses) {
-      expense = JSON.parse(expense.expense);
+    for (const currentExpense of expenses) {
+      const expense = JSON.parse(currentExpense.expense);
+
+      let lastExpense = expenseDisplay.find('.row-actual-expense:last-child .expense-json').val();
+      if (typeof lastExpense !== 'undefined') {
+        lastExpense = decodeURIComponent(lastExpense);
+      } else {
+        lastExpense = null;
+      }
+
+      if (lastExpense) {
+        const lastExpenseTimestamp = new Date(JSON.parse(lastExpense).timestamp);
+
+        const currentExpenseTimestamp = new Date(expense.timestamp);
+        if (lastExpenseTimestamp.getMonth() !== currentExpenseTimestamp.getMonth()) {
+          const rowMonthStr = window.moment(lastExpenseTimestamp).format('MMMM YYYY').toUpperCase();
+          const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
+
+          expenseDisplay.append(rowMonth);
+        }
+      } else {
+        const rowMonthStr = window.moment(expense.timestamp).format('MMMM YYYY').toUpperCase();
+        const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
+
+        expenseDisplay.append(rowMonth);
+      }
 
       let paid = '';
       if (expense.address === Wallet.address) {
@@ -273,9 +297,12 @@ const ExpensesHandlers = {
         owedAmount = '<div class="row" style="color:#dc3545;">' + expense.token + ' ' + expense.amount.youOwe + '</div>';
       }
 
-      const row = '<div class="row">\
+      const escapedJsonStr = encodeURIComponent(currentExpense.expense);
+
+      const row = '<div class="row row-actual-expense">\
                     <div class="col-md-1">\
                       <i class="fas fa-receipt"></i>\
+                      <input type="hidden" class="expense-json" value=\'' + escapedJsonStr + '\' />\
                     </div>\
                     <div class="col-md-9">\
                       <div class="row row-desc">'
