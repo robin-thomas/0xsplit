@@ -98,7 +98,7 @@ $(document).ready(() => {
 
   const el = new SimpleBar($('#display-expenses .container-fluid')[0]);
   el.getScrollElement().addEventListener('scroll', async function() {
-    if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight) {
+    if (Math.abs($(this)[0].scrollHeight - $(this)[0].scrollTop - $(this)[0].clientHeight) <= 3.0) {
       const ele = $('#display-expenses').find('.simplebar-content');
       if (ele.find('.row-expense-loading').length > 0) {
         return;
