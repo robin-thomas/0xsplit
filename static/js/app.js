@@ -9,11 +9,13 @@ $(document).ready(() => {
 
   const expenseContacts = $('#expense-contacts'),
         expenseNotes    = $('#expense-notes'),
-        expenseAmount   = $('#expense-amount');
+        expenseAmount   = $('#expense-amount'),
+        expenseDisplay  = $('#display-expenses');
 
   const addExpenseDialog    = $('#add-expense-dialog'),
         expenseNotesDialog  = $('#add-expense-notes-dialog'),
-        expenseSplitDialog  = $('#expense-split-dialog');
+        expenseSplitDialog  = $('#expense-split-dialog'),
+        expenseEditDialog   = $('#edit-expense-dialog');
 
   $('#wallet-login-button').on('click', async (e) => WalletHandler.walletConnectHandler(e));
   $('#wallet-left-connect').on('click', async (e) => WalletHandler.walletConnectHandler(e));
@@ -72,6 +74,36 @@ $(document).ready(() => {
     expenseNotes.focus();
   });
   expenseSplitDialog.on('shown.bs.modal', ExpensesHandler.expenseSplitEquallyHandler);
+  expenseDisplay.on('click', '.row-actual-expense', (e) => ExpensesHandler.editExpenseDisplayHandler(e.currentTarget));
+  expenseEditDialog.on('change', 'input#expense-picture', function() {
+    expenseEditDialog.find('#expense-pic').html('<i class="fas fa-circle-notch fa-spin"></i>');
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imgHtml = '<img src="' + e.target.result + '" style="width:100%;"/>\
+                      <input type="file" id="expense-picture" hidden />\
+                      <div id="expense-pic-change">\
+                        <div class="input-group-text">\
+                          <label style="margin-bottom:0 !important;">\
+                            <i class="fas fa-camera" title="Add a picture"></i>\
+                          </label>\
+                        </div>\
+                      </div>';
+      expenseEditDialog.find('#expense-pic').html(imgHtml);
+    };
+    reader.readAsDataURL($(this)[0].files[0]);
+  });
+  expenseEditDialog.on('click', '#expense-pic-change', () => {
+    expenseEditDialog.find('#expense-picture').click();
+  });
+  expenseEditDialog.on('click', '#expense-no-pic-change', () => {
+    expenseEditDialog.find('#expense-picture').click();
+  });
+  expenseEditDialog.on('click', '#delete-expense', () => {
+    if (confirm("Are you sure you want to delete this expense?")) {
+
+    }
+  });
 
   expenseContacts.on('input', () => expenseContacts.css('border-color', '#000'));
   expenseSplitDialog.find('select').on('change', function() {
@@ -96,10 +128,10 @@ $(document).ready(() => {
   $('#cancel-add-notes').on('click', ExpensesHandler.cancelAddNotesHandler);
   $('#confirm-add-notes').on('click', ExpensesHandler.confirmAddNotesHandler);
 
-  const el = new SimpleBar($('#display-expenses .container-fluid')[0]);
+  const el = new SimpleBar(expenseDisplay.find('.container-fluid')[0]);
   el.getScrollElement().addEventListener('scroll', async function() {
     if (Math.abs($(this)[0].scrollHeight - $(this)[0].scrollTop - $(this)[0].clientHeight) <= 3.0) {
-      const ele = $('#display-expenses').find('.simplebar-content');
+      const ele = expenseDisplay.find('.simplebar-content');
       if (ele.find('.row-expense-loading').length > 0) {
         return;
       }

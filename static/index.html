@@ -337,6 +337,76 @@
           </div>
         </div>
       </div>
+      <div id="edit-expense-dialog" class="modal fade" role="dialog" aria-hidden="true" data-keyboard="false">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Edit expense</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="input-group">
+                <span class="search-contact-name">With&nbsp;<b>you</b>&nbsp;and:&nbsp;</span>
+                <input type"text" class="form-control autocomplete" id="expense-contacts" placeholder="Enter contact name" />
+              </div><br />
+              <div class="row">
+                <div class="col-md-5">
+                  <div id="expense-pic"></div>
+                </div>
+                <div class="col-md-7">
+                  <div class="form-group">
+                    <input type="text" class="form-control" id="expense-description" placeholder="Enter a description" maxlength="50">
+                  </div>
+                  <div class="form-row">
+                    <div class="col-4">
+                      <select class="form-control" id="expense-supported-currencies"></select>
+                    </div>
+                    <div class="col-8">
+                      <input type="text" class="form-control" id="expense-amount" maxlength="50" placeholder="0.00">
+                    </div>
+                  </div><br />
+                  <div class="form-group">
+                    <textarea class="form-control" rows="3" id="expense-notes" placeholder="Notes"></textarea>
+                  </div>
+                </div>
+              </div><br />
+              <div class="row">
+                <div class="col-md-1">
+                  <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+                    <input type="hidden" class="form-control datetimepicker-input" data-target="#datetimepicker2"/>
+                    <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+                      <div class="input-group-text">
+                        <label style="cursor:pointer;margin-bottom:0 !important;">
+                          <i class="fas fa-calendar-alt" title="Set the time"></i>
+                        </label>
+                      </div>
+                    </div>
+                    <input type="text" id="expense-datepicker" style="visibility:hidden">
+                  </div>
+                </div>
+                <div class="col-md-auto">
+                  <div class="input-group">
+                    <div class="input-group-text">
+                      <label id="expense-bill-split" style="cursor:pointer;margin-bottom:0 !important;">
+                        <span style="float:right">How was this bill split?</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" id="delete-expense" title="Delete this expense" style="position:absolute;left:15px;">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+              <button type="button" class="btn btn-primary" id="confirm-update-expense">Update Expense</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="wallet-left" id="wallet-before-connect">
         <div class="container-fluid">
           <div class="row row-header"></div>

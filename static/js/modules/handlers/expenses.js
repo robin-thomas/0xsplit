@@ -7,7 +7,8 @@ const config = require('../../../../config.json');
 
 const addExpenseDialog    = $('#add-expense-dialog'),
       expenseNotesDialog  = $('#add-expense-notes-dialog'),
-      expenseSplitDialog  = $('#expense-split-dialog');
+      expenseSplitDialog  = $('#expense-split-dialog'),
+      expenseEditDialog   = $('#edit-expense-dialog');
 
 const expenseAmount       = $('#expense-amount'),
       expenseContacts     = $('#expense-contacts'),
@@ -20,7 +21,77 @@ const expenseAmount       = $('#expense-amount'),
 const amountContactOwe    = $('#amount-contact-owe'),
       amountYouOwe        = $('#amount-you-owe');
 
+const displayCurrentExpense = (expense, dialogEle) => {
+  if (typeof expense.img !== 'undefined') {
+    dialogEle.find('#expense-pic').html('<i class="fas fa-circle-notch fa-spin"></i>');
+
+    const img = new Image();
+    img.onload = () => {
+      const imgHtml = '<img src="' + expense.img + '" style="width:100%;"/>\
+                      <input type="file" id="expense-picture" hidden />\
+                      <div id="expense-pic-change">\
+                        <div class="input-group-text">\
+                          <label style="margin-bottom:0 !important;">\
+                            <i class="fas fa-camera" title="Add a picture"></i>\
+                          </label>\
+                        </div>\
+                      </div>';
+      dialogEle.find('#expense-pic').html(imgHtml);
+    };
+    img.src = expense.img;
+  } else {
+    // reset.
+    const imgHtml = '<input type="file" id="expense-picture" hidden />\
+                    <div id="expense-no-pic-change">\
+                      <div class="input-group-text">\
+                        <label style="margin-bottom:0 !important;">\
+                          <i class="fas fa-camera" title="Add a picture"></i>\
+                        </label>\
+                      </div>\
+                    </div>';
+    dialogEle.find('#expense-pic').html(imgHtml);
+  }
+
+  console.log(expense);
+
+  const names = ContactsHandler.contactsList.filter(e => e.hasOwnProperty('nickname')).map(e => e.nickname);
+  try {
+    dialogEle.find('#expense-contacts').autocomplete({
+      source: names
+    });
+  } catch (err) {}
+  dialogEle.find('#expense-contacts').val(expense.contactName);
+
+  dialogEle.find('#datetimepicker2').datetimepicker({
+    icons: {
+      time: 'far fa-clock',
+      date: 'far fa-calendar',
+      today: 'far fa-calendar-check-o',
+      clear: 'far fa-trash',
+      close: 'far fa-times'
+    },
+    format: 'YYYY-MM-DD hh:mm:ss',
+    defaultDate: expense.timestamp,
+  });
+
+  dialogEle.find('#expense-description').val(expense.description);
+
+  let options = '';
+  for (let i in ExpensesHandler.tokensList) {
+    const token = ExpensesHandler.tokensList[i].token;
+    options += '<option value="' + token + '">' + token + '</option>';
+  }
+  dialogEle.find('#expense-supported-currencies').html(options);
+  dialogEle.find('#expense-supported-currencies').val(expense.token);
+
+  dialogEle.find('#expense-amount').val(expense.amount.total);
+  dialogEle.find('#expense-notes').val(expense.notes);
+
+  dialogEle.modal('show');
+};
+
 const ExpensesHandler = {
+  tokensList: [],
   expenseOffset: 0,
   expenseLimit: 5,
   expenseSplitEquallyHandler: () => {
@@ -152,6 +223,7 @@ const ExpensesHandler = {
       return;
     }
     const contactAddress = ContactsHandler.contactsList.filter(e => e.nickname === expenseContacts.val()).map(e => e.address)[0];
+    const contactName = expenseContacts.val();
 
     if (expenseDescription.val().trim().length === 0) {
       expenseDescription.focus();
@@ -198,6 +270,7 @@ const ExpensesHandler = {
       let expense = {
         address: Wallet.address,
         contactAddress: contactAddress,
+        contactName: contactName,
         description: expenseDescription.val(),
         token: expenseCurrencies.val(),
         amount: {
@@ -335,6 +408,13 @@ const ExpensesHandler = {
     } catch (err) {
       throw err;
     }
+  },
+  editExpenseDisplayHandler: (ele) => {
+    let expense = $(ele).find('.expense-json').val();
+    expense = decodeURIComponent(expense);
+    expense = JSON.parse(expense);
+
+    displayCurrentExpense(expense, expenseEditDialog);
   },
 };
 

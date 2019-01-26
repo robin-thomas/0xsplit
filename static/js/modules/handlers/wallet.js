@@ -22,14 +22,14 @@ const expenseNotesDialog  = $('#add-expense-notes-dialog'),
       walletConnectDialog = $('#wallet-connect-dialog');
 
 const WalletHandler = {
-  walletDisplayHandler: (tokens) => {
+  walletDisplayHandler: () => {
     let options = '';
     let rows = '';
-    for (let i in tokens) {
-      const tokenName = tokens[i].token;
-      const tokenBalance = tokens[i].balance;
-      const logo = tokens[i].logo !== "" ?
-                      '<img width="28" height="28" src="' + tokens[i].logo + '" />' :
+    for (let i in ExpensesHandler.tokensList) {
+      const tokenName = ExpensesHandler.tokensList[i].token;
+      const tokenBalance = ExpensesHandler.tokensList[i].balance;
+      const logo = ExpensesHandler.tokensList[i].logo !== "" ?
+                      '<img width="28" height="28" src="' + ExpensesHandler.tokensList[i].logo + '" />' :
                       '<svg width="28" height="28">\
                         <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
                       </svg>';
@@ -128,8 +128,8 @@ const WalletHandler = {
           $('#cookie-login-loading').fadeIn();
         }
 
-        const tokens = Wallet.getWalletBalance(Wallet.address, await network);
-        WalletHandler.walletDisplayHandler(await tokens);
+        ExpensesHandler.tokensList = await Wallet.getWalletBalance(Wallet.address, await network);
+        WalletHandler.walletDisplayHandler();
 
         ContactsHandler.contactsList = await Contacts.loadContacts(Wallet.address);
         ContactsHandler.contactsDisplayHandler();
@@ -156,7 +156,7 @@ const WalletHandler = {
         expensesAfterConnect.fadeIn();
 
         if (!isLoggedIn) {
-          Cookies.login(Wallet.address, Session.token);
+          Cookies.login(Wallet.address, Session.token, Session.expiresIn);
         } else {
           $('#cookie-login-loading').fadeOut();
           $('#header').fadeIn();
