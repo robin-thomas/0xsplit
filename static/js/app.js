@@ -211,6 +211,11 @@ $(document).ready(() => {
     expenseSplitDialog.find('#amount-you-owe').html('');
   });
 
+  $('#search-expenses').on('input', async function() {
+    const keyword = $(this).val();
+    await ExpensesHandler.searchExpenseHandler(keyword);
+  });
+
   const el = new SimpleBar(expenseDisplay.find('.container-fluid')[0]);
   el.getScrollElement().addEventListener('scroll', async function() {
     if (Math.abs($(this)[0].scrollHeight - $(this)[0].scrollTop - $(this)[0].clientHeight) <= 3.0) {

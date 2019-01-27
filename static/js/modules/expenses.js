@@ -24,6 +24,18 @@ const Expenses = {
     }
   },
 
+  searchExpensesWithKeyword: async (address, keyword) => {
+    try {
+      const out = await Session.api(config.api.searchExpensesWithKeyword.name, {
+        address: address,
+        keyword: keyword,
+      });
+      return out;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   deleteExpense: async (address, id) => {
     try {
       const out = await Session.api(config.api.deleteExpense.name, {

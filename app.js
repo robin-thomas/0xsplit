@@ -142,6 +142,25 @@ app.get(config.api.searchExpenses.path, Auth.validate, async (req, res) => {
   }
 });
 
+app.get(config.api.searchExpensesWithKeyword.path, Auth.validate, async (req, res) => {
+  const address = req.query.address;
+  const keyword = req.query.keyword;
+
+  try {
+    const expenses = await Expenses.searchExpensesWithKeyword(address, keyword);
+
+    res.status(200).send({
+      status: "ok",
+      msg: expenses
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
+});
+
 app.delete(config.api.deleteExpense.path, Auth.validate, async (req, res) => {
   const expenseId = req.body.id;
 

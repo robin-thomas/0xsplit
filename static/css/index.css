@@ -173,6 +173,13 @@ body {
   display: none;
 }
 
+#search-expenses {
+  border-radius: 0;
+  background: #1c1e2d;
+  border: 1px solid rgba(181,187,202,.1);
+  box-shadow: none;
+}
+
 #add-new-expense {
   color:#dc3545;
   font-size:3em;
@@ -306,6 +313,11 @@ body {
   align-items: center;
   justify-content: center;
   z-index:99;
+}
+
+.row-expense-deleted {
+  border-color: #bd2130 !important;
+  opacity: 0.5 !important;
 }
 
 .contacts {

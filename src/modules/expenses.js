@@ -128,7 +128,26 @@ const Expenses = {
     } catch (err) {
       throw err;
     }
-  }
+  },
+
+  searchExpensesWithKeyword: async (address, keyword) => {
+    const query = {
+      sql: 'SELECT id,expense,deleted FROM expenses \
+            WHERE contact_address IN \
+            (SELECT contact_address FROM contacts WHERE address = ? AND contact_nickname LIKE ?) \
+            ORDER BY expense_timestamp DESC',
+      timeout: 6 * 1000, // 6s
+      values: [address, keyword + '%'],
+    };
+
+    try {
+      const out = await DB.select(query);
+      return out;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
 }
 
 module.exports = Expenses;

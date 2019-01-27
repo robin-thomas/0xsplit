@@ -223,6 +223,7 @@ const ExpensesHandler = {
   tokensList: [],
   expenseOffset: 0,
   expenseLimit: 5,
+  expenseSearching: false,
   expenseSplitEquallyHandler: (dialogEle, expense) => {
     expense = expense || null;
     console.log(expense);
@@ -291,6 +292,19 @@ const ExpensesHandler = {
     amountContactOwe.html(amountContact);
     amountYouOwe.html(amountYou);
     expenseSplitDialog.find('#amount-now').html(amountNow);
+
+    // Deleted expense.
+    if (expense && expense.deleted) {
+      expenseSplitDialog.find('input').prop('disabled', true);
+      expenseSplitDialog.find('select').attr('disabled', true);
+      expenseSplitDialog.find('textarea').attr('disabled', true);
+      expenseSplitDialog.find('#confirm-expense-split').hide();
+    } else {
+      expenseSplitDialog.find('input').prop('disabled', false);
+      expenseSplitDialog.find('select').attr('disabled', false);
+      expenseSplitDialog.find('textarea').attr('disabled', false);
+      expenseSplitDialog.find('#confirm-expense-split').show();
+    }
   },
   expenseSplitUnequallyHandler: (dialog, expense) => {
     expense = expense || null;
@@ -319,6 +333,19 @@ const ExpensesHandler = {
       amountContactOwe.html('0.00');
       amountYouOwe.html('0.00');
       expenseSplitDialog.find('#amount-now').html('0.00');
+    }
+
+    // Deleted expense.
+    if (expense && expense.deleted) {
+      expenseSplitDialog.find('input').prop('readonly', true);
+      expenseSplitDialog.find('select').attr('disabled', true);
+      expenseSplitDialog.find('textarea').attr('disabled', true);
+      expenseSplitDialog.find('#confirm-expense-split').hide();
+    } else {
+      expenseSplitDialog.find('input').prop('readonly', false);
+      expenseSplitDialog.find('select').attr('disabled', false);
+      expenseSplitDialog.find('textarea').attr('disabled', false);
+      expenseSplitDialog.find('#confirm-expense-split').show();
     }
   },
   expenseSplitUnequallyChangeHandler: () => {
@@ -375,6 +402,19 @@ const ExpensesHandler = {
       amountContactOwe.html('0');
       amountYouOwe.html('0');
       expenseSplitDialog.find('#amount-now').html('0');
+    }
+
+    // Deleted expense.
+    if (expense && expense.deleted) {
+      expenseSplitDialog.find('input').prop('disabled', true);
+      expenseSplitDialog.find('select').attr('disabled', true);
+      expenseSplitDialog.find('textarea').attr('disabled', true);
+      expenseSplitDialog.find('#confirm-expense-split').hide();
+    } else {
+      expenseSplitDialog.find('input').prop('disabled', false);
+      expenseSplitDialog.find('select').attr('disabled', false);
+      expenseSplitDialog.find('textarea').attr('disabled', false);
+      expenseSplitDialog.find('#confirm-expense-split').show();
     }
   },
   expenseSplitPercentageChangeHandler: () => {
@@ -553,7 +593,9 @@ const ExpensesHandler = {
 
       const escapedJsonStr = encodeURIComponent(JSON.stringify(expense));
 
-      const row = '<div class="row row-actual-expense">\
+      const deletedClass = expense.deleted ? 'row-expense-deleted' : '';
+
+      const row = '<div class="row row-actual-expense ' + deletedClass + '">\
                     <div class="col-md-1">\
                       <i class="fas fa-receipt"></i>\
                       <input type="hidden" class="expense-json" value=\'' + escapedJsonStr + '\' />\
@@ -601,6 +643,9 @@ const ExpensesHandler = {
       try {
         await Expenses.deleteExpense(Wallet.address, expense.id);
         expenseEditDialog.modal('hide');
+
+        // Set it back to the row.
+        expense.deleted = true;
       } catch (err) {
         alert('Unable to delete this expense');
       }
@@ -647,7 +692,32 @@ const ExpensesHandler = {
         }
       }
     }
-  }
+  },
+  searchExpenseHandler: async (keyword) => {
+    if (!ExpensesHandler.expenseSearching) {
+      ExpensesHandler.expenseSearching = true;
+
+      $('#display-expenses .simplebar-content').html('');
+
+      // Search for expenses.
+      try {
+        let expenses = [];
+        if (keyword.trim().length === 0) {
+          ExpensesHandler.expenseOffset = 0;
+          await ExpensesHandler.loadNextBatch();
+        } else {
+          expenses = await Expenses.searchExpensesWithKeyword(Wallet.address, keyword);
+          ExpensesHandler.displayExpenses(expenses);
+        }
+
+      } catch (err) {
+        console.log(err);
+        ExpensesHandler.expenseSearching = false;
+      }
+
+      ExpensesHandler.expenseSearching = false;
+    }
+  },
 };
 
 module.exports = ExpensesHandler;

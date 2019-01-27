@@ -90,6 +90,15 @@
         "Content-Type": "application/json",
         "x-access-token": "%token"
       }
+    },
+    "searchExpensesWithKeyword": {
+      "name": "searchExpensesWithKeyword",
+      "path": "/expenses/searchWithKeyword",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
     }
   },
   "jwt": {
