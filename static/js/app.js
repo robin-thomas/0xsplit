@@ -4,16 +4,12 @@ const WalletHandler = require('./modules/handlers/wallet.js');
 
 $(document).ready(() => {
   const confirmAddrButton       = $('#confirm-eth-addr'),
-        confirmNewContactButton = $('#confirm-add-contact'),
-        confirmNewExpenseButton = $('#confirm-add-expense');
+        confirmNewContactButton = $('#confirm-add-contact');
 
   const expenseContacts = $('#expense-contacts'),
-        expenseNotes    = $('#expense-notes'),
-        expenseAmount   = $('#expense-amount'),
         expenseDisplay  = $('#display-expenses');
 
-  const addExpenseDialog    = $('#add-expense-dialog'),
-        expenseNotesDialog  = $('#add-expense-notes-dialog'),
+  const expenseAddDialog    = $('#add-expense-dialog'),
         expenseSplitDialog  = $('#expense-split-dialog'),
         expenseEditDialog   = $('#edit-expense-dialog');
 
@@ -28,8 +24,10 @@ $(document).ready(() => {
   $('#add-new-expense').on('click', ExpensesHandler.addNewExpenseHandler);
   $('#contacts-after-connect').on('click', '.fa-times-circle', (e) => ContactsHandler.deleteContactHandler(e.target));
 
-  $('#expense-add-notes').on('click', ExpensesHandler.addNotesDisplayHandler);
-  $('#expense-bill-split').on('click', () => {
+  expenseAddDialog.find('#expense-bill-split').on('click', () => {
+    expenseSplitDialog.find('#split-option').val('add');
+
+    const expenseAmount = expenseEditDialog.find('#expense-amount');
     const amount = expenseAmount.val();
     if (amount != '') {
       if (isNaN(amount) || !/^([1-9]\d*|0)?(\.\d+)?$/.test(amount)) {
@@ -37,10 +35,43 @@ $(document).ready(() => {
         return;
       }
     }
+
+    ExpensesHandler.expenseSplitEquallyHandler(expenseAddDialog);
+
+    expenseSplitDialog.modal('show');
+  });
+  expenseEditDialog.find('#expense-bill-split').on('click', () => {
+    expenseSplitDialog.find('#split-option').val('edit');
+
+    const expenseAmount = expenseEditDialog.find('#expense-amount');
+    const amount = expenseAmount.val();
+    if (amount != '') {
+      if (isNaN(amount) || !/^([1-9]\d*|0)?(\.\d+)?$/.test(amount)) {
+        expenseAmount.focus();
+        return;
+      }
+    }
+
+    let expense = expenseEditDialog.find('.expense-json').val();
+    expense = decodeURIComponent(expense);
+    expense = JSON.parse(expense);
+
+    switch (expense.split.option) {
+      case '1':
+        ExpensesHandler.expenseSplitEquallyHandler(expenseEditDialog, expense);
+        break;
+      case '2':
+        ExpensesHandler.expenseSplitUnequallyHandler(expenseEditDialog, expense);
+        break;
+      case '3':
+        ExpensesHandler.expenseSplitPercentageHandler(expenseEditDialog, expense);
+        break;
+    }
+
     expenseSplitDialog.modal('show');
   });
   $('#confirm-expense-split').on('click', ExpensesHandler.expenseSplitConfirmHandler);
-  confirmNewExpenseButton.on('click', () => ExpensesHandler.confirmNewExpenseHandler(confirmNewExpenseButton));
+  $('#confirm-add-expense').on('click', ExpensesHandler.confirmNewExpenseHandler);
 
   $('#datetimepicker1').datetimepicker({
     icons: {
@@ -63,18 +94,37 @@ $(document).ready(() => {
     $('.modal-backdrop').not('.stacked').addClass('stacked');
   });
 
-  addExpenseDialog.on('shown.bs.modal', () => {
+  expenseAddDialog.on('shown.bs.modal', () => {
     expenseContacts.focus();
-    addExpenseDialog.find('input[type="text"]').val('');
-    addExpenseDialog.find('input[type="file"]').val('');
-    expenseNotesDialog.find('input[type="text"]').val('');
-    expenseSplitDialog.find('select').prepend('<option value="0" selected></option>');
+    expenseAddDialog.find('input[type="text"]').val('');
+    expenseAddDialog.find('input[type="file"]').val('');
+    expenseAddDialog.find('textarea').val('');
   });
-  expenseNotesDialog.on('shown.bs.modal', () => {
-    expenseNotes.focus();
-  });
-  expenseSplitDialog.on('shown.bs.modal', ExpensesHandler.expenseSplitEquallyHandler);
+  // expenseSplitDialog.on('shown.bs.modal', ExpensesHandler.expenseSplitEquallyHandler);
   expenseDisplay.on('click', '.row-actual-expense', (e) => ExpensesHandler.editExpenseDisplayHandler(e.currentTarget));
+  expenseAddDialog.on('change', 'input#expense-picture', function() {
+    expenseAddDialog.find('#expense-pic').html('<i class="fas fa-circle-notch fa-spin"></i>');
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imgHtml = '<img src="' + e.target.result + '" style="width:100%;"/>\
+                      <div id="expense-pic-change">\
+                        <div class="input-group-text">\
+                          <label style="margin-bottom:0 !important;">\
+                            <i class="fas fa-camera" title="Add a picture"></i>\
+                          </label>\
+                        </div>\
+                      </div>';
+      expenseAddDialog.find('#expense-pic').html(imgHtml);
+    };
+    reader.readAsDataURL($(this)[0].files[0]);
+  });
+  expenseAddDialog.on('click', '#expense-pic-change', () => {
+    expenseAddDialog.find('#expense-picture').click();
+  });
+  expenseAddDialog.on('click', '#expense-no-pic-change', () => {
+    expenseAddDialog.find('#expense-picture').click();
+  });
   expenseEditDialog.on('change', 'input#expense-picture', function() {
     expenseEditDialog.find('#expense-pic').html('<i class="fas fa-circle-notch fa-spin"></i>');
 
@@ -99,24 +149,34 @@ $(document).ready(() => {
   expenseEditDialog.on('click', '#expense-no-pic-change', () => {
     expenseEditDialog.find('#expense-picture').click();
   });
-  expenseEditDialog.on('click', '#delete-expense', () => {
-    if (confirm("Are you sure you want to delete this expense?")) {
-
-    }
-  });
+  expenseEditDialog.on('click', '#delete-expense', ExpensesHandler.deleteExpenseHandler);
+  expenseEditDialog.on('click', '#confirm-update-expense', ExpensesHandler.confirmUpdateExpenseHandler);
 
   expenseContacts.on('input', () => expenseContacts.css('border-color', '#000'));
   expenseSplitDialog.find('select').on('change', function() {
+    let dialog = null;
+    let expense = null;
+    const split = expenseSplitDialog.find('#split-option').val();
+    if (typeof split === 'undefined' || split === 'add') {
+      dialog = expenseAddDialog;
+    } else {
+      dialog = expenseEditDialog;
+
+      expense = expenseEditDialog.find('.expense-json').val();
+      expense = decodeURIComponent(expense);
+      expense = JSON.parse(expense);
+    }
+
     const val = $(this).val();
     switch (val) {
       case '1':
-        ExpensesHandler.expenseSplitEquallyHandler();
+        ExpensesHandler.expenseSplitEquallyHandler(dialog, expense);
         break;
       case '2':
-        ExpensesHandler.expenseSplitUnequallyHandler();
+        ExpensesHandler.expenseSplitUnequallyHandler(dialog, expense);
         break;
       case '3':
-        ExpensesHandler.expenseSplitPercentageHandler();
+        ExpensesHandler.expenseSplitPercentageHandler(dialog, expense);
         break;
     }
   });
@@ -124,9 +184,32 @@ $(document).ready(() => {
   expenseSplitDialog.find('#you-owe-textbox').on('input', ExpensesHandler.expenseSplitUnequallyChangeHandler);
   expenseSplitDialog.find('#contact-owe-percentage-textbox').on('input', ExpensesHandler.expenseSplitPercentageChangeHandler);
   expenseSplitDialog.find('#you-owe-percentage-textbox').on('input', ExpensesHandler.expenseSplitPercentageChangeHandler);
-  expenseSplitDialog.on('change', 'input[type=checkbox]', ExpensesHandler.expenseSplitEquallyHandler);
-  $('#cancel-add-notes').on('click', ExpensesHandler.cancelAddNotesHandler);
-  $('#confirm-add-notes').on('click', ExpensesHandler.confirmAddNotesHandler);
+  expenseSplitDialog.on('change', 'input[type="checkbox"]', () => {
+    let dialog = null;
+    let expense = null;
+    const split = expenseSplitDialog.find('#split-option').val();
+    if (typeof split === 'undefined' || split === 'add') {
+      dialog = expenseAddDialog;
+    } else {
+      dialog = expenseEditDialog;
+
+      expense = expenseEditDialog.find('.expense-json').val();
+      expense = decodeURIComponent(expense);
+      expense = JSON.parse(expense);
+
+      // reset.
+      expense.amount.youOwe = '';
+      expense.amount.contactOwe = '';
+      expense.split.contact = '';
+      expense.split.you = '';
+    }
+
+    ExpensesHandler.expenseSplitEquallyHandler(dialog, expense);
+  });
+  expenseSplitDialog.find('#cancel-expense').on('click', () => {
+    expenseSplitDialog.find('#amount-contact-owe').html('');
+    expenseSplitDialog.find('#amount-you-owe').html('');
+  });
 
   const el = new SimpleBar(expenseDisplay.find('.container-fluid')[0]);
   el.getScrollElement().addEventListener('scroll', async function() {

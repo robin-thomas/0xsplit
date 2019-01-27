@@ -86,7 +86,7 @@ const Expenses = {
     limit = parseInt(limit);
 
     const query = {
-      sql: 'SELECT expense FROM expenses \
+      sql: 'SELECT id,expense,deleted FROM expenses \
             WHERE address = ? OR contact_address = ? \
             ORDER BY expense_timestamp DESC \
             LIMIT ? OFFSET ?',
@@ -101,6 +101,34 @@ const Expenses = {
       throw err;
     }
   },
+
+  deleteExpense: async (expenseId) => {
+    const query = {
+      sql: 'UPDATE expenses SET deleted = true WHERE id = ?',
+      timeout: 6 * 1000, // 6s
+      values: [expenseId],
+    };
+
+    try {
+      await DB.select(query);
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  updateExpense: async (expenseId, expense) => {
+    const query = {
+      sql: 'UPDATE expenses SET expense = ? WHERE id = ?',
+      timeout: 6 * 1000, // 6s
+      values: [expenseId, expense],
+    };
+
+    try {
+      await DB.select(query);
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 module.exports = Expenses;

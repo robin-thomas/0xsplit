@@ -22,6 +22,27 @@ const Expenses = {
     } catch (err) {
       throw err;
     }
+  },
+
+  deleteExpense: async (address, id) => {
+    try {
+      const out = await Session.api(config.api.deleteExpense.name, {
+        address: address,
+        id: id,
+      });
+      return out;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  updateExpense: async (data) => {
+    try {
+      const out = await Session.api(config.api.deleteExpense.name, data);
+      return out;
+    } catch (err) {
+      throw err;
+    }
   }
 };
 

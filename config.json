@@ -72,11 +72,30 @@
         "Content-Type": "application/json",
         "x-access-token": "%token"
       }
+    },
+    "deleteExpense": {
+      "name": "deleteExpense",
+      "path": "/expenses/",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
+    },
+    "updateExpense": {
+      "name": "updateExpense",
+      "path": "/expenses/",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-access-token": "%token"
+      }
     }
   },
   "jwt": {
     "secret": "hello",
-    "expiresIn": "1h"
+    "expiresIn": "1h",
+    "expiresInHours": "1"
   },
   "aws": {
     "mysql": {
