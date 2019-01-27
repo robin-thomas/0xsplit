@@ -213,7 +213,14 @@ $(document).ready(() => {
 
   $('#search-expenses').on('input', async function() {
     const keyword = $(this).val();
-    await ExpensesHandler.searchExpenseHandler(keyword);
+    const includeDeleted = $('#search-expense-deleted').is(':checked') ? false : true;
+    await ExpensesHandler.searchExpenseHandler(keyword, includeDeleted);
+  });
+
+  $('#search-expense-deleted').on('change', async function() {
+    const keyword = $('#search-expenses').val();
+    const includeDeleted = $('#search-expense-deleted').is(':checked') ? false : true;
+    await ExpensesHandler.searchExpenseHandler(keyword, includeDeleted);
   });
 
   const el = new SimpleBar(expenseDisplay.find('.container-fluid')[0]);
@@ -229,6 +236,10 @@ $(document).ready(() => {
       await ExpensesHandler.loadNextBatch();
       ele.find('.row-expense-loading').remove();
     }
+  });
+
+  $('#search-expenses-arrow').on('click', () => {
+    $('#search-expenses-advanced').toggle();
   });
 
   // Check if already logged in.

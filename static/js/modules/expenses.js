@@ -24,11 +24,12 @@ const Expenses = {
     }
   },
 
-  searchExpensesWithKeyword: async (address, keyword) => {
+  searchExpensesWithKeyword: async (address, keyword, includeDeleted) => {
     try {
       const out = await Session.api(config.api.searchExpensesWithKeyword.name, {
         address: address,
         keyword: keyword,
+        includeDeleted: includeDeleted,
       });
       return out;
     } catch (err) {

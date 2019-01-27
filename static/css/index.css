@@ -180,6 +180,26 @@ body {
   box-shadow: none;
 }
 
+#search-expenses-advanced {
+  position:absolute;
+  background: #1c1e2d;
+  left:0;
+  right:0;
+  margin:5px 15px;
+  border: 1px solid rgba(181,187,202,.1);
+  padding: 1.5rem;
+  font-size: 15px;
+  display: none;
+}
+
+#search-expenses-arrow {
+  position: absolute;
+  right: 20px;
+  top: 8px;
+  font-size: 20px;
+  cursor:pointer;
+}
+
 #add-new-expense {
   color:#dc3545;
   font-size:3em;

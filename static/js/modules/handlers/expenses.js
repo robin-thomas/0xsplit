@@ -550,6 +550,10 @@ const ExpensesHandler = {
       expense.id = currentExpense.id;
       expense.deleted = currentExpense.deleted;
 
+      if (expense.deleted && $('#search-expense-deleted').is(':checked')) {
+        continue;
+      }
+
       let lastExpense = expenseDisplay.find('.row-actual-expense:last .expense-json').val();
       if (typeof lastExpense !== 'undefined') {
         lastExpense = decodeURIComponent(lastExpense);
@@ -693,7 +697,7 @@ const ExpensesHandler = {
       }
     }
   },
-  searchExpenseHandler: async (keyword) => {
+  searchExpenseHandler: async (keyword, includeDeleted) => {
     if (!ExpensesHandler.expenseSearching) {
       ExpensesHandler.expenseSearching = true;
 
@@ -706,7 +710,7 @@ const ExpensesHandler = {
           ExpensesHandler.expenseOffset = 0;
           await ExpensesHandler.loadNextBatch();
         } else {
-          expenses = await Expenses.searchExpensesWithKeyword(Wallet.address, keyword);
+          expenses = await Expenses.searchExpensesWithKeyword(Wallet.address, keyword, includeDeleted);
           ExpensesHandler.displayExpenses(expenses);
         }
 

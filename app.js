@@ -145,9 +145,10 @@ app.get(config.api.searchExpenses.path, Auth.validate, async (req, res) => {
 app.get(config.api.searchExpensesWithKeyword.path, Auth.validate, async (req, res) => {
   const address = req.query.address;
   const keyword = req.query.keyword;
+  const includeDeleted = req.query.includeDeleted;
 
   try {
-    const expenses = await Expenses.searchExpensesWithKeyword(address, keyword);
+    const expenses = await Expenses.searchExpensesWithKeyword(address, keyword, includeDeleted);
 
     res.status(200).send({
       status: "ok",
