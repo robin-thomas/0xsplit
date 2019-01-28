@@ -24,18 +24,31 @@ const ContactsHandler = {
 
     let rows = '';
     for (let i in ContactsHandler.contactsList) {
-      const contactName = ContactsHandler.contactsList[i].nickname;
-      const contactAddress = ContactsHandler.contactsList[i].address;
+      const contact = ContactsHandler.contactsList[i];
+
+      let settle = '';
+      if (typeof contact.settle) {
+        let settleJson = contact.settle;
+        settleJson = JSON.stringify(settleJson);
+        settleJson = encodeURIComponent(settleJson);
+
+        settle = '<div class="settle-up-with-contact">Settle Up\
+                    <input type="hidden" class="settle-up-json" value="' + settleJson + '" />\
+                  </div>';
+      }
+
+      const contactName = contact.nickname.split(' ')[0];
       const row = '<div class="row">\
                     <div class="col-md-3">\
                       <i class="fas fa-user-circle" style="font-size:3em;color:#17a2b8;"></i>\
                     </div>\
-                    <div class="col-md-6" style="text-align:left;padding-left:0 !important">'
+                    <div class="col-md-4" style="text-align:left;padding-left:0 !important">'
                      + contactName +
                     '</div>\
+                    <div class="col-md-3">' + settle + '</div>\
                     <div class="col-md-2">\
                       <input type="hidden" class="contact-name" value="' + contactName + '" />\
-                      <input type="hidden" class="contact-address" value="' + contactAddress + '" />\
+                      <input type="hidden" class="contact-address" value="' + contact.address + '" />\
                       <i class="fas fa-times-circle" style="cursor:pointer;color:#17a2b8;" title="Delete contact"></i>\
                     </div>\
                   </div>';

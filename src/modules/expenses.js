@@ -158,6 +158,71 @@ const Expenses = {
       throw err;
     }
   },
+
+  getOweAmount: async (address, contactAddress) => {
+    let results = {};
+
+    let youAreOwed = null;
+    let youOwe = null;
+
+    // Get all expenses for which you are owed.
+    let query = {
+      sql: 'SELECT expense FROM expenses WHERE \
+            address = ? AND contact_address = ? AND deleted = false',
+      timeout: 6 * 1000, // 6s
+      values: [ address, contactAddress ],
+    };
+    try {
+      youAreOwed = await DB.insert(query);
+    } catch (err) {
+      throw err;
+    }
+
+    // Get all expenses for which you owe.
+    let query = {
+      sql: 'SELECT expense FROM expenses WHERE \
+            address = ? AND contact_address = ? AND deleted = false',
+      timeout: 6 * 1000, // 6s
+      values: [ contactAddress, address ],
+    };
+    try {
+      youOwe = await DB.insert(query);
+    } catch (err) {
+      throw err;
+    }
+
+    // Reduce it to token level.
+    // If amount is positive, you owe to the contact.
+    // If its negative, contact owe to you.
+    for (let expense of youAreOwed) {
+      expense = expense.expense;
+      expense = JSON.parse(expense);
+
+      const token = expense.token;
+      const contactOwe = expense.amount.contactOwe;
+
+      if (token in results) {
+        results[token] -= parseFloat(contactOwe);
+      } else {
+        results[token] = parseFloat(contactOwe);
+      }
+    }
+    for (let expense of youOwe) {
+      expense = expense.expense;
+      expense = JSON.parse(expense);
+
+      const token = expense.token;
+      const youOwe = expense.amount.contactOwe;
+
+      if (token in results) {
+        results[token] += parseFloat(youOwe);
+      } else {
+        results[token] = parseFloat(youOwe);
+      }
+    }
+
+    return results;
+  },
 }
 
 module.exports = Expenses;

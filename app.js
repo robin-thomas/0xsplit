@@ -8,7 +8,7 @@ const Expenses = require('./src/modules/expenses.js');
 const config = require('./config.json');
 
 const app = express();
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());

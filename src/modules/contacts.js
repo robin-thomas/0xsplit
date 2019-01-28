@@ -1,4 +1,5 @@
 const DB = require('./db.js');
+const Expenses = require('./expenses.js');
 
 const Contacts = {
   addContact: async (address, contactAddress, contactNickname) => {
@@ -26,6 +27,20 @@ const Contacts = {
 
     try {
       const results = await DB.select(query);
+
+      // Insert the owe amount.
+      for (let result of results) {
+        const contactAddress = result.address;
+
+        // Get all un-deleted expenses among you both.
+        const owe = Expenses.getOweAmount(address, contactAddress);
+
+        // If anything is owed or you are owed.
+        if (owe) {
+          result.settle = owe;
+        }
+      }
+
       return results;
     } catch (err) {
       throw err;
