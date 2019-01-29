@@ -33,10 +33,10 @@ const Contacts = {
         const contactAddress = result.address;
 
         // Get all un-deleted expenses among you both.
-        const owe = Expenses.getOweAmount(address, contactAddress);
+        const owe = await Expenses.getOweAmount(address, contactAddress);
 
         // If anything is owed or you are owed.
-        if (owe) {
+        if (Object.entries(owe).length !== 0 || owe.constructor !== Object) {
           result.settle = owe;
         }
       }

@@ -384,6 +384,14 @@ body {
   overflow-x: hidden;
 }
 
+.settle-up-with-contact {
+  color: #28a745;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 3px;
+}
+
 #add-new-contact {
   font-size: 3em;
   cursor: pointer;

@@ -242,6 +242,14 @@ $(document).ready(() => {
     $('#search-expenses-advanced').toggle();
   });
 
+  $('#contacts-after-connect').on('click', '.settle-up-with-contact', function() {
+    let json = $(this).find('.settle-up-json').val();
+    json = decodeURIComponent(json);
+    json = JSON.parse(json);
+
+    console.log(json);
+  });
+
   // Check if already logged in.
   WalletHandler.walletConnectConfirmHandler();
 });

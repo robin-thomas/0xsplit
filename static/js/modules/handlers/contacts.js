@@ -26,13 +26,15 @@ const ContactsHandler = {
     for (let i in ContactsHandler.contactsList) {
       const contact = ContactsHandler.contactsList[i];
 
+      console.log(contact);
+
       let settle = '';
-      if (typeof contact.settle) {
+      if (typeof contact.settle !== 'undefined') {
         let settleJson = contact.settle;
         settleJson = JSON.stringify(settleJson);
         settleJson = encodeURIComponent(settleJson);
 
-        settle = '<div class="settle-up-with-contact">Settle Up\
+        settle = '<div class="settle-up-with-contact">Settle\
                     <input type="hidden" class="settle-up-json" value="' + settleJson + '" />\
                   </div>';
       }
