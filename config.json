@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "0xsplit",
-    "url": "https://oxsplit.herokuapp.com"
+    "url": "https://oxsplit.herokuapp.com",
+    "relayer": "https://ox-relayer.herokuapp.com/v2"
   },
   "api": {
     "login": {
