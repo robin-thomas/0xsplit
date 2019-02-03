@@ -79,3 +79,4 @@ typings/
 .dynamodb/
 
 static/js/index.js
+package-lock.json

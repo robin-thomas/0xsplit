@@ -99,15 +99,6 @@
         "Content-Type": "application/json",
         "x-access-token": "%token"
       }
-    },
-    "createOrder": {
-      "name": "createOrder",
-      "path": "/order",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json",
-        "x-access-token": "%token"
-      }
     }
   },
   "jwt": {

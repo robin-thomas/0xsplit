@@ -11,12 +11,14 @@
   "author": "Robin Thomas",
   "license": "MIT",
   "dependencies": {
+    "@0x/connect": "^3.0.13",
     "cors": "^2.8.5",
     "ethereumjs-util": "^6.0.0",
     "express": "^4.16.4",
     "ipfs-api": "^26.1.2",
     "jquery": "^3.3.1",
     "jsonwebtoken": "^8.4.0",
+    "moment": "^2.24.0",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",
     "web3": "^1.0.0-beta.37"

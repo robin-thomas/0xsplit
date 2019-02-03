@@ -218,4 +218,21 @@ app.post(config.api.createOrder.path, Auth.validate, async (req, res) => {
   }
 });
 
+app.post(config.api.fillOrder.path, Auth.validate, async (req, res) => {
+
+  try {
+    const order = await Orders.constructFillableOrder(orderId);
+
+    res.status(200).send({
+      status: "ok",
+      msg: null
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
+});
+
 app.listen(port, () => console.log(`app listening on ${port}`));
