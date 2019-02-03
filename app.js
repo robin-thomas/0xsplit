@@ -4,11 +4,12 @@ const cors = require('cors');
 const Auth = require('./src/modules/auth.js');
 const Contacts = require('./src/modules/contacts.js');
 const Expenses = require('./src/modules/expenses.js');
+const Orders = require('./src/modules/orders.js');
 
 const config = require('./config.json');
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 80;
 
 app.use(cors());
 app.use(express.json());
@@ -186,6 +187,24 @@ app.put(config.api.updateExpense.path, Auth.validate, async (req, res) => {
 
   try {
     await Expenses.updateExpense(expenseId, expense);
+
+    res.status(200).send({
+      status: "ok",
+      msg: null
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "not ok",
+      msg: err.message
+    });
+  }
+});
+
+app.post(config.api.createOrder.path, Auth.validate, async (req, res) => {
+  const order = Orders.constructOrder(req.body);
+
+  try {
+    await Orders.addOrder(req.body.address, order);
 
     res.status(200).send({
       status: "ok",
