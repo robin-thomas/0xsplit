@@ -22,11 +22,11 @@ const ONE_SECOND_MS = 1000;
 const ONE_MINUTE_MS = ONE_SECOND_MS * 60;
 const TEN_MINUTES_MS = ONE_MINUTE_MS * 10;
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+const TX_DEFAULTS = { gas: 400000 };
 
 const getRandomFutureDateInSeconds = () => {
   return new BigNumber(Date.now() + TEN_MINUTES_MS).div(ONE_SECOND_MS).ceil();
 };
-
 const setAssetInfo = (user) => {
   switch (user.token) {
     case 'ETH':
@@ -43,8 +43,7 @@ const setAssetInfo = (user) => {
   user.assetAmount = Web3Wrapper.toBaseUnitAmount(new BigNumber(user.price), DECIMALS);
 
   return user;
-}
-
+};
 const setContractPermissions = async (maker) => {
   if (maker.token === 'ETH') {
     // Convert ETH into WETH for maker by depositing ETH into the WETH contract.
@@ -62,8 +61,7 @@ const setContractPermissions = async (maker) => {
     maker.address,
   );
   await Orders.getWeb3Wrapper().awaitTransactionSuccessAsync(makerApprovalTxHash);
-}
-
+};
 const constructOrder = (maker, taker) => {
   return {
     exchangeAddress: contractAddresses.exchange,
@@ -76,7 +74,7 @@ const constructOrder = (maker, taker) => {
     takerAssetAmount: taker.assetAmount,
     takerAssetData: taker.assetData,
   };
-}
+};
 const setOrderConfig = async (order) => {
   // Ask the relayer about the parameters they require for the order.
   const orderConfig = await Orders.getClient().getOrderConfigAsync(order, {
@@ -91,7 +89,6 @@ const setOrderConfig = async (order) => {
 
   return order;
 };
-
 const getOrderSignature = async (maker, orderHashHex) => {
   const signature = await signatureUtils.ecSignHashAsync(
     Orders.getProvider(),
@@ -99,7 +96,7 @@ const getOrderSignature = async (maker, orderHashHex) => {
     maker.address
   );
   return signature;
-}
+};
 
 const Orders = {
   client: null,
@@ -177,8 +174,30 @@ const Orders = {
     } catch (err) {
       throw err;
     }
-  }
+  },
 
+  fillOrder: async (orderHash, takerAddress) => {
+    try {
+      const order = await Orders.getOrder(orderHash);
+
+      await Orders.getContractWrapper().exchange.validateFillOrderThrowIfInvalidAsync(
+        order,
+        order.takerAssetAmount,
+        takerAddress
+      );
+
+      await Orders.getContractWrapper().exchange.fillOrderAsync(
+        order,
+        order.takerAssetAmount,
+        takerAddress,
+        {
+          gasLimit: TX_DEFAULTS.gas,
+        }
+      );
+    } catch (err) {
+      throw err;
+    }
+  },
 };
 
 module.exports = Orders;
