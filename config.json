@@ -2,7 +2,9 @@
   "app": {
     "name": "0xsplit",
     "url": "https://oxsplit.herokuapp.com",
-    "relayer": "https://ox-relayer.herokuapp.com/v2"
+    "relayer": "https://ox-relayer.herokuapp.com/v2",
+    "networkId": 3,
+    "network": "ropsten"
   },
   "api": {
     "login": {
@@ -122,6 +124,7 @@
       "gateway": "https://ipfs.infura.io/ipfs/",
       "port": 5001,
       "protocol": "https"
-    }
+    },
+    "ropsten": "https://ropsten.infura.io/v3/aa055fbdf8474ec79929cbaff2328d45"
   }
 }
