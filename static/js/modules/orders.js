@@ -11,8 +11,10 @@ const MetamaskSubprovider = require('@0x/subproviders').MetamaskSubprovider;
 const RPCSubprovider = require('@0x/subproviders').RPCSubprovider;
 const Web3ProviderEngine = require('@0x/subproviders').Web3ProviderEngine;
 
+const Wallet = require('./metamask.js');
+
 const config = require('../../../config.json');
-const contracts = require('./contracts.json');
+const contracts = require('./config/contracts.json');
 
 const getContractAddress = require('@0x/contract-addresses').getContractAddressesForNetworkOrThrow;
 const contractAddresses = getContractAddress(config.app.networkId);
@@ -21,46 +23,64 @@ const DECIMALS = 18;
 const ONE_SECOND_MS = 1000;
 const ONE_MINUTE_MS = ONE_SECOND_MS * 60;
 const TEN_MINUTES_MS = ONE_MINUTE_MS * 10;
+const ONE_DAY_MS = TEN_MINUTES_MS * 6 * 24;
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 const TX_DEFAULTS = { gas: 400000 };
 
 const getRandomFutureDateInSeconds = () => {
-  return new BigNumber(Date.now() + TEN_MINUTES_MS).div(ONE_SECOND_MS).ceil();
+  return new BigNumber(Date.now() + ONE_DAY_MS).div(ONE_SECOND_MS).ceil();
 };
-const setAssetInfo = (user) => {
-  switch (user.token) {
+const getTokenAddress = async (token) => {
+  const network = await Wallet.getNetwork();
+
+  let tokenAddress = null;
+
+  switch (token) {
     case 'ETH':
-      user.tokenAddress = contractAddresses.etherToken;
-      break;
+      return contractAddresses.etherToken;
     case 'ZRX':
-      user.tokenAddress = contractAddresses.zrxToken;
-      break;
+      return contractAddresses.zrxToken;
     default:
-      user.tokenAddress = contracts[config.app.network][user.token];
+      tokenAddress = contracts[network][token];
+      if (tokenAddress === null || tokenAddress === undefined) {
+        throw new Error('Invalid token address');
+      }
+      return tokenAddress;
   }
-
-  user.assetData = assetDataUtils.encodeERC20AssetData(user.tokenAddress);
-  user.assetAmount = Web3Wrapper.toBaseUnitAmount(new BigNumber(user.price), DECIMALS);
-
-  return user;
 };
-const setContractPermissions = async (maker) => {
-  if (maker.token === 'ETH') {
-    // Convert ETH into WETH for maker by depositing ETH into the WETH contract.
-    const makerWETHTxHash = await Orders.getContractWrapper().etherToken.depositAsync(
-      maker.tokenAddress,
-      maker.assetAmount,
-      maker.address,
+const setAssetInfo = async (user) => {
+  try {
+    user.tokenAddress = await getTokenAddress(user.token);
+    user.assetData = assetDataUtils.encodeERC20AssetData(user.tokenAddress);
+    user.assetAmount = Web3Wrapper.toBaseUnitAmount(new BigNumber(user.price), DECIMALS);
+    return user;
+  } catch (err) {
+    throw err;
+  }
+};
+const setContractPermissions = async (user) => {
+  if (user.token === 'ETH') {
+    // Convert ETH into WETH by depositing ETH into the WETH contract.
+    const userWETHTxHash = await Orders.getContractWrapper().etherToken.depositAsync(
+      user.tokenAddress,
+      user.assetAmount,
+      user.address,
+      {
+        gasLimit: TX_DEFAULTS.gas,
+      }
     );
-    await Orders.getWeb3Wrapper().awaitTransactionSuccessAsync(makerWETHTxHash);
+    await Orders.getWeb3Wrapper().awaitTransactionSuccessAsync(userWETHTxHash);
   }
 
   // Allow the 0x ERC20 Proxy to move token on behalf of account.
-  const makerApprovalTxHash = await Orders.getContractWrapper().erc20Token.setUnlimitedProxyAllowanceAsync(
-    maker.tokenAddress,
-    maker.address,
+  const userApprovalTxHash = await Orders.getContractWrapper().erc20Token.setUnlimitedProxyAllowanceAsync(
+    user.tokenAddress,
+    user.address,
+    {
+      gasLimit: TX_DEFAULTS.gas,
+    }
   );
-  await Orders.getWeb3Wrapper().awaitTransactionSuccessAsync(makerApprovalTxHash);
+  await Orders.getWeb3Wrapper().awaitTransactionSuccessAsync(userApprovalTxHash);
 };
 const constructOrder = (maker, taker) => {
   return {
@@ -97,6 +117,14 @@ const getOrderSignature = async (maker, orderHashHex) => {
   );
   return signature;
 };
+const deserializeTokenBalance = (assetAmount) => {
+  return assetAmount.div(Math.pow(10, DECIMALS)).toString();
+}
+const deserializeTokenName = (assetData) => {
+  const data = assetDataUtils.decodeERC20AssetData(assetData);
+  return Object.keys(contracts[config.app.network])
+               .find(key => contracts[config.app.network][key] === data.tokenAddress);
+}
 
 const Orders = {
   client: null,
@@ -133,6 +161,29 @@ const Orders = {
     return Orders.web3Wrapper;
   },
 
+  loadOrders: async () => {
+    try {
+      const _orders = await Orders.getOrders();
+
+      let orders = [];
+      for (let _order of _orders.records) {
+        _order = _order.order;
+
+        orders.push({
+          hash: orderHashUtils.getOrderHashHex(_order),
+          takerToken: deserializeTokenName(_order.takerAssetData),
+          takerAmount: deserializeTokenBalance(_order.takerAssetAmount),
+          makerToken: deserializeTokenName(_order.makerAssetData),
+          makerAmount: deserializeTokenBalance(_order.makerAssetAmount),
+        });
+      }
+
+      return orders;
+    } catch (err) {
+      throw err;
+    }
+  },
+
   getOrder: async (orderHash) => {
     try {
       const order = await Orders.getClient().getOrderAsync(orderHash);
@@ -155,8 +206,8 @@ const Orders = {
     try {
       maker.address = ethUtil.bufferToHex(maker.address);
 
-      maker = setAssetInfo(maker);
-      taker = setAssetInfo(taker);
+      maker = await setAssetInfo(maker);
+      taker = await setAssetInfo(taker);
 
       await setContractPermissions(maker);
 
@@ -176,24 +227,28 @@ const Orders = {
     }
   },
 
-  fillOrder: async (orderHash, takerAddress) => {
+  fillOrder: async (orderHash, takerAddress, takerToken) => {
     try {
-      const order = await Orders.getOrder(orderHash);
+      let order = await Orders.getOrder(orderHash);
+      order = order.order;
 
-      await Orders.getContractWrapper().exchange.validateFillOrderThrowIfInvalidAsync(
-        order,
-        order.takerAssetAmount,
-        takerAddress
-      );
+      // // Taker allowance.
+      // await setContractPermissions({
+      //   tokenAddress: await getTokenAddress(takerToken),
+      //   address: takerAddress,
+      // });
 
-      await Orders.getContractWrapper().exchange.fillOrderAsync(
+      const txHash = await Orders.getContractWrapper().exchange.fillOrderAsync(
         order,
         order.takerAssetAmount,
         takerAddress,
         {
           gasLimit: TX_DEFAULTS.gas,
+          shouldValidate: true,
         }
       );
+
+      return txHash;
     } catch (err) {
       throw err;
     }

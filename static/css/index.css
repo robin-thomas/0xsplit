@@ -212,10 +212,11 @@ body {
 #expense-contacts {
   border:0;
   box-shadow: none;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid rgba(181,187,202,.1) !important;
   padding: 0;
   margin-left: 15px;
   border-radius: 0;
+  background: transparent;
 }
 
 #expense-calendar {
@@ -297,7 +298,7 @@ body {
 #add-expense-dialog #expense-pic {
   height: 100%;
   border-radius: 4px;
-  border: 4px dashed grey;
+  border: 4px dashed rgba(181,187,202,0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -384,13 +385,24 @@ body {
   overflow-x: hidden;
 }
 
-.settle-up-with-contact {
+.settle-up-with-contact,
+.buy-order {
   color: #28a745;
   border: 1px solid #28a745;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 3px;
+  text-align: center;
 }
+
+.select-modal,
+.modal-content input,
+.modal-content textarea,
+.modal-content .input-group-text {
+  background: #1c1e2d;
+  border: 1px solid rgba(181,187,202,.1);
+  cursor: pointer;
+ }
 
 #add-new-contact {
   font-size: 3em;

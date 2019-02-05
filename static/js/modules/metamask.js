@@ -1,7 +1,8 @@
 const Web3New = require('web3');
-const contracts = require('./contracts.json');
-const contractABI = require('./abi.json');
-const logos = require('./tokens.json');
+
+const contracts = require('./config/contracts.json');
+const contractABI = require('./config/abi.json');
+const logos = require('./config/tokens.json');
 
 const Metamask = {
   address: null,
@@ -104,7 +105,31 @@ const Metamask = {
     } catch (err) {
       throw new Error('Unable to determine the network!');
     }
-  }
+  },
+
+  getTokenBalanceAndLogo: async (token, address) => {
+    try {
+      const contractNetwork = contracts[await Metamask.getNetwork()];
+      const tokenContract = new window.web3.eth.Contract(contractABI, contractNetwork[token]);
+      const balance = await tokenContract.methods.balanceOf(address).call();
+      const decimals = await tokenContract.methods.decimals().call();
+
+      const adjustedBalance = balance / Math.pow(10, decimals);
+      if (typeof logos[token] !== 'undefined') {
+        return {
+          balance: adjustedBalance,
+          logo: logos[token]
+        };
+      } else {
+        return {
+          balance: adjustedBalance,
+          logo: ""
+        };
+      }
+    } catch (err) {
+      throw err;
+    }
+  },
 };
 
 module.exports = Metamask;

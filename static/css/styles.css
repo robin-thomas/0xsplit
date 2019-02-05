@@ -2,6 +2,27 @@ body {
   background: #12131f;
 }
 
+.modal-content {
+  background: #12131f !important;
+  color: #D0D0D0 !important;
+  border: 1px solid rgba(181,187,202,.1) !important;
+}
+
+.modal-content .close {
+  color: #fff !important;
+  text-shadow: 0 1px 0 #000 !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(181,187,202,.1) !important;
+  background: rgba(0,0,0,0.2) !important;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(181,187,202,.1) !important;
+  background: rgba(0,0,0,0.2) !important;
+}
+
 #header {
   background-color: #1c1e2d;
 }

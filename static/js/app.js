@@ -1,5 +1,6 @@
 const ContactsHandler = require('./modules/handlers/contacts.js');
 const ExpensesHandler = require('./modules/handlers/expenses.js');
+const OrdersHandler = require('./modules/handlers/orders.js');
 const WalletHandler = require('./modules/handlers/wallet.js');
 
 $(document).ready(() => {
@@ -246,8 +247,24 @@ $(document).ready(() => {
     let json = $(this).find('.settle-up-json').val();
     json = decodeURIComponent(json);
     json = JSON.parse(json);
-
     console.log(json);
+
+    const parent = $(this).parent().next();
+    const contactName = parent.find('.contact-name').val();
+    const contactAddress = parent.find('.contact-address').val();
+    console.log(contactName, contactAddress);
+
+    $('#settle-expenses-dialog').find('.modal-title').html('Settle expenses with ' + contactName);
+    $('#settle-expenses-dialog').modal('show');
+  });
+
+  $('#wallet-after-connect').on('click', '.buy-order', async function() {
+    try {
+      await OrdersHandler.orderBuyHandler($(this));
+    } catch (err) {
+      console.log(err);
+      alert('Unable to buy the order!');
+    }
   });
 
   // Check if already logged in.

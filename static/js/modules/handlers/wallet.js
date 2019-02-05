@@ -2,6 +2,7 @@ const Cookies = require('../cookies.js');
 const Contacts = require('../contacts.js');
 const ContactsHandler = require('./contacts.js');
 const ExpensesHandler = require('./expenses.js');
+const OrdersHandler = require('./orders.js');
 const Session = require('../session.js');
 const Wallet = require('../metamask.js');
 
@@ -24,67 +25,9 @@ const expenseNotesDialog  = $('#add-expense-notes-dialog'),
 const WalletHandler = {
   walletDisplayHandler: () => {
     let options = '';
-    let rows = '';
-    for (let i in ExpensesHandler.tokensList) {
-      const tokenName = ExpensesHandler.tokensList[i].token;
-      const tokenBalance = ExpensesHandler.tokensList[i].balance;
-      const logo = ExpensesHandler.tokensList[i].logo !== "" ?
-                      '<img width="28" height="28" src="' + ExpensesHandler.tokensList[i].logo + '" />' :
-                      '<svg width="28" height="28">\
-                        <circle cx="14" cy="14" r="14" fill="#12131f"></circle>\
-                      </svg>';
-
-      const row = '<div class="row">\
-                    <div class="col-md-2">'
-                      + logo +
-                    '</div>\
-                    <div class="col-md-7">\
-                      <div style="font-size:11px;">'
-                        + tokenName +
-                      '</div>\
-                      <div style="font-weight:bold;">'
-                        + tokenBalance +
-                      '</div>\
-                    </div>\
-                    <div class="col-md-3">\
-                      <svg width="40" height="28">\
-                        <rect width="40" height="14" fill="#12131f"></rect>\
-                      </svg>\
-                    </div>\
-                  </div>';
-
-      rows += row;
-
-      const option = '<option value="' + tokenName + '">' + tokenName + '</option>';
-      options += option;
+    for (const token of ExpensesHandler.tokensList) {
+      options += '<option value="' + token.token + '">' + token.balance + '</option>';
     }
-    rows += '<div class="row"></div>';
-
-    const walletLogo = '<i class="fas fa-wallet" style="color:#17a2b8"></i>';
-
-    const addressDisplay = Wallet.address.substr(0, 5) + '...' + Wallet.address.substr(37);
-    const html = '<div class="container-fluid" \
-                    style="margin:0px !important;padding:0px !important;">\
-                    <div class="row row-header" \
-                      style="height:50px !important;padding:0 !important;margin:0 !important;">\
-                      <div class="col-md-2">'
-                      + walletLogo +
-                      '</div>\
-                      <div class="col-md-7" style="color:#17a2b8;">'
-                        + addressDisplay +
-                      '</div>\
-                      <div class="col-md-3">&nbsp;</div>\
-                    </div>\
-                    <div id="wallet-erc20-display">'
-                    + rows +
-                    '</div>\
-                  </div>';
-
-    walletAfterConnect.html(html);
-
-    const el = new SimpleBar(walletAfterConnect.find('#wallet-erc20-display')[0]);
-    el.recalculate();
-
     expenseCurrencies.html(options);
   },
   walletConnectHandler: async (e) => {
@@ -130,6 +73,8 @@ const WalletHandler = {
 
         ExpensesHandler.tokensList = await Wallet.getWalletBalance(Wallet.address, await network);
         WalletHandler.walletDisplayHandler();
+
+        await OrdersHandler.orderDisplayHandler();
 
         ContactsHandler.contactsList = await Contacts.loadContacts(Wallet.address);
         ContactsHandler.contactsDisplayHandler();
