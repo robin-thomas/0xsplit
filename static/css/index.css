@@ -395,6 +395,13 @@ body {
   text-align: center;
 }
 
+.settle-expense-list {
+  padding: 15px;
+  color: #28a745;
+  font-family: 'Dancing Script', cursive;
+  font-size: 30px;
+}
+
 .select-modal,
 .modal-content input,
 .modal-content textarea,
