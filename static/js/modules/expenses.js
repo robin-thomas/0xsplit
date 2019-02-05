@@ -2,8 +2,14 @@ const config = require('../../../config.json');
 const Session = require('./session.js');
 
 const Expenses = {
-  addNewExpense: async (data) => {
+  addNewExpense: async (address, contactAddress, expenseJsonStr) => {
     try {
+      const data = {
+        address: address,
+        contactAddress: contactAddress,
+        expense: expenseJsonStr,
+      };
+
       const out = await Session.api(config.api.addExpense.name, data);
       return out;
     } catch (err) {

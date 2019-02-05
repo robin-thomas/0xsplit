@@ -1,7 +1,13 @@
 const fetch = require('node-fetch');
 const Url = require('url');
+
 const Metamask = require('./metamask.js');
+
 const config = require('../../../config.json');
+
+const cookieName = config.app.name;
+const cookieExpiry = 60 * 60 * 1000; // 1h
+const cookieTerminator = '00000';
 
 const getToken = async (msg, sig, address) => {
   try {
@@ -11,7 +17,38 @@ const getToken = async (msg, sig, address) => {
       headers: config.api.login.headers,
     });
 
-    return (await ret.json()).token;
+    const json = await ret.json();
+
+    return {
+      token: json.token,
+      expiresIn: json.expiresIn,
+      refreshToken: json.refreshToken
+    };
+  } catch (err) {
+    throw err;
+  }
+};
+const getTokenWithRefreshToken = async (address, refreshToken) => {
+  if (refreshToken === null) {
+    return;
+  }
+
+  try {
+    const ret = await fetch(config.api.refresh.path, {
+      method: config.api.refresh.method,
+      body: JSON.stringify({
+        address: address,
+        refreshToken: refreshToken,
+      }),
+      headers: config.api.refresh.headers,
+    });
+
+    const json = await ret.json();
+
+    return {
+      token: json.token,
+      expiresIn: json.expiresIn,
+    };
   } catch (err) {
     throw err;
   }
@@ -23,14 +60,74 @@ const setToken = (headers) => {
   return JSON.parse(headers);
 };
 
+const hasTokenExpired = () => {
+  const currentTimestamp = new Date().getTime();
+  const timestamp = new Date(Session.expiresIn).getTime();
+
+  return (currentTimestamp < timestamp) ? false : true;
+};
+
+const updateTokenIfRequired = async (address) => {
+  if (hasTokenExpired()) {
+    console.log('token has expired');
+
+    // Use the refresh token to update the token.
+    try {
+      const newSession = await getTokenWithRefreshToken(address, Session.refreshToken);
+      Session.token = newSession.token;
+      Session.expiresIn = newSession.expiresIn;
+
+      // Update the cookie.
+      let date = new Date();
+      date.setTime(date.getTime() + cookieExpiry);
+      const expires = ';expires=' + date.toUTCString();
+
+      const name = cookieName + '=';
+      const cookieStr = document.cookie.split(';');
+      for (let i = 0; i < cookieStr.length; ++i) {
+        const str = cookieStr[i].trim();
+        if (str.indexOf(name) === 0) {
+          const cookieValue = str.substring(name.length).split(cookieTerminator);
+
+          const cookie = address + cookieTerminator +
+                              Session.token + cookieTerminator +
+                              Session.expiresIn + cookieTerminator + cookieValue[3];
+
+          document.cookie = cookieName + '=' + cookie + expires + ';path=/';
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+};
+
 const Session = {
+  address: null,
   token: null,
+  expiresIn: null,
+  refreshToken: null,
 
   login: async (address, message) => {
     try {
       const sig = await Metamask.personalSign(address, message);
       if (typeof sig !== 'undefined') {
-        Session.token = await getToken(message, sig, address);
+        const newSession = await getToken(message, sig, address);
+        Session.token = newSession.token;
+        Session.expiresIn = newSession.expiresIn;
+        Session.refreshToken = newSession.refreshToken;
+        console.log(newSession);
+
+        // Update cookie.
+        let date = new Date();
+        date.setTime(date.getTime() + cookieExpiry);
+        const expires = ';expires=' + date.toUTCString();
+
+        const cookieValue = address + cookieTerminator +
+                            Session.token + cookieTerminator +
+                            Session.expiresIn + cookieTerminator + Session.refreshToken;
+        document.cookie = cookieName + '=' + cookieValue + expires + ';path=/';
+
         return await Session.testToken(address);
       }
     } catch (err) {
@@ -40,6 +137,8 @@ const Session = {
 
   api: async (apiName, data) => {
     try {
+      await updateTokenIfRequired(data.address);
+
       const headers = setToken(config.api[apiName].headers);
 
       let url = config.api[apiName].path;
@@ -82,7 +181,32 @@ const Session = {
   },
 
   logout: () => {
+    Session.address = null;
     Session.token = null;
+    Session.expiresIn = null;
+    Session.refreshToken = null;
+    document.cookie = cookieName + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC";';
+  },
+
+  isLoggedIn: () => {
+    const name = cookieName + '=';
+    const cookieStr = document.cookie.split(';');
+    for (let i = 0; i < cookieStr.length; ++i) {
+      const str = cookieStr[i].trim();
+      if (str.indexOf(name) === 0) {
+        const cookieValue = str.substring(name.length).split(cookieTerminator);
+        Session.address = cookieValue[0];
+        Session.token = cookieValue[1];
+        Session.expiresIn = cookieValue[2];
+        Session.refreshToken = cookieValue[3];
+
+        console.log('Cookie found. Logging in...');
+
+        return true;
+      }
+    }
+
+    return false;
   },
 };
 

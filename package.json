@@ -18,6 +18,7 @@
     "@0x/subproviders": "^2.1.11",
     "@0x/utils": "^3.0.1",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "ethereumjs-util": "^6.0.0",
     "express": "^4.16.4",
     "ipfs-api": "^26.1.2",

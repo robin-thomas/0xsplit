@@ -1,4 +1,3 @@
-const Cookies = require('../cookies.js');
 const Contacts = require('../contacts.js');
 const ContactsHandler = require('./contacts.js');
 const ExpensesHandler = require('./expenses.js');
@@ -26,7 +25,7 @@ const WalletHandler = {
   walletDisplayHandler: () => {
     let options = '';
     for (const token of ExpensesHandler.tokensList) {
-      options += '<option value="' + token.token + '">' + token.balance + '</option>';
+      options += '<option value="' + token.token + '">' + token.token + '</option>';
     }
     expenseCurrencies.html(options);
   },
@@ -45,7 +44,7 @@ const WalletHandler = {
     }
   },
   walletConnectConfirmHandler: async (btn) => {
-    const isLoggedIn = Cookies.isLoggedIn();
+    const isLoggedIn = Session.isLoggedIn();
     if (!isLoggedIn && !btn) {
       $('#header').fadeIn();
       $('#content').fadeIn();
@@ -61,7 +60,7 @@ const WalletHandler = {
       await Wallet.loadWeb3();
     }
 
-    Wallet.address = isLoggedIn ? Cookies.address : walletAddreses.val();
+    Wallet.address = isLoggedIn ? Session.address : walletAddreses.val();
     const network = Wallet.getNetwork();
     const message = 'Signing this message proves to us you are in control of your account while never storing any sensitive account information.';
 
@@ -100,9 +99,7 @@ const WalletHandler = {
         contactsAfterConnect.fadeIn();
         expensesAfterConnect.fadeIn();
 
-        if (!isLoggedIn) {
-          Cookies.login(Wallet.address, Session.token, Session.expiresIn);
-        } else {
+        if (isLoggedIn) {
           $('#cookie-login-loading').fadeOut();
           $('#header').fadeIn();
           $('#content').fadeIn();
@@ -112,7 +109,9 @@ const WalletHandler = {
         btn.html(btn.data('original-text'));
       }
     } catch (err) {
-      btn.html(btn.data('original-text'));
+      if (!isLoggedIn) {
+        btn.html(btn.data('original-text'));
+      }
       alert(err);
     }
   },
@@ -130,7 +129,7 @@ const WalletHandler = {
 
       expensesAfterConnect.fadeOut();
 
-      Cookies.logout();
+      Session.logout();
     }
   },
   addNotesDisplayHandler: () => {

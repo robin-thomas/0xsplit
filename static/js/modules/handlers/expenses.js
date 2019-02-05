@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const ContactsHandler = require('./contacts.js');
 const Expenses = require('../expenses.js');
 const Infura = require('../infura.js');
@@ -125,7 +127,9 @@ const constructExpenseObject = (dialogEle) => {
   // Construct the expense object.
   const contactName = dialogEle.find('#expense-contacts').val();
   const contactAddress = ContactsHandler.contactsList.filter(e => e.nickname === contactName).map(e => e.address)[0];
-  let expense = {
+
+  // expense.
+  return {
     address: Wallet.address,
     contactAddress: contactAddress,
     contactName: contactName,
@@ -144,8 +148,6 @@ const constructExpenseObject = (dialogEle) => {
       you: youSplit,
     },
   };
-
-  return expense;
 };
 
 const validateExpenseObject = (expense, dialogEle) => {
@@ -218,6 +220,44 @@ const validateExpenseObject = (expense, dialogEle) => {
 
   return true;
 };
+
+const constructExpenseForSettle = (contact, token, amount, etherscanLink) => {
+  return {
+    address: Wallet.address,
+    contactAddress: contact.address,
+    contactName: contact.name,
+    description: 'Settle all billd',
+    token: token,
+    amount: {
+      total: amount,
+      contactOwe: amount,
+      youOwe: '0',
+    },
+    timestamp: moment().format('YYYY-MM-DD hh:mm:ss'),
+    notes: etherscanLink,
+    split: {
+      option: '1',
+      contact: true,
+      you: false,
+    },
+  };
+};
+
+const expenseSettle = async (expenses, contact) => {
+  for (const expense of expenses) {
+    const expenseJson = JSON.stringify(constructExpenseForSettle(
+      contact,
+      expense.token,
+      expense.amount,
+      expense.etherscanLink
+    ));
+
+    try {
+      await Expenses.addNewExpense(Wallet.address, contact.address, expenseJson);
+    } catch (err) {
+    }
+  }
+}
 
 const ExpensesHandler = {
   tokensList: [],
@@ -524,11 +564,11 @@ const ExpensesHandler = {
         console.log(expense);
 
         try {
-          await Expenses.addNewExpense({
-            address: expense.address,
-            contactAddress: expense.contactAddress,
-            expense: JSON.stringify(expense),
-          });
+          await Expenses.addNewExpense(
+            expense.address,
+            expense.contactAddress,
+            JSON.stringify(expense)
+          );
 
           ExpensesHandler.displayExpenses([{expense: JSON.stringify(expense)}]);
 
