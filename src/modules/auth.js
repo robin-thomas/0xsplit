@@ -32,8 +32,7 @@ const isValidRefreshToken = async (address, refreshToken) => {
 };
 
 const genToken = (address) => {
-  // const expiresIn = moment().add(config.jwt.expiresInHours, 'hours').format('YYYY-MM-DD HH:mm:ss');
-  const expiresIn = moment().add(5 * config.jwt.expiresInHours, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+  const expiresIn = moment().add(config.jwt.expiresInHours, 'hours').format('YYYY-MM-DD HH:mm:ss');
   const token = jwt.sign({user: address}, config.jwt.secret, {expiresIn: config.jwt.expiresIn});
 
   return {

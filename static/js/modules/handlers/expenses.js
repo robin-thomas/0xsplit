@@ -54,6 +54,8 @@ const displayCurrentExpense = (expense, dialogEle, expenseJsonStr) => {
   } catch (err) {}
   dialogEle.find('#expense-contacts').val(expense.contactName);
 
+  dialogEle.find('#datetimepicker2').find('input').val('');
+  dialogEle.find('#datetimepicker2').datetimepicker('destroy');
   dialogEle.find('#datetimepicker2').datetimepicker({
     icons: {
       time: 'far fa-clock',
@@ -603,10 +605,9 @@ const ExpensesHandler = {
 
       if (lastExpense) {
         const lastExpenseTimestamp = new Date(JSON.parse(lastExpense).timestamp);
-
         const currentExpenseTimestamp = new Date(expense.timestamp);
         if (lastExpenseTimestamp.getMonth() !== currentExpenseTimestamp.getMonth()) {
-          const rowMonthStr = window.moment(lastExpenseTimestamp).format('MMMM YYYY').toUpperCase();
+          const rowMonthStr = window.moment(currentExpenseTimestamp).format('MMMM YYYY').toUpperCase();
           const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
 
           expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(rowMonth);
