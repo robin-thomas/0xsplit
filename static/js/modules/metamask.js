@@ -71,8 +71,10 @@ const Metamask = {
 
   getWalletBalance: async (address, network) => {
     let tokens = [];
-    let balance = await window.web3.eth.getBalance(address);
-    tokens.push({token: "ETH", balance: (balance / Math.pow(10, 18)), logo: logos["ETH"]});
+
+    // TODO: Add ETH when supported fully.
+    // let balance = await window.web3.eth.getBalance(address);
+    // tokens.push({token: "ETH", balance: (balance / Math.pow(10, 18)), logo: logos["ETH"]});
 
     // Loop through all supported ERC20 tokens.
     const contractAddresses = contracts[network];
@@ -84,7 +86,7 @@ const Metamask = {
         const decimals = await tokenContract.methods.decimals().call();
 
         const adjustedBalance = balance / Math.pow(10, decimals);
-        if (typeof logos[token] !== 'undefined') {
+        if (logos[token] !== undefined) {
           tokens.push({token: token, balance: adjustedBalance, logo: logos[token]});
         } else {
           tokens.push({token: token, balance: adjustedBalance, logo: ""});
@@ -127,6 +129,7 @@ const Metamask = {
         };
       }
     } catch (err) {
+      console.log(err);
       throw err;
     }
   },

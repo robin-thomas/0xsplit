@@ -164,7 +164,7 @@ const ContactsHandler = {
       }
       $('#settle-expense-currency').html(options);
 
-      ContactsHandler.expenseSettleTokenChange();
+      await ContactsHandler.expenseSettleTokenChange();
 
       $('#settle-expenses-dialog').find('.modal-title').html('Settle expenses with ' + contactName);
       $('#settle-expenses-dialog').modal('show');
@@ -174,7 +174,7 @@ const ContactsHandler = {
       alert(err.message);
     }
   },
-  expenseSettleTokenChange: () => {
+  expenseSettleTokenChange: async () => {
     const btn = $('#settle-expense-currency');
 
     let json = JSON.parse(decodeURIComponent(btn.next().val()));
@@ -192,6 +192,15 @@ const ContactsHandler = {
     } else if (amount > 0) {
       rows.first().html('<span style="margin:0 auto;color:#dc3545">You owe</span>');
       rows.first().next().html('<span style="margin:0 auto;color:#dc3545">' + amountDisplay + '</span>');
+      $('#confirm-settle-expenses').prop('disabled', false);
+    }
+
+    let {balance, logo} = await Wallet.getTokenBalanceAndLogo(val, Wallet.address);
+    balance = parseFloat(balance).toFixed(2) + ' ' + val;
+    $('#settle-expense-wallet-balance').html(balance);
+
+    // Doesnt have enough balance in the wallet.
+    if (parseFloat(balance) < amount) {
       $('#confirm-settle-expenses').prop('disabled', false);
     }
   },

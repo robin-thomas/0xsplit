@@ -189,20 +189,20 @@ $(document).ready(() => {
     let dialog = null;
     let expense = null;
     const split = expenseSplitDialog.find('#split-option').val();
-    if (typeof split === 'undefined' || split === 'add') {
+    if (split === undefined || split === 'add') {
       dialog = expenseAddDialog;
     } else {
       dialog = expenseEditDialog;
 
       expense = expenseEditDialog.find('.expense-json').val();
-      expense = decodeURIComponent(expense);
-      expense = JSON.parse(expense);
+      expense = JSON.parse(decodeURIComponent(expense));
 
       // reset.
       expense.amount.youOwe = '';
       expense.amount.contactOwe = '';
-      expense.split.contact = '';
-      expense.split.you = '';
+      // TODO: why was the below used (wasnt commented)?
+      // expense.split.contact = '';
+      // expense.split.you = '';
     }
 
     ExpensesHandler.expenseSplitEquallyHandler(dialog, expense);

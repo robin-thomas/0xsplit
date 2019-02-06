@@ -119,8 +119,8 @@ const WalletHandler = {
         return;
       }
 
-      // alert(err);
       console.log(err);
+      alert(err.message);
     }
   },
   walletLogoutHandler: () => {

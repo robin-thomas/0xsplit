@@ -328,6 +328,29 @@ const expenseSettle = async (expenses, contact) => {
   }
 }
 
+const switchIfYouOweExpense = (prevExpense, expense) => {
+  // Check if expense added by contact.
+  console.log(prevExpense);
+  console.log(expense);
+  if (prevExpense.address !== Wallet.address) {
+    expense.address = prevExpense.address;
+    expense.contactAddress = prevExpense.contactAddress;
+    expense.contactName = prevExpense.contactName;
+
+    // Swap between you and contact owe.
+    const youOwe = expense.amount.youOwe;
+    expense.amount.youOwe = expense.amount.contactOwe;
+    expense.amount.contactOwe = youOwe;
+
+    // Swap between you and contact split option.
+    const you = expense.split.you;
+    expense.split.you = expense.split.contact;
+    expense.split.contact = you;
+  }
+
+  return expense;
+};
+
 const ExpensesHandler = {
   tokensList: [],
   expenseOffset: 0,
@@ -354,10 +377,18 @@ const ExpensesHandler = {
 
     // Loading saved expense.
     // The one who adds the expense is the one who paid the bill.
-    contactOweCheckbox.prop('checked', true);
-    if (expense && expense.split.option === '1') {
-      if (expense.split.you !== '') {
+    if (expense && expense.address === Wallet.address) {
+      contactOweCheckbox.prop('checked', true);
+
+      if (expense.split.option === '1' && expense.split.you !== '') {
         youOweCheckbox.prop('checked', expense.split.you);
+      }
+    } else if (expense) {
+      youOweCheckbox.prop('checked', true);
+
+      if (expense.split.option === '1' && expense.split.you !== '') {
+        contactOweCheckbox.prop('checked', false);
+        // contactOweCheckbox.prop('checked', expense.split.you);
       }
     }
 
@@ -604,6 +635,8 @@ const ExpensesHandler = {
     expenseCurrencies.val(expenseCurrencies.find('option:first').val());
     resetExpensePic(expenseAddDialog);
 
+    expenseSplitDialog.find('input[type="checkbox"]').prop('checked', true);
+
     expenseAddDialog.modal('show');
     ExpensesHandler.expenseSplitEquallyHandler(expenseSplitDialog);
   },
@@ -726,13 +759,14 @@ const ExpensesHandler = {
     }
   },
   confirmUpdateExpenseHandler: async () => {
-    // TODO: recreate the expense json from updated data.
     const prevExpenseJsonEle = expenseEditDialog.find('.expense-json');
     let prevExpense = JSON.parse(decodeURIComponent(prevExpenseJsonEle.val()));
 
     let expense = constructExpenseObject(expenseEditDialog, 'edit');
     expense.id = prevExpense.id;
     expense.deleted = prevExpense.deleted;
+
+    expense = switchIfYouOweExpense(prevExpense, expense);
 
     if (validateExpenseObject(expense, expenseEditDialog)) {
       if (confirm('Are you sure you want to update this expense?')) {
@@ -743,7 +777,7 @@ const ExpensesHandler = {
         btn.html(loadingText);
 
         const pic = expenseEditDialog.find('#expense-picture').prop('files')[0];
-        if (typeof pic !== 'undefined') {
+        if (pic !== undefined) {
           try {
             const hash = await Infura.uploadFileToIPFS(pic);
             expense.img = config.infura.ipfs.gateway + hash;
@@ -756,23 +790,22 @@ const ExpensesHandler = {
 
         try {
           await Expenses.updateExpense({
-            address: expense.address,
+            address: Wallet.address,
             id: expense.id,
             expense: JSON.stringify(expense),
           });
-          console.log(expense);
 
           // Write it back to the row.
           const updatedExpenseJsonStr = encodeURIComponent(JSON.stringify(expense));
           ExpensesHandler.currentExpenseRow.find('.expense-json').val(updatedExpenseJsonStr);
-          const row = ExpensesUtils.constructExpenseRow(expense);
+          const row = ExpensesUtils.constructExpenseRow(expense, ContactsHandler.contactsList);
           ExpensesHandler.currentExpenseRow.after(row);
           ExpensesHandler.currentExpenseRow.remove();
 
           btn.html(btn.data('original-text'));
           expenseEditDialog.modal('hide');
         } catch (err) {
-          console.log(err.message);
+          console.log(err);
           btn.html(btn.data('original-text'));
           alert('Some error has occured!');
         }
