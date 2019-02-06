@@ -12,6 +12,7 @@ const expenseAddDialog    = $('#add-expense-dialog'),
       expenseEditDialog   = $('#edit-expense-dialog');
 
 const expenseContacts     = $('#expense-contacts'),
+      expenseCurrencies   = $('#expense-supported-currencies'),
       expenseDisplay      = $('#display-expenses').find('.container-fluid');
 
 const amountContactOwe    = $('#amount-contact-owe'),
@@ -261,6 +262,50 @@ const expenseSettle = async (expenses, contact) => {
   }
 }
 
+const constructExpenseRow = (expense) => {
+  let paid = '';
+  if (expense.address === Wallet.address) {
+    paid = 'You paid ' + expense.token + ' ' + expense.amount.total;
+  } else {
+    paid = expense.contactName + ' paid ' + expense.token + ' ' + expense.amount.total;
+  }
+
+  let owe = '';
+  let owedAmount = '';
+  if (expense.address === Wallet.address) {
+    owe = '<div class="row" style="color:#28a745;">You lent</div>';
+    owedAmount = '<div class="row" style="color:#28a745;">' + expense.token + ' ' + expense.amount.contactOwe + '</div>';
+  } else {
+    owe = '<div class="row" style="color:#dc3545;">You borrowed</div>';
+    owedAmount = '<div class="row" style="color:#dc3545;">' + expense.token + ' ' + expense.amount.youOwe + '</div>';
+  }
+
+  const escapedJsonStr = encodeURIComponent(JSON.stringify(expense));
+  const deletedClass = expense.deleted !== undefined && expense.deleted === 1
+                        ? ' row-expense-deleted' : '';
+
+  const row = '<div class="row row-actual-expense' + deletedClass + '">\
+                <div class="col-md-1">\
+                  <i class="fas fa-receipt"></i>\
+                  <input type="hidden" class="expense-json" value=\'' + escapedJsonStr + '\' />\
+                </div>\
+                <div class="col-md-9">\
+                  <div class="row row-desc">'
+                    + expense.description +
+                  '</div>\
+                  <div class="row row-paid">'
+                    + paid +
+                  '</div>\
+                </div>\
+                <div class="col-md-2">'
+                  + owe
+                  + owedAmount +
+                '</div>\
+              </div>';
+
+  return row;
+};
+
 const ExpensesHandler = {
   tokensList: [],
   expenseOffset: 0,
@@ -268,7 +313,6 @@ const ExpensesHandler = {
   expenseSearching: false,
   expenseSplitEquallyHandler: (dialogEle, expense) => {
     expense = expense || null;
-    console.log(expense);
 
     // Reset the form.
     expenseSplitDialog.find('.split-third-col').hide();
@@ -295,8 +339,9 @@ const ExpensesHandler = {
       }
     } else {
       // reset.
-      contactOweCheckbox.prop('checked', true);
-      youOweCheckbox.prop('checked', true);
+      // TODO: check if below should be uncommented.
+      // contactOweCheckbox.prop('checked', true);
+      // youOweCheckbox.prop('checked', true);
     }
 
     const doesYouOwe = youOweCheckbox.is(':checked');
@@ -532,13 +577,17 @@ const ExpensesHandler = {
       expense = JSON.stringify(expense);
       expense = encodeURIComponent(expense);
       dialog.find('.expense-json').val(expense);
+      console.log(dialog.find('.expense-json').val());
     }
 
     expenseSplitDialog.modal('hide');
   },
   addNewExpenseHandler: () => {
-    expenseContacts.val('');
+    // Reset everything.
+    expenseAddDialog.find('input, textarea').val('');
+    expenseCurrencies.val(expenseCurrencies.find('option:first').val());
     expenseAddDialog.modal('show');
+    ExpensesHandler.expenseSplitEquallyHandler(expenseSplitDialog);
   },
   confirmNewExpenseHandler: async () => {
     let expense = constructExpenseObject(expenseAddDialog);
@@ -566,13 +615,14 @@ const ExpensesHandler = {
         console.log(expense);
 
         try {
-          await Expenses.addNewExpense(
-            expense.address,
-            expense.contactAddress,
-            JSON.stringify(expense)
-          );
+          // TODO: commented for testing.
+          // await Expenses.addNewExpense(
+          //   expense.address,
+          //   expense.contactAddress,
+          //   JSON.stringify(expense)
+          // );
 
-          ExpensesHandler.displayExpenses([{expense: JSON.stringify(expense)}]);
+          ExpensesHandler.displayNewExpense(expense);
 
           btn.html(btn.data('original-text'));
           expenseAddDialog.modal('hide');
@@ -583,6 +633,104 @@ const ExpensesHandler = {
         }
       }
     }
+  },
+  displayNewExpense: (expense) => {
+    let el = new SimpleBar(expenseDisplay[0]);
+
+    // TODO: how to get the expense id?
+
+    let lastExpense = expenseDisplay.find('.row-actual-expense:last .expense-json').val();
+    if (lastExpense !== undefined) {
+      lastExpense = JSON.parse(decodeURIComponent(lastExpense));
+    } else {
+      lastExpense = null;
+    }
+
+    const timestamp = new Date(expense.timestamp);
+    if (lastExpense) {
+      const lastExpenseTimestamp = new Date(lastExpense.timestamp);
+
+      // Check if we need to display the expense.
+      // As it will be loaded when user scroll down.
+      if (lastExpenseTimestamp > timestamp) {
+        console.log('no need to display the expense');
+        return;
+      } else {
+        // Check if this expense has to be added to the first.
+        let firstExpense = expenseDisplay.find('.row-actual-expense:first .expense-json').val();
+        firstExpense = JSON.parse(decodeURIComponent(firstExpense));
+        const firstExpenseTimestamp = new Date(firstExpense.timestamp);
+
+        if (firstExpenseTimestamp < timestamp) {
+          const row = constructExpenseRow(expense);
+
+          if (firstExpenseTimestamp.getMonth() !== timestamp.getMonth()) {
+            expenseDisplay.find('.simplebar-wrapper .simplebar-content').prepend(row);
+
+            const rowMonthStr = window.moment(timestamp).format('MMMM YYYY').toUpperCase();
+            const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
+            expenseDisplay.find('.simplebar-wrapper .simplebar-content').prepend(rowMonth);
+          } else {
+            expenseDisplay.find('.row-month:first').after(row);
+          }
+
+          el.recalculate();
+          return;
+        }
+      }
+    } else {
+      // Nothing in expense display.
+      // Display this expense.
+      const rowMonthStr = window.moment(expense.timestamp).format('MMMM YYYY').toUpperCase();
+      const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
+      expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(rowMonth);
+
+      const row = constructExpenseRow(expense);
+      expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(row);
+
+      return;
+    }
+
+    // Figure out if we need to insert the expense into the UI.
+    // The expense display is sorted in descending order of timestamp.
+    expenseDisplay.find('.row-actual-expense').each(function() {
+      let json = $(this).find('.expense-json').val();
+      json = JSON.parse(decodeURIComponent(json));
+
+      let condition = false;
+      const prevTimestamp = new Date(json.timestamp);
+      if ($(this).next().length <= 0) { /* this is last displayed expense */
+        condition = true;
+
+        if (prevTimestamp.getMonth() !== timestamp.getMonth()) {
+          const rowMonthStr = window.moment(timestamp).format('MMMM YYYY').toUpperCase();
+          const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
+          $(this).after(rowMonth);
+        }
+      } else {
+        // this is the correct position
+        let jsonNext = $(this).next().find('.expense-json').val();
+        jsonNext = JSON.parse(decodeURIComponent(jsonNext));
+        const nextTimestamp = new Date(jsonNext.timestamp);
+
+        if (prevTimestamp <= timestamp && timestamp <= nextTimestamp) {
+          condition = true;
+
+          if (prevTimestamp.getMonth() !== timestamp.getMonth() &&
+              nextTimestamp.getMonth() !== timestamp.getMonth()) {
+            const rowMonthStr = window.moment(timestamp).format('MMMM YYYY').toUpperCase();
+            const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
+            $(this).after(rowMonth);
+          }
+        }
+      }
+
+      if (condition) {
+        $(this).after(constructExpenseRow(expense));
+        el.recalculate();
+        return;
+      }
+    });
   },
   displayExpenses: (expenses) => {
     let el = new SimpleBar(expenseDisplay[0]);
@@ -597,7 +745,7 @@ const ExpensesHandler = {
       }
 
       let lastExpense = expenseDisplay.find('.row-actual-expense:last .expense-json').val();
-      if (typeof lastExpense !== 'undefined') {
+      if (lastExpense !== undefined) {
         lastExpense = decodeURIComponent(lastExpense);
       } else {
         lastExpense = null;
@@ -609,58 +757,16 @@ const ExpensesHandler = {
         if (lastExpenseTimestamp.getMonth() !== currentExpenseTimestamp.getMonth()) {
           const rowMonthStr = window.moment(currentExpenseTimestamp).format('MMMM YYYY').toUpperCase();
           const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
-
           expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(rowMonth);
         }
       } else {
         const rowMonthStr = window.moment(expense.timestamp).format('MMMM YYYY').toUpperCase();
         const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
-
         expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(rowMonth);
       }
 
-      let paid = '';
-      if (expense.address === Wallet.address) {
-        paid = 'You paid ' + expense.token + ' ' + expense.amount.total;
-      } else {
-        paid = expense.contactName + ' paid ' + expense.token + ' ' + expense.amount.total;
-      }
-
-      let owe = '';
-      let owedAmount = '';
-      if (expense.address === Wallet.address) {
-        owe = '<div class="row" style="color:#28a745;">You lent</div>';
-        owedAmount = '<div class="row" style="color:#28a745;">' + expense.token + ' ' + expense.amount.contactOwe + '</div>';
-      } else {
-        owe = '<div class="row" style="color:#dc3545;">You borrowed</div>';
-        owedAmount = '<div class="row" style="color:#dc3545;">' + expense.token + ' ' + expense.amount.youOwe + '</div>';
-      }
-
-      const escapedJsonStr = encodeURIComponent(JSON.stringify(expense));
-
-      const deletedClass = expense.deleted ? 'row-expense-deleted' : '';
-
-      const row = '<div class="row row-actual-expense ' + deletedClass + '">\
-                    <div class="col-md-1">\
-                      <i class="fas fa-receipt"></i>\
-                      <input type="hidden" class="expense-json" value=\'' + escapedJsonStr + '\' />\
-                    </div>\
-                    <div class="col-md-9">\
-                      <div class="row row-desc">'
-                        + expense.description +
-                      '</div>\
-                      <div class="row row-paid">'
-                        + paid +
-                      '</div>\
-                    </div>\
-                    <div class="col-md-2">'
-                      + owe
-                      + owedAmount +
-                    '</div>\
-                  </div>';
-
+      const row = constructExpenseRow(expense);
       expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(row);
-
       el.recalculate();
     }
     ExpensesHandler.expenseOffset += expenses.length;

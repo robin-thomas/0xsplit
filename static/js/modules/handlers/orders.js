@@ -67,7 +67,9 @@ const OrderHandler = {
       row = row.replace('%buyOrderJsonValue%', encodeURIComponent(JSON.stringify(order)));
       walletDisplay.append(row);
     }
-    walletDisplay.append('<div class="row"></div>');
+    if (orders.length > 0) {
+      walletDisplay.append('<div class="row"></div>');
+    }
 
     const el = new SimpleBar(walletDisplay[0]);
     el.recalculate();

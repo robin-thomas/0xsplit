@@ -60,9 +60,8 @@ const Expenses = {
   addExpense: async (address, contactAddress, expense) => {
     // Perform the validation.
     // NEVER EVER TRUST THE USER.
-    const jsonExpense = JSON.parse(expense);
     try {
-      validateExpense(jsonExpense);
+      validateExpense(JSON.parse(expense));
     } catch (err) {
       throw err;
     }
@@ -72,7 +71,7 @@ const Expenses = {
       sql: 'INSERT INTO expenses(address, contact_address, expense, expense_timestamp) \
             VALUES(?, ?, ?, ?)',
       timeout: 6 * 1000, // 6s
-      values: [ address, contactAddress, expense, jsonExpense.timestamp ],
+      values: [ address, contactAddress, expense, JSON.parse(expense).timestamp ],
     };
     try {
       await DB.insert(query);

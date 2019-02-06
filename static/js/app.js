@@ -95,12 +95,7 @@ $(document).ready(() => {
     $('.modal-backdrop').not('.stacked').addClass('stacked');
   });
 
-  expenseAddDialog.on('shown.bs.modal', () => {
-    expenseContacts.focus();
-    expenseAddDialog.find('input[type="text"]').val('');
-    expenseAddDialog.find('input[type="file"]').val('');
-    expenseAddDialog.find('textarea').val('');
-  });
+  expenseAddDialog.on('shown.bs.modal', () => expenseContacts.focus());
   // expenseSplitDialog.on('shown.bs.modal', ExpensesHandler.expenseSplitEquallyHandler);
   expenseDisplay.on('click', '.row-actual-expense', (e) => ExpensesHandler.editExpenseDisplayHandler(e.currentTarget));
   expenseAddDialog.on('change', 'input#expense-picture', function() {

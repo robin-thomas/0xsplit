@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const _ = require('lodash');
 
 const Auth = require('./src/modules/auth.js');
 const Contacts = require('./src/modules/contacts.js');
@@ -8,7 +9,7 @@ const Expenses = require('./src/modules/expenses.js');
 const config = require('./config.json');
 
 const app = express();
-const port = process.env.PORT || 80;
+const port = !_.isUndefined(process.env.PORT) ? process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
@@ -16,6 +17,7 @@ app.options('*', cors());
 app.use(express.static(__dirname + '/static'));
 
 app.post(config.api.login.path, Auth.login);
+app.post(config.api.refresh.path, Auth.refresh);
 
 app.post(config.api.test.path, Auth.validate, (req, res) => {
   res.status(200).send({

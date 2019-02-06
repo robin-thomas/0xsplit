@@ -23,6 +23,7 @@
     "express": "^4.16.4",
     "ipfs-api": "^26.1.2",
     "jsonwebtoken": "^8.4.0",
+    "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "mysql": "^2.16.0",
     "node-fetch": "^2.3.0",

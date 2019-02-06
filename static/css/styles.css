@@ -60,6 +60,10 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
+#wallet-after-connect {
+  border-color: rgba(181,187,202,.1);
+}
+
 #wallet-after-connect .row {
   color: #fff;
 }

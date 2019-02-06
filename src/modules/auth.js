@@ -110,18 +110,25 @@ const Auth = {
     const address = req.body.address;
     const refreshToken = req.body.refreshToken;
 
-    if (await isValidRefreshToken(address, refreshToken)) {
-      const {token, expiresIn} = genToken(address);
+    try {
+      if (await isValidRefreshToken(address, refreshToken)) {
+        const {token, expiresIn} = genToken(address);
 
-      res.status(200).send({
-        status: 'ok',
-        token: token,
-        expiresIn: expiresIn,
-      });
-    } else {
+        res.status(200).send({
+          status: 'ok',
+          token: token,
+          expiresIn: expiresIn,
+        });
+      } else {
+        res.status(400).send({
+          status: 'not ok',
+          msg: 'unable to verify the refresh token'
+        });
+      }
+    } catch (err) {
       res.status(400).send({
         status: 'not ok',
-        msg: 'unable to verify the refresh token'
+        msg: err.message
       });
     }
   }
