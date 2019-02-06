@@ -30,7 +30,7 @@ const getExpense = (which, expenses) => {
 };
 
 const ExpenseUtils = {
-  displayNewExpense: (expense, expenses, testing) => {
+  displayNewExpense: (expense, expenses, testing, contactsList) => {
     testing = testing === undefined ? false : true;
 
     expenseDisplay = testing || $('#display-expenses').find('.container-fluid');
@@ -57,7 +57,7 @@ const ExpenseUtils = {
         const firstExpense = getExpense('first', expenses);
         const firstExpenseTimestamp = new Date(firstExpense.timestamp);
         if (firstExpenseTimestamp < timestamp) {
-          const row = testing || ExpenseUtils.constructExpenseRow(expense);
+          const row = testing || ExpenseUtils.constructExpenseRow(expense, contactsList);
           displayRow = true;
 
           if (firstExpenseTimestamp.getMonth() !== timestamp.getMonth()) {
@@ -90,7 +90,7 @@ const ExpenseUtils = {
         const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
         expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(rowMonth);
 
-        const row = ExpenseUtils.constructExpenseRow(expense);
+        const row = ExpenseUtils.constructExpenseRow(expense, contactsList);
         expenseDisplay.find('.simplebar-wrapper .simplebar-content').append(row);
       }
 
@@ -163,7 +163,7 @@ const ExpenseUtils = {
 
       if (condition) {
         if (!testing) {
-          $(this).after(ExpenseUtils.constructExpenseRow(expense));
+          $(this).after(ExpenseUtils.constructExpenseRow(expense, contactsList));
           el.recalculate();
         }
 
@@ -174,12 +174,18 @@ const ExpenseUtils = {
       }
     }
   },
-  constructExpenseRow: (expense) => {
+  constructExpenseRow: (expense, contactsList) => {
     let paid = '';
     if (expense.address === Wallet.address) {
       paid = 'You paid ' + expense.token + ' ' + expense.amount.total;
     } else {
-      paid = expense.contactName + ' paid ' + expense.token + ' ' + expense.amount.total;
+      // Get the contactname from your contactslist.
+      const name = contactsList.filter(e => e.address === expense.address).map(e => e.nickname);
+      if (name === null || name === undefined || name.length === 0) {
+        paid = '[Unknown] paid ' + expense.token + ' ' + expense.amount.total;
+      } else {
+        paid = name[0] + ' paid ' + expense.token + ' ' + expense.amount.total;
+      }
     }
 
     let owe = '';
@@ -188,8 +194,8 @@ const ExpenseUtils = {
       owe = '<div class="row" style="color:#28a745;">You lent</div>';
       owedAmount = '<div class="row" style="color:#28a745;">' + expense.token + ' ' + expense.amount.contactOwe + '</div>';
     } else {
-      owe = '<div class="row" style="color:#dc3545;">You borrowed</div>';
-      owedAmount = '<div class="row" style="color:#dc3545;">' + expense.token + ' ' + expense.amount.youOwe + '</div>';
+      owe = '<div class="row" style="color:#dc3545;">You owe</div>';
+      owedAmount = '<div class="row" style="color:#dc3545;">' + expense.token + ' ' + expense.amount.contactOwe + '</div>';
     }
 
     const escapedJsonStr = encodeURIComponent(JSON.stringify(expense));

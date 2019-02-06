@@ -54,28 +54,38 @@ const ContactsHandler = {
     const el = new SimpleBar(contactsAfterConnect.find('#contacts-display')[0]);
     el.recalculate();
   },
-  addNewContactHandler: async (btn) => {
+  addNewContactHandler: async (btn, contact) => {
+    btn = (btn === undefined || btn === null ? null : btn);
+
+    const contactName = btn !== null ? newContactNickname.val() : contact.nickname;
+    const contactAddress = btn !== null ? newContactAddress.val() : contact.address;
+
     // Validate the fields.
     try {
-      await Contacts.validateNewContactFields(newContactAddress.val(), newContactNickname.val());
+      await Contacts.validateNewContactFields(contactAddress, contactName);
     } catch (err) {
       alert(err.message);
       return;
     }
 
-    const loadingText = '<i class="fas fa-spinner fa-spin"></i>&nbsp;Adding...';
-    btn.data('original-text', btn.html());
-    btn.html(loadingText);
+    if (btn) {
+      const loadingText = '<i class="fas fa-spinner fa-spin"></i>&nbsp;Adding...';
+      btn.data('original-text', btn.html());
+      btn.html(loadingText);
+    }
 
     // Add the new contact.
     try {
       await Contacts.addNewContact({
-        contact_address: newContactAddress.val(),
-        contact_nickname: newContactNickname.val(),
+        contact_address: contactAddress,
+        contact_nickname: contactName,
         address: Wallet.address
       });
     } catch (err) {
-      btn.html(btn.data('original-text'));
+      if (btn) {
+        btn.html(btn.data('original-text'));
+      }
+
       alert(err.message);
       return;
     }
@@ -84,7 +94,7 @@ const ContactsHandler = {
     if (confirm("Do you want to invite this contact through an ETH transaction (gas costs included)?")) {
       const rawTransaction = {
         "from": Wallet.address,
-        "to": newContactAddress.val(),
+        "to": contactAddress,
         "data": window.web3.utils.toHex(config.app.url),
         "gas": 200000
       };
@@ -96,11 +106,13 @@ const ContactsHandler = {
     }
 
     // Load all the contacts
-    ContactsHandler.contactsList.push({address: newContactAddress.val(), nickname: newContactNickname.val()});
+    ContactsHandler.contactsList.push({address: contactAddress, nickname: contactName});
     ContactsHandler.contactsDisplayHandler();
 
-    btn.html(btn.data('original-text'));
-    addContactDialog.modal('hide');
+    if (btn) {
+      btn.html(btn.data('original-text'));
+      addContactDialog.modal('hide');
+    }
   },
   deleteContactHandler: async (ele) => {
     const contactAddress = $(ele).parent().find('.contact-address').val();

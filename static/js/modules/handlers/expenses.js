@@ -1,5 +1,6 @@
 const moment = require('moment');
 
+const Contacts = require('../contacts.js');
 const ContactsHandler = require('./contacts.js');
 const Expenses = require('../expenses.js');
 const ExpensesUtils = require('../utils/expenses.js');
@@ -30,7 +31,47 @@ const resetExpensePic = (dialogEle) => {
   dialogEle.find('#expense-pic').html(imgHtml);
 }
 
-const displayCurrentExpense = (expense, dialogEle, expenseJsonStr) => {
+const displayCurrentExpense = async (expense, dialogEle, expenseJsonStr) => {
+  // Check if this contact exists in your contacts list.
+  const addresses = ContactsHandler.contactsList.filter(e => e.hasOwnProperty('address')).map(e => e.address);
+  if (expense.address !== Wallet.address &&
+      !addresses.includes(expense.address)) {
+    alert('This contact doesnt exist in your contacts list!');
+
+    // Add this contact to the contacts list after validation.
+    while (true) {
+      try {
+        const contactName = prompt('Enter desired contact name to add to your contacts list', '');
+        if (contactName === null || contactName.trim().length === 0) {
+          throw new Error('Nickname cannot be empty!');
+        }
+        const nameValid = /^[a-zA-Z ]+$/.test(contactName);
+        if (!nameValid) {
+          throw new Error('Nickname not in valid format[a-zA-Z]!');
+        }
+
+        const out = await Contacts.searchContacts({
+          address: Wallet.address,
+          contactAddress: expense.address,
+          contactName: contactName,
+        });
+
+        if (out === null || out === undefined || out.length === 0) {
+          // Add this contact to contactsList.
+          await ContactsHandler.addNewContactHandler(null, {
+            nickname: contactName,
+            address: expense.address,
+          });
+          break;
+        } else {
+          throw new Error('This contact name had been used before!');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+  }
+
   if (expense.img !== undefined) {
     const expensePicDiv = dialogEle.find('#expense-pic');
     expensePicDiv.html('<i class="fas fa-circle-notch fa-spin"></i>');
@@ -67,7 +108,17 @@ const displayCurrentExpense = (expense, dialogEle, expenseJsonStr) => {
       source: names
     });
   } catch (err) {}
-  dialogEle.find('#expense-contacts').val(expense.contactName);
+
+  if (expense.address === Wallet.address) {
+    dialogEle.find('#expense-contacts').val(expense.contactName);
+  } else {
+    const name = ContactsHandler.contactsList.filter(e => e.address === expense.address).map(e => e.nickname);
+    dialogEle.find('#expense-contacts').val(name);
+
+    // Replace [Unknown] with `contactName`.
+    const str = ExpensesHandler.currentExpenseRow.find('.row-paid').html();
+    ExpensesHandler.currentExpenseRow.find('.row-paid').html(str.replace('[Unknown]', name));
+  }
 
   dialogEle.find('#datetimepicker2').find('input').val('');
   dialogEle.find('#datetimepicker2').datetimepicker('destroy');
@@ -587,7 +638,7 @@ const ExpensesHandler = {
             JSON.stringify(expense)
           );
 
-          ExpensesUtils.displayNewExpense(expense);
+          ExpensesUtils.displayNewExpense(expense, ContactsHandler.contactsList);
 
           btn.html(btn.data('original-text'));
           expenseAddDialog.modal('hide');
@@ -633,7 +684,7 @@ const ExpensesHandler = {
         expenseDisplay.find('.simplebar-content').append(rowMonth);
       }
 
-      const row = ExpensesUtils.constructExpenseRow(expense);
+      const row = ExpensesUtils.constructExpenseRow(expense, ContactsHandler.contactsList);
       expenseDisplay.find('.simplebar-content').append(row);
       el.recalculate();
     }
@@ -647,12 +698,12 @@ const ExpensesHandler = {
       throw err;
     }
   },
-  editExpenseDisplayHandler: (ele) => {
+  editExpenseDisplayHandler: async (ele) => {
     ExpensesHandler.currentExpenseRow = $(ele);
     let expense = $(ele).find('.expense-json').val();
     expense = JSON.parse(decodeURIComponent(expense));
 
-    displayCurrentExpense(expense, expenseEditDialog, $(ele).find('.expense-json').val());
+    await displayCurrentExpense(expense, expenseEditDialog, $(ele).find('.expense-json').val());
   },
   deleteExpenseHandler: async () => {
     if (confirm("Are you sure you want to delete this expense?")) {

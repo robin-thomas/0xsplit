@@ -118,7 +118,8 @@ const WalletHandler = {
         return;
       }
 
-      alert(err);
+      // alert(err);
+      console.log(err);
     }
   },
   walletLogoutHandler: () => {
