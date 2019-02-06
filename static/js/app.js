@@ -99,7 +99,8 @@ $(document).ready(() => {
   // expenseSplitDialog.on('shown.bs.modal', ExpensesHandler.expenseSplitEquallyHandler);
   expenseDisplay.on('click', '.row-actual-expense', (e) => ExpensesHandler.editExpenseDisplayHandler(e.currentTarget));
   expenseAddDialog.on('change', 'input#expense-picture', function() {
-    expenseAddDialog.find('#expense-pic').html('<i class="fas fa-circle-notch fa-spin"></i>');
+    const expensePicDiv = expenseAddDialog.find('#expense-pic');
+    expensePicDiv.html('<i class="fas fa-circle-notch fa-spin"></i>');
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -111,7 +112,11 @@ $(document).ready(() => {
                           </label>\
                         </div>\
                       </div>';
-      expenseAddDialog.find('#expense-pic').html(imgHtml);
+      expensePicDiv.html(imgHtml);
+
+      const picHover = expensePicDiv.find('#expense-pic-change');
+      picHover.width(expensePicDiv.width() + 'px');
+      picHover.height(expensePicDiv.height() + 'px');
     };
     reader.readAsDataURL($(this)[0].files[0]);
   });
@@ -148,7 +153,7 @@ $(document).ready(() => {
   expenseEditDialog.on('click', '#delete-expense', ExpensesHandler.deleteExpenseHandler);
   expenseEditDialog.on('click', '#confirm-update-expense', ExpensesHandler.confirmUpdateExpenseHandler);
 
-  expenseContacts.on('input', () => expenseContacts.css('border-color', '#000'));
+  expenseContacts.on('input', () => expenseContacts.css('border-bottom-color', 'rgba(181,187,202,.1)'));
   expenseSplitDialog.find('select').on('change', function() {
     let dialog = null;
     let expense = null;

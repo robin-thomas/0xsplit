@@ -1,12 +1,6 @@
 const assert = require('assert');
 const moment = require('moment');
 
-const JSDOM = require('jsdom').JSDOM;
-// const { window } = ;
-// const { document } = (new JSDOM('')).window;
-// global.document = document;
-const $ = jQuery = require('jquery')(new JSDOM().window);
-
 const ExpensesUtils = require('../../static/js/modules/utils/expenses.js');
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 

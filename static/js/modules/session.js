@@ -6,7 +6,7 @@ const Metamask = require('./metamask.js');
 const config = require('../../../config.json');
 
 const cookieName = config.app.name;
-const cookieExpiry = 60 * 60 * 1000; // 1h
+const cookieExpiry = 30 * 24 * 60 * 60 * 1000; // 30 days
 const cookieTerminator = '00000';
 
 const getToken = async (msg, sig, address) => {

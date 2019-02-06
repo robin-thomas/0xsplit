@@ -19,9 +19,21 @@ const expenseContacts     = $('#expense-contacts'),
 const amountContactOwe    = $('#amount-contact-owe'),
       amountYouOwe        = $('#amount-you-owe');
 
+const resetExpensePic = (dialogEle) => {
+  const imgHtml = '<div id="expense-no-pic-change">\
+                    <div class="input-group-text">\
+                      <label style="margin-bottom:0 !important;">\
+                        <i class="fas fa-camera" title="Add a picture"></i>\
+                      </label>\
+                    </div>\
+                  </div>';
+  dialogEle.find('#expense-pic').html(imgHtml);
+}
+
 const displayCurrentExpense = (expense, dialogEle, expenseJsonStr) => {
-  if (typeof expense.img !== 'undefined') {
-    dialogEle.find('#expense-pic').html('<i class="fas fa-circle-notch fa-spin"></i>');
+  if (expense.img !== undefined) {
+    const expensePicDiv = dialogEle.find('#expense-pic');
+    expensePicDiv.html('<i class="fas fa-circle-notch fa-spin"></i>');
 
     const img = new Image();
     img.onload = () => {
@@ -33,19 +45,20 @@ const displayCurrentExpense = (expense, dialogEle, expenseJsonStr) => {
                           </label>\
                         </div>\
                       </div>';
-      dialogEle.find('#expense-pic').html(imgHtml);
+      expensePicDiv.html(imgHtml);
+
+      // some weird jquery bug which returns `expensePicDiv` as
+      // a 0 x 0 element unless we wait for some time.
+      window.setTimeout(function() {
+        const picHover = expensePicDiv.find('#expense-pic-change');
+        picHover.width(expensePicDiv.width() + 'px');
+        picHover.height(expensePicDiv.height() + 'px');
+      }, 500 /* 0.5s */);
     };
     img.src = expense.img;
   } else {
     // reset.
-    const imgHtml = '<div id="expense-no-pic-change">\
-                      <div class="input-group-text">\
-                        <label style="margin-bottom:0 !important;">\
-                          <i class="fas fa-camera" title="Add a picture"></i>\
-                        </label>\
-                      </div>\
-                    </div>';
-    dialogEle.find('#expense-pic').html(imgHtml);
+    resetExpensePic(dialogEle);
   }
 
   const names = ContactsHandler.contactsList.filter(e => e.hasOwnProperty('nickname')).map(e => e.nickname);
@@ -157,12 +170,12 @@ const constructExpenseObject = (dialogEle) => {
 const validateExpenseObject = (expense, dialogEle) => {
   if (typeof expense.contactName === 'undefined' ||
       expense.contactName.trim().length === 0) {
-    dialogEle.find('#expense-contacts').css('border-color', 'red').focus();
+    dialogEle.find('#expense-contacts').css('border-bottom-color', 'red').focus();
     return false;
   }
   const contactsCheck = ContactsHandler.contactsList.filter(e => e.hasOwnProperty('nickname')).map(e => e.nickname);
   if (!contactsCheck.includes(expense.contactName)) {
-    dialogEle.find('#expense-contacts').val('').css('border-color', 'red').focus();
+    dialogEle.find('#expense-contacts').val('').css('border-bottom-color', 'red').focus();
     return false;
   }
 
@@ -543,6 +556,8 @@ const ExpensesHandler = {
     // Reset everything.
     expenseAddDialog.find('input, textarea').val('');
     expenseCurrencies.val(expenseCurrencies.find('option:first').val());
+    resetExpensePic(expenseAddDialog);
+
     expenseAddDialog.modal('show');
     ExpensesHandler.expenseSplitEquallyHandler(expenseSplitDialog);
   },
