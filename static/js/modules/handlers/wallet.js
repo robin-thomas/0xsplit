@@ -46,6 +46,7 @@ const WalletHandler = {
   walletConnectConfirmHandler: async (btn) => {
     const isLoggedIn = Session.isLoggedIn();
     if (!isLoggedIn && !btn) {
+      $('#cookie-login-loading').fadeOut();
       $('#header').fadeIn();
       $('#content').fadeIn();
       $('#footer').fadeIn();
