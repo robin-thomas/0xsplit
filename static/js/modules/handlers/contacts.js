@@ -139,7 +139,9 @@ const ContactsHandler = {
     const contactName = parent.find('.contact-name').val();
     const contactAddress = parent.find('.contact-address').val();
 
-    // TODO: Change the button to loading.
+    const loadingText = '<i class="fas fa-circle-notch fa-spin"></i>';
+    ele.data('original-text', ele.html());
+    ele.html(loadingText);
 
     try {
       const out = await Contacts.searchContacts({
@@ -166,7 +168,9 @@ const ContactsHandler = {
 
       $('#settle-expenses-dialog').find('.modal-title').html('Settle expenses with ' + contactName);
       $('#settle-expenses-dialog').modal('show');
+      ele.html(ele.data('original-text'));
     } catch (err) {
+      ele.html(ele.data('original-text'));
       alert(err.message);
     }
   },

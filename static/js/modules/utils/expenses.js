@@ -203,11 +203,11 @@ const ExpenseUtils = {
                           ? ' row-expense-deleted' : '';
 
     const row = '<div class="row row-actual-expense' + deletedClass + '">\
-                  <div class="col-md-1">\
+                  <div class="col-md-2">\
                     <i class="fas fa-receipt"></i>\
                     <input type="hidden" class="expense-json" value=\'' + escapedJsonStr + '\' />\
                   </div>\
-                  <div class="col-md-9">\
+                  <div class="col-md-8">\
                     <div class="row row-desc">'
                       + expense.description +
                     '</div>\
