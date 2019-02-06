@@ -302,18 +302,12 @@ const ExpensesHandler = {
     const youOweCheckbox = expenseSplitDialog.find('#you-owe-checkbox input[type="checkbox"]');
 
     // Loading saved expense.
+    // The one who adds the expense is the one who paid the bill.
+    contactOweCheckbox.prop('checked', true);
     if (expense && expense.split.option === '1') {
-      if (expense.split.contact !== '') {
-        contactOweCheckbox.prop('checked', expense.split.contact);
-      }
       if (expense.split.you !== '') {
         youOweCheckbox.prop('checked', expense.split.you);
       }
-    } else {
-      // reset.
-      // TODO: check if below should be uncommented.
-      // contactOweCheckbox.prop('checked', true);
-      // youOweCheckbox.prop('checked', true);
     }
 
     const doesYouOwe = youOweCheckbox.is(':checked');
