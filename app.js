@@ -9,7 +9,7 @@ const Expenses = require('./src/modules/expenses.js');
 const config = require('./config.json');
 
 const app = express();
-const port = !_.isUndefined(process.env.PORT) ? process.env.PORT || 4000;
+const port = !_.isUndefined(process.env.PORT) ? process.env.PORT : 4000;
 
 app.use(cors());
 app.use(express.json());
