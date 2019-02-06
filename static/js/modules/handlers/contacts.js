@@ -26,20 +26,10 @@ const ContactsHandler = {
     for (let i in ContactsHandler.contactsList) {
       const contact = ContactsHandler.contactsList[i];
 
-      console.log(contact);
-
-      let settle = '';
-      if (typeof contact.settle !== 'undefined') {
-        let settleJson = contact.settle;
-        settleJson = JSON.stringify(settleJson);
-        settleJson = encodeURIComponent(settleJson);
-
-        settle = '<div class="settle-up-with-contact">Settle\
-                    <input type="hidden" class="settle-up-json" value="' + settleJson + '" />\
-                  </div>';
-      }
+      const settle = '<div class="settle-up-with-contact">Settle</div>';
 
       const contactName = contact.nickname.split(' ')[0];
+
       const row = '<div class="row">\
                     <div class="col-md-3">\
                       <i class="fas fa-user-circle" style="font-size:3em;color:#17a2b8;"></i>\
@@ -57,10 +47,8 @@ const ContactsHandler = {
 
       rows += row;
     }
-    const html = '<div id="contacts-display">'
-                  + rows +
-                  '</div>';
 
+    const html = '<div id="contacts-display">' + rows + '</div>';
     contactsAfterConnect.find('.container-fluid').html(html);
 
     const el = new SimpleBar(contactsAfterConnect.find('#contacts-display')[0]);
@@ -132,6 +120,64 @@ const ContactsHandler = {
   addNewContactDisplayHandler: () => {
     addContactDialog.find('input[type="text"]').val('');
     addContactDialog.modal('show');
+  },
+  settleContactDisplayHandler: async (ele) => {
+    // Get the settlement for this contact.
+    const parent = ele.parent().next();
+    const contactName = parent.find('.contact-name').val();
+    const contactAddress = parent.find('.contact-address').val();
+
+    // TODO: Change the button to loading.
+
+    try {
+      const out = await Contacts.searchContacts({
+        address: Wallet.address,
+        contactAddress: contactAddress,
+        contactName: contactName,
+      });
+
+      if (out.length === 0 || out[0].settle === undefined) {
+        throw new Error('You do not have any expenses with ' + contactName + '!');
+      }
+
+      const json = encodeURIComponent(JSON.stringify(out[0].settle));
+      // ele.find('.settle-up-json').val(json);
+      $('#settle-expense-currency').next().val(json);
+
+      let options = '';
+      for (const token of Object.keys(out[0].settle)) {
+        options += '<option value="' + token + '">' + token + '</option>';
+      }
+      $('#settle-expense-currency').html(options);
+
+      ContactsHandler.expenseSettleTokenChange();
+
+      $('#settle-expenses-dialog').find('.modal-title').html('Settle expenses with ' + contactName);
+      $('#settle-expenses-dialog').modal('show');
+    } catch (err) {
+      alert(err.message);
+    }
+  },
+  expenseSettleTokenChange: () => {
+    const btn = $('#settle-expense-currency');
+
+    let json = JSON.parse(decodeURIComponent(btn.next().val()));
+
+    $('#confirm-settle-expenses').prop('disabled', true);
+
+    const val = btn.val();
+    const amount = parseFloat(json[val]);
+    const amountDisplay = Math.abs(amount) + ' ' + val;
+
+    const rows = btn.parent().find('.container > .row');
+    if (amount < 0) {
+      rows.first().html('<span style="margin:0 auto;color:#28a745">You are owed</span>');
+      rows.first().next().html('<span style="margin:0 auto;color:#28a745">' + amountDisplay + '</span>');
+    } else if (amount > 0) {
+      rows.first().html('<span style="margin:0 auto;color:#dc3545">You owe</span>');
+      rows.first().next().html('<span style="margin:0 auto;color:#dc3545">' + amountDisplay + '</span>');
+      $('#confirm-settle-expenses').prop('disabled', false);
+    }
   },
 };
 

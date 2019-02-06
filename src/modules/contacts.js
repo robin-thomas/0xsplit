@@ -28,18 +28,18 @@ const Contacts = {
     try {
       const results = await DB.query(query);
 
-      // Insert the owe amount.
-      for (let result of results) {
-        const contactAddress = result.address;
-
-        // Get all un-deleted expenses among you both.
-        const owe = await Expenses.getOweAmount(address, contactAddress);
-
-        // If anything is owed or you are owed.
-        if (Object.entries(owe).length !== 0 || owe.constructor !== Object) {
-          result.settle = owe;
-        }
-      }
+      // // Insert the owe amount.
+      // for (let result of results) {
+      //   const contactAddress = result.address;
+      //
+      //   // Get all un-deleted expenses among you both.
+      //   const owe = await Expenses.getOweAmount(address, contactAddress);
+      //
+      //   // If anything is owed or you are owed.
+      //   if (Object.entries(owe).length !== 0 || owe.constructor !== Object) {
+      //     result.settle = owe;
+      //   }
+      // }
 
       return results;
     } catch (err) {
@@ -58,6 +58,20 @@ const Contacts = {
 
     try {
       const results = await DB.query(query);
+
+      // Insert the owe amount.
+      for (let result of results) {
+        const contactAddress = result.address;
+
+        // Get all un-deleted expenses among you both.
+        const owe = await Expenses.getOweAmount(address, contactAddress);
+
+        // If you owe anything or you are owed.
+        if (Object.entries(owe).length !== 0 || owe.constructor !== Object) {
+          result.settle = owe;
+        }
+      }
+
       return results;
     } catch (err) {
       throw err;

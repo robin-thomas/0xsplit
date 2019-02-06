@@ -243,52 +243,11 @@ $(document).ready(() => {
     $('#search-expenses-advanced').toggle();
   });
 
-  $('#contacts-after-connect').on('click', '.settle-up-with-contact', function() {
-    let _json = $(this).find('.settle-up-json').val();
-    let json = decodeURIComponent(_json);
-    json = JSON.parse(json);
-
-    let options = '';
-    for (const token of Object.keys(json)) {
-      options += '<option value="' + token + '">' + token + '</option>';
-    }
-    $('#settle-expense-currency').html(options);
-    $('#settle-expense-currency').next().val(_json);
-
-    const parent = $(this).parent().next();
-    const contactName = parent.find('.contact-name').val();
-    const contactAddress = parent.find('.contact-address').val();
-    console.log(contactName, contactAddress);
-
-    expenseSettleTokenChange();
-
-    $('#settle-expenses-dialog').find('.modal-title').html('Settle expenses with ' + contactName);
-    $('#settle-expenses-dialog').modal('show');
+  $('#contacts-after-connect').on('click', '.settle-up-with-contact', function () {
+    ContactsHandler.settleContactDisplayHandler($(this));
   });
 
-  const expenseSettleTokenChange = () => {
-    const btn = $('#settle-expense-currency');
-
-    let json = JSON.parse(decodeURIComponent(btn.next().val()));
-
-    $('#confirm-settle-expenses').prop('disabled', true);
-
-    const val = btn.val();
-    const amount = parseFloat(json[val]);
-    const amountDisplay = Math.abs(amount) + ' ' + val;
-
-    const rows = btn.parent().find('.container > .row');
-    if (amount < 0) {
-      rows.first().html('<span style="margin:0 auto;color:#28a745">You are owed</span>');
-      rows.first().next().html('<span style="margin:0 auto;color:#28a745">' + amountDisplay + '</span>');
-    } else if (amount > 0) {
-      rows.first().html('<span style="margin:0 auto;color:#dc3545">You owe</span>');
-      rows.first().next().html('<span style="margin:0 auto;color:#dc3545">' + amountDisplay + '</span>');
-      $('#confirm-settle-expenses').prop('disabled', false);
-    }
-  }
-
-  $('#settle-expense-currency').on('change', expenseSettleTokenChange);
+  $('#settle-expense-currency').on('change', ContactsHandler.expenseSettleTokenChange);
 
   $('#wallet-after-connect').on('click', '.buy-order', async function() {
     try {

@@ -29,12 +29,12 @@ const Contacts = {
 
     // Validate that this address or name hasnt been used before.
     try {
-      const data = {
+      const out = await Contacts.searchContacts({
         address: Wallet.address,
         contactAddress: address,
         contactName: name,
-      };
-      const out = await Session.api(config.api.searchContacts.name, data);
+      });
+
       if (out.length >= 1) {
         throw new Error('This contact name or address had been used before!');
       }
@@ -50,7 +50,7 @@ const Contacts = {
       throw err;
     }
   },
-  loadContacts: async(address) => {
+  loadContacts: async (address) => {
     try {
       const out = await Session.api(config.api.getAllContacts.name, {address: address});
       return out;
@@ -58,13 +58,21 @@ const Contacts = {
       throw err;
     }
   },
-  deleteContact: async(data) => {
+  deleteContact: async (data) => {
     try {
       await Session.api(config.api.deleteContact.name, data);
     } catch (err) {
       throw err;
     }
   },
+  searchContacts: async (data) => {
+    try {
+      const out = await Session.api(config.api.searchContacts.name, data);
+      return out;
+    } catch (err) {
+      throw err;
+    }
+  }
 };
 
 module.exports = Contacts;
