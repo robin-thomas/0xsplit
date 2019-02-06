@@ -9,6 +9,17 @@ module.exports = (grunt) => {
         globals: ['$', 'SimpleBar'],
       },
     },
+    run: {
+      options: {
+
+      },
+      npmtest: {
+        cmd: 'npm',
+        args: [
+          'test',
+        ],
+      },
+    },
     browserify: {
       target: {
         src: [ './static/js/app.js' ],
@@ -26,11 +37,13 @@ module.exports = (grunt) => {
     },
   });
 
-  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-eslint');
+  grunt.loadNpmTasks('grunt-run');
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-uglify-es');
   grunt.registerTask('default', [
     'eslint',
+    'run:npmtest',
     'browserify',
     'uglify',
   ]);
