@@ -214,7 +214,7 @@ const Expenses = {
     try {
       youOwe = await DB.query(query);
 
-      if (youOwe.length > 1) {
+      if (youOwe.length > 0) {
         for (let expense of youOwe) {
           expense = expense.expense;
           expense = JSON.parse(expense);
