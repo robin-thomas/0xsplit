@@ -121,10 +121,12 @@ const displayCurrentExpense = (expense, dialogEle, expenseJsonStr) => {
   dialogEle.modal('show');
 };
 
-const constructExpenseObject = (dialogEle) => {
+const constructExpenseObject = (dialogEle, type) => {
   let contactSplit = '';
   let youSplit = '';
   let splitOption = expenseSplitDialog.find('select').val();
+
+  type = type === null || type === undefined ? 'add' : 'edit';
 
   switch (splitOption) {
     case '1':
@@ -157,7 +159,7 @@ const constructExpenseObject = (dialogEle) => {
       contactOwe: expenseSplitDialog.find('#amount-contact-owe').html(),
       youOwe: expenseSplitDialog.find('#amount-you-owe').html(),
     },
-    timestamp: dialogEle.find('#datetimepicker1').find('input[type="text"]').val(),
+    timestamp: dialogEle.find(type === 'add' ? '#datetimepicker1' : '#datetimepicker2').find('input[type="text"]').val(),
     notes: dialogEle.find('#expense-notes').val(),
     split: {
       option: splitOption,
@@ -210,7 +212,6 @@ const validateExpenseObject = (expense, dialogEle) => {
     return false;
   }
 
-  console.log(dialogEle.find('#expense-amount').val(), expense.amount.total);
   if (dialogEle.find('#expense-amount').val() != expense.amount.total) {
     switch (expense.split.option) {
       case '1':
@@ -281,6 +282,7 @@ const ExpensesHandler = {
   expenseOffset: 0,
   expenseLimit: 5,
   expenseSearching: false,
+  currentExpenseRow: null,
   expenseSplitEquallyHandler: (dialogEle, expense) => {
     expense = expense || null;
 
@@ -547,7 +549,6 @@ const ExpensesHandler = {
       expense = JSON.stringify(expense);
       expense = encodeURIComponent(expense);
       dialog.find('.expense-json').val(expense);
-      console.log(dialog.find('.expense-json').val());
     }
 
     expenseSplitDialog.modal('hide');
@@ -584,15 +585,13 @@ const ExpensesHandler = {
           }
         }
 
-        console.log(expense);
-
         try {
-          // TODO: commented for testing.
-          // await Expenses.addNewExpense(
-          //   expense.address,
-          //   expense.contactAddress,
-          //   JSON.stringify(expense)
-          // );
+          expense.deleted = 0;
+          expense.id = await Expenses.addNewExpense(
+            expense.address,
+            expense.contactAddress,
+            JSON.stringify(expense)
+          );
 
           ExpensesUtils.displayNewExpense(expense);
 
@@ -613,6 +612,7 @@ const ExpensesHandler = {
       let expense = JSON.parse(currentExpense.expense);
       expense.id = currentExpense.id;
       expense.deleted = currentExpense.deleted;
+      console.log(expense);
 
       if (expense.deleted && $('#search-expense-deleted').is(':checked')) {
         continue;
@@ -654,32 +654,40 @@ const ExpensesHandler = {
     }
   },
   editExpenseDisplayHandler: (ele) => {
+    ExpensesHandler.currentExpenseRow = $(ele);
     let expense = $(ele).find('.expense-json').val();
-    expense = decodeURIComponent(expense);
-    expense = JSON.parse(expense);
+    expense = JSON.parse(decodeURIComponent(expense));
 
     displayCurrentExpense(expense, expenseEditDialog, $(ele).find('.expense-json').val());
   },
   deleteExpenseHandler: async () => {
     if (confirm("Are you sure you want to delete this expense?")) {
-      let expense = expenseEditDialog.find('.expense-json').val();
-      expense = JSON.parse(decodeURIComponent(expense));
+      const expenseJsonEle = expenseEditDialog.find('.expense-json');
+      let expense = JSON.parse(decodeURIComponent(expenseJsonEle.val()));
 
       try {
         await Expenses.deleteExpense(Wallet.address, expense.id);
         expenseEditDialog.modal('hide');
 
         // Set it back to the row.
-        expense.deleted = true;
+        // TODO: figure out how to get the row.
+        expense.deleted = 1;
+        const updatedExpenseJsonStr = encodeURIComponent(JSON.stringify(expense));
+        ExpensesHandler.currentExpenseRow.find('expense-json').val(updatedExpenseJsonStr);
+        ExpensesHandler.currentExpenseRow.addClass('row-expense-deleted');
       } catch (err) {
         alert('Unable to delete this expense');
       }
     }
   },
   confirmUpdateExpenseHandler: async () => {
-    let expense = expenseEditDialog.find('.expense-json').val();
-    expense = decodeURIComponent(expense);
-    expense = JSON.parse(expense);
+    // TODO: recreate the expense json from updated data.
+    const prevExpenseJsonEle = expenseEditDialog.find('.expense-json');
+    let prevExpense = JSON.parse(decodeURIComponent(prevExpenseJsonEle.val()));
+
+    let expense = constructExpenseObject(expenseEditDialog, 'edit');
+    expense.id = prevExpense.id;
+    expense.deleted = prevExpense.deleted;
 
     if (validateExpenseObject(expense, expenseEditDialog)) {
       if (confirm('Are you sure you want to update this expense?')) {
@@ -707,6 +715,14 @@ const ExpensesHandler = {
             id: expense.id,
             expense: JSON.stringify(expense),
           });
+          console.log(expense);
+
+          // Write it back to the row.
+          const updatedExpenseJsonStr = encodeURIComponent(JSON.stringify(expense));
+          ExpensesHandler.currentExpenseRow.find('.expense-json').val(updatedExpenseJsonStr);
+          const row = ExpensesUtils.constructExpenseRow(expense);
+          ExpensesHandler.currentExpenseRow.after(row);
+          ExpensesHandler.currentExpenseRow.remove();
 
           btn.html(btn.data('original-text'));
           expenseEditDialog.modal('hide');
@@ -736,7 +752,6 @@ const ExpensesHandler = {
         }
 
       } catch (err) {
-        console.log(err);
         ExpensesHandler.expenseSearching = false;
       }
 

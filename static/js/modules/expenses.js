@@ -19,12 +19,14 @@ const Expenses = {
 
   searchExpenses: async (address, offset, limit) => {
     try {
-      const out = await Session.api(config.api.searchExpenses.name, {
+      const data = {
         address: address,
         offset: offset,
         limit: limit,
-      });
-      return out;
+      };
+      const out = await Session.api(config.api.searchExpenses.name, data);
+
+      return (out === undefined || out === null ? [] : out);
     } catch (err) {
       throw err;
     }
@@ -57,7 +59,7 @@ const Expenses = {
 
   updateExpense: async (data) => {
     try {
-      const out = await Session.api(config.api.deleteExpense.name, data);
+      const out = await Session.api(config.api.updateExpense.name, data);
       return out;
     } catch (err) {
       throw err;

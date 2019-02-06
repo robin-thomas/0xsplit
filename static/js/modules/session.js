@@ -45,6 +45,11 @@ const getTokenWithRefreshToken = async (address, refreshToken) => {
 
     const json = await ret.json();
 
+    // If refresh token has expired => trigger login.
+    if (json.status !== 'ok') {
+      throw new Error(json.msg);
+    }
+
     return {
       token: json.token,
       expiresIn: json.expiresIn,

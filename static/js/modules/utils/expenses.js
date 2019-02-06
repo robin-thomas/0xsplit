@@ -33,15 +33,13 @@ const ExpenseUtils = {
   displayNewExpense: (expense, expenses, testing) => {
     testing = testing === undefined ? false : true;
 
-    let el = testing || new SimpleBar(expenseDisplay[0]);
     expenseDisplay = testing || $('#display-expenses').find('.container-fluid');
+    let el = testing || new SimpleBar(expenseDisplay[0]);
 
     const timestamp = new Date(expense.timestamp);
 
     let displayRow = false;
     let displayMonth = false;
-
-    // TODO: how to get the expense id?
 
     const lastExpense = getExpense('last', expenses);
     if (lastExpense) {

@@ -112,29 +112,38 @@ const WalletHandler = {
       if (!isLoggedIn) {
         btn.html(btn.data('original-text'));
       }
+
+      if (err.message === 'unable to verify the refresh token') {
+        WalletHandler.logout();
+        return;
+      }
+
       alert(err);
     }
   },
   walletLogoutHandler: () => {
     if (confirm("Are you sure you want to logout?")) {
-      walletAfterConnect.fadeOut();
-      walletBeforeConnect.fadeIn();
-      walletConnect.fadeIn();
-      walletLogoutButton.fadeOut();
-      walletLoginButton.css('display', 'flex').hide().fadeIn();
-
-      contactsAfterConnect.fadeOut();
-      contactsConnect.fadeIn();
-      contactsBeforeConnect.fadeIn();
-
-      expensesAfterConnect.fadeOut();
-
-      Session.logout();
+      WalletHandler.logout();
     }
   },
   addNotesDisplayHandler: () => {
     expenseNotesDialog.modal('show')
   },
+  logout: () => {
+    walletAfterConnect.fadeOut();
+    walletBeforeConnect.fadeIn();
+    walletConnect.fadeIn();
+    walletLogoutButton.fadeOut();
+    walletLoginButton.css('display', 'flex').hide().fadeIn();
+
+    contactsAfterConnect.fadeOut();
+    contactsConnect.fadeIn();
+    contactsBeforeConnect.fadeIn();
+
+    expensesAfterConnect.fadeOut();
+
+    Session.logout();
+  }
 };
 
 module.exports = WalletHandler;

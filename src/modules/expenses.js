@@ -74,7 +74,8 @@ const Expenses = {
       values: [ address, contactAddress, expense, JSON.parse(expense).timestamp ],
     };
     try {
-      await DB.insert(query);
+      const out = await DB.query(query);
+      return out.insertId;
     } catch (err) {
       throw err;
     }
@@ -94,7 +95,7 @@ const Expenses = {
     };
 
     try {
-      const out = await DB.select(query);
+      const out = await DB.query(query);
       return out;
     } catch (err) {
       throw err;
@@ -109,21 +110,31 @@ const Expenses = {
     };
 
     try {
-      await DB.select(query);
+      await DB.query(query);
     } catch (err) {
       throw err;
     }
   },
 
   updateExpense: async (expenseId, expense) => {
+    // Perform the validation.
+    // NEVER EVER TRUST THE USER.
+    try {
+      validateExpense(JSON.parse(expense));
+    } catch (err) {
+      throw err;
+    }
+
+    console.log(expense, expenseId);
+
     const query = {
       sql: 'UPDATE expenses SET expense = ? WHERE id = ?',
       timeout: 6 * 1000, // 6s
-      values: [expenseId, expense],
+      values: [ expense, expenseId ],
     };
 
     try {
-      await DB.select(query);
+      await DB.query(query);
     } catch (err) {
       throw err;
     }
@@ -151,7 +162,7 @@ const Expenses = {
     };
 
     try {
-      const out = await DB.select(query);
+      const out = await DB.query(query);
       return out;
     } catch (err) {
       throw err;
@@ -172,7 +183,7 @@ const Expenses = {
       values: [ address, contactAddress ],
     };
     try {
-      youAreOwed = await DB.select(query);
+      youAreOwed = await DB.query(query);
 
       if (youAreOwed.length > 0) {
         for (let expense of youAreOwed) {
@@ -201,7 +212,7 @@ const Expenses = {
       values: [ contactAddress, address ],
     };
     try {
-      youOwe = await DB.select(query);
+      youOwe = await DB.query(query);
 
       if (youOwe.length > 1) {
         for (let expense of youOwe) {

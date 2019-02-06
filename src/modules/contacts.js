@@ -11,7 +11,7 @@ const Contacts = {
     };
 
     try {
-      await DB.insert(query);
+      await DB.query(query);
     } catch (err) {
       throw err;
     }
@@ -26,7 +26,7 @@ const Contacts = {
     };
 
     try {
-      const results = await DB.select(query);
+      const results = await DB.query(query);
 
       // Insert the owe amount.
       for (let result of results) {
@@ -57,7 +57,7 @@ const Contacts = {
     };
 
     try {
-      const results = await DB.select(query);
+      const results = await DB.query(query);
       return results;
     } catch (err) {
       throw err;
@@ -72,7 +72,7 @@ const Contacts = {
     };
 
     try {
-      await DB.select(query);
+      await DB.query(query);
     } catch (err) {
       throw err;
     }

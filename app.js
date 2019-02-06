@@ -190,7 +190,7 @@ app.put(config.api.updateExpense.path, Auth.validate, async (req, res) => {
     await Expenses.updateExpense(expenseId, expense);
 
     res.status(200).send({
-      status: "ok",
+      status: 'ok',
       msg: null
     });
   } catch (err) {

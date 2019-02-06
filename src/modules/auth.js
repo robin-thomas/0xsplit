@@ -24,7 +24,7 @@ const isValidRefreshToken = async (address, refreshToken) => {
   };
 
   try {
-    const results = await DB.select(query);
+    const results = await DB.query(query);
     return results[0].count == 1;
   } catch (err) {
     throw err;
@@ -52,7 +52,7 @@ const genRefreshToken = async (address) => {
   };
 
   try {
-    await DB.insert(query);
+    await DB.query(query);
     return refreshToken;
   } catch (err) {
     throw err;
@@ -122,7 +122,8 @@ const Auth = {
       } else {
         res.status(400).send({
           status: 'not ok',
-          msg: 'unable to verify the refresh token'
+          msg: 'unable to verify the refresh token',
+          refreshToken: refreshToken
         });
       }
     } catch (err) {
