@@ -19,7 +19,8 @@ const Contacts = {
     };
 
     try {
-      await DB.query(query);
+      const out = await DB.query(query);
+      return out.insertId;
     } catch (err) {
       throw err;
     }
