@@ -32,9 +32,6 @@ const getExpense = (which, expenses) => {
 const ExpenseUtils = {
   displayNewExpense: (expense, contactsList, testing, expenses) => {
     testing = testing === undefined ? false : true;
-    if (!testing) {
-      expenses = [];
-    }
 
     expenseDisplay = testing || $('#display-expenses').find('.container-fluid');
     let el = testing || new SimpleBar(expenseDisplay[0]);
@@ -106,6 +103,7 @@ const ExpenseUtils = {
     // Figure out if we need to insert the expense into the UI.
     // The expense display is sorted in descending order of timestamp.
     if (!testing) {
+      expenses = [];
       expenseDisplay.find('.row-actual-expense').each(function() {
         expenses.push($(this));
       });
@@ -124,31 +122,31 @@ const ExpenseUtils = {
         prevTimestamp = new Date(currExpense.timestamp);
       }
 
-      if ((testing && (index + 1) >= expenses.length) ||
-          (!testing && currExpense.next().length <= 0)) { /* this is last displayed expense */
+      if ((index + 1) >= expenses.length) { /* this is last displayed expense */
         condition = true;
 
         if (prevTimestamp.getMonth() !== timestamp.getMonth()) {
           if (!testing) {
             const rowMonthStr = window.moment(timestamp).format('MMMM YYYY').toUpperCase();
             const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
-            $(this).after(rowMonth);
+            currExpense.after(rowMonth);
           }
 
           displayMonth = true;
         }
       } else {
-        // this is the correct position
+        // this is the correct position if it lies within expenses.
         let nextTimestamp = null;
         if (!testing) {
-          let jsonNext = $(this).next().find('.expense-json').val();
+          let jsonNext = expenses[index + 1].find('.expense-json').val();
           jsonNext = JSON.parse(decodeURIComponent(jsonNext));
           nextTimestamp = new Date(jsonNext.timestamp);
         } else {
           nextTimestamp = new Date(expenses[index + 1].timestamp);
         }
 
-        if (prevTimestamp <= timestamp && timestamp <= nextTimestamp) {
+        // timestamp sorted with latest coming first.
+        if (prevTimestamp >= timestamp && timestamp >= nextTimestamp) {
           condition = true;
 
           if (prevTimestamp.getMonth() !== timestamp.getMonth() &&
@@ -156,7 +154,7 @@ const ExpenseUtils = {
             if (!testing) {
               const rowMonthStr = window.moment(timestamp).format('MMMM YYYY').toUpperCase();
               const rowMonth = '<div class="row row-month">' + rowMonthStr + '</div>';
-              $(this).after(rowMonth);
+              currExpense.after(rowMonth);
             }
 
             displayMonth = true;
@@ -166,7 +164,7 @@ const ExpenseUtils = {
 
       if (condition) {
         if (!testing) {
-          $(this).after(ExpenseUtils.constructExpenseRow(expense, contactsList));
+          currExpense.after(ExpenseUtils.constructExpenseRow(expense, contactsList));
           el.recalculate();
         }
 

@@ -798,12 +798,16 @@ const ExpensesHandler = {
             expense: JSON.stringify(expense),
           });
 
-          // Write it back to the row.
-          const updatedExpenseJsonStr = encodeURIComponent(JSON.stringify(expense));
-          ExpensesHandler.currentExpenseRow.find('.expense-json').val(updatedExpenseJsonStr);
-          const row = ExpensesUtils.constructExpenseRow(expense, ContactsHandler.contactsList);
-          ExpensesHandler.currentExpenseRow.after(row);
+          // Update the UI.
+          if (ExpensesHandler.currentExpenseRow.next().length === 0) {
+            // This is the last element.
+            // If its the last element for that month, delete the month too.
+            if (ExpensesHandler.currentExpenseRow.prev().hasClass('row-month')) {
+              ExpensesHandler.currentExpenseRow.prev().remove();
+            }
+          }
           ExpensesHandler.currentExpenseRow.remove();
+          ExpensesUtils.displayNewExpense(expense, ContactsHandler.contactsList);
 
           btn.html(btn.data('original-text'));
           expenseEditDialog.modal('hide');

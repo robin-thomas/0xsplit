@@ -35,7 +35,7 @@ const validateExpense = (expense) => {
     if (err.message === 'Expense amount cannot be 0!') {
       const contactOwe = parseFloat(expense.amount.contactOwe);
       const youOwe = parseFloat(expense.amount.youOwe);
-      const totalOwe = contactOwe + youOwe;
+      const totalOwe = parseFloat(contactOwe + youOwe);
 
       if (totalOwe !== parseFloat(expense.amount.total)) {
         throw err;
@@ -125,12 +125,10 @@ const Expenses = {
       throw err;
     }
 
-    console.log(expense, expenseId);
-
     const query = {
-      sql: 'UPDATE expenses SET expense = ? WHERE id = ?',
+      sql: 'UPDATE expenses SET expense = ?, expense_timestamp = ? WHERE id = ?',
       timeout: 6 * 1000, // 6s
-      values: [ expense, expenseId ],
+      values: [ expense, JSON.parse(expense).timestamp, expenseId ],
     };
 
     try {
