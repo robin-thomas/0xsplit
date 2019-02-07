@@ -246,6 +246,9 @@ $(document).ready(() => {
   $('#contacts-after-connect').on('click', '.settle-up-with-contact', function () {
     ContactsHandler.settleContactDisplayHandler($(this));
   });
+  $('#confirm-settle-expenses').on('click', function () {
+    ExpensesHandler.settleExpenseConfirmHandler($(this));
+  });
 
   $('#settle-expense-currency').on('change', ContactsHandler.expenseSettleTokenChange);
 

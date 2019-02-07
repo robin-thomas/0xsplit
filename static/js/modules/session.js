@@ -7,7 +7,7 @@ const config = require('../../../config.json');
 
 const cookieName = config.app.name;
 const cookieExpiry = 30 * 24 * 60 * 60 * 1000; // 30 days
-const cookieTerminator = '00000';
+const cookieTerminator = '$A23&*BGY^%';
 
 const getToken = async (msg, sig, address) => {
   try {
@@ -68,7 +68,7 @@ const setToken = (headers) => {
 const hasTokenExpired = () => {
   const currentTimestamp = new Date().getTime();
   const timestamp = new Date(Session.expiresIn).getTime();
-
+  console.log(Session.expiresIn);
   return (currentTimestamp < timestamp) ? false : true;
 };
 
@@ -206,6 +206,7 @@ const Session = {
         Session.refreshToken = cookieValue[3];
 
         console.log('Cookie found. Logging in...');
+        console.log(Session.expiresIn, Session.expiresIn);
 
         return true;
       }

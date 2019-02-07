@@ -30,8 +30,11 @@ const getExpense = (which, expenses) => {
 };
 
 const ExpenseUtils = {
-  displayNewExpense: (expense, expenses, testing, contactsList) => {
+  displayNewExpense: (expense, contactsList, testing, expenses) => {
     testing = testing === undefined ? false : true;
+    if (!testing) {
+      expenses = [];
+    }
 
     expenseDisplay = testing || $('#display-expenses').find('.container-fluid');
     let el = testing || new SimpleBar(expenseDisplay[0]);

@@ -4,7 +4,8 @@
     "url": "https://oxsplit.herokuapp.com",
     "relayer": "https://ox-relayer.herokuapp.com/v2",
     "networkId": 3,
-    "network": "ropsten"
+    "network": "ropsten",
+    "etherscan": "https://ropsten.etherscan.io/tx/"
   },
   "api": {
     "login": {

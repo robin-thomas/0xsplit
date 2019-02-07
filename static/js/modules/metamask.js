@@ -133,6 +133,29 @@ const Metamask = {
       throw err;
     }
   },
+
+  makeERC20Txn: async (data) => {
+    try {
+      const contractAddress = contracts[await Metamask.getNetwork()][data.token];
+      const contract = new window.web3.eth.Contract(contractABI, contractAddress, {
+        from: data.from
+      });
+
+      // Calculate contract compatible value for transfer with proper decimal points using BigNumber
+      const decimals = await contract.methods.decimals().call();
+      const tokenDecimals = window.web3.utils.toBN(decimals);
+      const tokenAmountToTransfer = window.web3.utils.toBN(data.amount);
+      const calculatedTransferValue = window.web3.utils.toHex(tokenAmountToTransfer.mul(window.web3.utils.toBN(10).pow(tokenDecimals)));
+
+      const result = await contract.methods.transfer(data.to, calculatedTransferValue).send({
+        from: data.from,
+      });
+      return result;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
 };
 
 module.exports = Metamask;

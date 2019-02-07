@@ -157,6 +157,8 @@ const ContactsHandler = {
       const json = encodeURIComponent(JSON.stringify(out[0].settle));
       // ele.find('.settle-up-json').val(json);
       $('#settle-expense-currency').next().val(json);
+      $('#settle-expense-currency').next().next().val(contactAddress);
+      $('#settle-expense-currency').next().next().next().val(contactName);
 
       let options = '';
       for (const token of Object.keys(out[0].settle)) {

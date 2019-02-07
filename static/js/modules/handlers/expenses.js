@@ -11,7 +11,8 @@ const config = require('../../../../config.json');
 
 const expenseAddDialog    = $('#add-expense-dialog'),
       expenseSplitDialog  = $('#expense-split-dialog'),
-      expenseEditDialog   = $('#edit-expense-dialog');
+      expenseEditDialog   = $('#edit-expense-dialog'),
+      expenseSettleDialog = $('#settle-expenses-dialog');
 
 const expenseContacts     = $('#expense-contacts'),
       expenseCurrencies   = $('#expense-supported-currencies'),
@@ -295,11 +296,11 @@ const constructExpenseForSettle = (contact, token, amount, etherscanLink) => {
     address: Wallet.address,
     contactAddress: contact.address,
     contactName: contact.name,
-    description: 'Settle all billd',
+    description: 'Settle all bills for ' + token,
     token: token,
     amount: {
-      total: amount,
-      contactOwe: amount,
+      total: amount.toString(),
+      contactOwe: amount.toString(),
       youOwe: '0',
     },
     timestamp: moment().format('YYYY-MM-DD hh:mm:ss'),
@@ -312,20 +313,22 @@ const constructExpenseForSettle = (contact, token, amount, etherscanLink) => {
   };
 };
 
-const expenseSettle = async (expenses, contact) => {
-  for (const expense of expenses) {
-    const expenseJson = JSON.stringify(constructExpenseForSettle(
-      contact,
-      expense.token,
-      expense.amount,
-      expense.etherscanLink
-    ));
+const expenseSettle = async (contact, token, amount, etherscanLink) => {
+  const expense = constructExpenseForSettle(
+    contact,
+    token,
+    amount,
+    etherscanLink
+  );
+  console.log(expense);
 
-    try {
-      await Expenses.addNewExpense(Wallet.address, contact.address, expenseJson);
-    } catch (err) {
-    }
+  try {
+    await Expenses.addNewExpense(Wallet.address, contact.address, JSON.stringify(expense));
+  } catch (err) {
   }
+
+  // Add the expense row to UI.
+  ExpensesUtils.displayNewExpense(expense, ContactsHandler.contactsList);
 }
 
 const switchIfYouOweExpense = (prevExpense, expense) => {
@@ -834,6 +837,50 @@ const ExpensesHandler = {
       }
 
       ExpensesHandler.expenseSearching = false;
+    }
+  },
+  settleExpenseConfirmHandler: async (btn) => {
+    try {
+      const loadingText = '<i class="fas fa-spinner fa-spin"></i>&nbsp;Settling...';
+      btn.data('original-text', btn.html());
+      btn.html(loadingText);
+
+      const contactAddress = expenseSettleDialog.find('.settle-expense-contact-address').val();
+      const contactName = expenseSettleDialog.find('.settle-expense-contact-name').val();
+
+      const token = $('#settle-expense-currency').val();
+      const {balance, logo} = await Wallet.getTokenBalanceAndLogo(token, Wallet.address);
+
+      let json = expenseSettleDialog.find('.settle-expense-currency-json').val();
+      json = JSON.parse(decodeURIComponent(json));
+
+      // Validate that user has enough funds to settle this token.
+      if (json[token] === undefined || balance < parseFloat(json[token])) {
+        throw new Error('You dont have enough balance to settle!');
+      }
+
+      // Make the txn.
+      const data = await Wallet.makeERC20Txn({
+        from: Wallet.address,
+        to: contactAddress,
+        token: token,
+        amount: parseFloat(json[token])
+      });
+      const etherscanLink = config.app.etherscan + data.transactionHash;
+
+      // Construct and add the expense.
+      await expenseSettle({
+        name: contactName,
+        address: contactAddress,
+      }, token, json[token], etherscanLink);
+
+      btn.html(btn.data('original-text'));
+      expenseSettleDialog.modal('hide');
+    } catch (err) {
+      console.log(err);
+      btn.html(btn.data('original-text'));
+
+      alert(err.message);
     }
   },
 };

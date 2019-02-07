@@ -88,6 +88,8 @@ const Auth = {
       const token = req.headers['x-access-token'];
       const address = req.method !== 'GET' ? req.body.address : req.query.address;
 
+      console.log(token, address);
+
       const decoded = jwt.verify(token, config.jwt.secret);
       if (decoded.user === address) {
         req.user = decoded.user;
@@ -100,6 +102,7 @@ const Auth = {
         });
       }
     } catch (err) {
+      console.log(err);
       res.status(400).send({
         status: 'not ok',
         msg: err.message
@@ -124,10 +127,10 @@ const Auth = {
         res.status(400).send({
           status: 'not ok',
           msg: 'unable to verify the refresh token',
-          refreshToken: refreshToken
         });
       }
     } catch (err) {
+      console.log(err);
       res.status(400).send({
         status: 'not ok',
         msg: err.message
