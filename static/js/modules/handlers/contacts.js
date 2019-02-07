@@ -1,4 +1,5 @@
 const Contacts = require('../contacts.js');
+const Expenses = require('../expenses.js');
 const Wallet = require('../metamask.js');
 
 const config = require('../../../../config.json');
@@ -120,6 +121,13 @@ const ContactsHandler = {
 
     try {
       if (confirm('Are you sure you want to delete ' + contactName + ' from your contacts?')) {
+        // Check whether there are any expenses with this contact.
+        // If yes, we wont delete this contact.
+        const out = await Expenses.searchExpensesWithKeyword(Wallet.address, contactName, true);
+        if (out.length >= 1) {
+          throw new Error('Cannot delete, as you have previous expenses with ' + contactName + '!');
+        }
+
         await Contacts.deleteContact({address: Wallet.address, contactAddress: contactAddress});
 
         ContactsHandler.contactsList = ContactsHandler.contactsList.filter(e => e.address !== contactAddress);
