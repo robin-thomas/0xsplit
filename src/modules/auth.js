@@ -88,8 +88,6 @@ const Auth = {
       const token = req.headers['x-access-token'];
       const address = req.method !== 'GET' ? req.body.address : req.query.address;
 
-      console.log(token, address);
-
       const decoded = jwt.verify(token, config.jwt.secret);
       if (decoded.user === address) {
         req.user = decoded.user;

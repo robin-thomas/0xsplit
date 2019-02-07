@@ -151,7 +151,7 @@ const ContactsHandler = {
       });
 
       if (out.length === 0 || out[0].settle === undefined) {
-        throw new Error('You do not have any expenses with ' + contactName + '!');
+        throw new Error('You do not have any unsettled expenses with ' + contactName + '!');
       }
 
       const json = encodeURIComponent(JSON.stringify(out[0].settle));

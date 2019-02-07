@@ -233,6 +233,13 @@ const Expenses = {
       throw err;
     }
 
+    // Remove the zero owe tokens.
+    for (const token of Object.keys(results)) {
+      if (results[token] === 0) {
+        delete results[token];
+      }
+    }
+
     return results;
   },
 }
