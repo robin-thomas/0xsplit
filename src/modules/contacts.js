@@ -1,8 +1,16 @@
 const DB = require('./db.js');
 const Expenses = require('./expenses.js');
+const ContactValidation = require('../../static/js/modules/contacts.js');
 
 const Contacts = {
   addContact: async (address, contactAddress, contactNickname) => {
+    // Validate the input.
+    try {
+      ContactValidation.validateContactFields(contactAddress, contactNickname);
+    } catch (err) {
+      throw err;
+    }
+
     const query = {
       sql: 'INSERT INTO contacts(address, contact_address, contact_nickname) \
             VALUES(?, ?, ?)',
@@ -11,7 +19,8 @@ const Contacts = {
     };
 
     try {
-      await DB.query(query);
+      const out = await DB.query(query);
+      return out.insertId;
     } catch (err) {
       throw err;
     }
@@ -27,20 +36,6 @@ const Contacts = {
 
     try {
       const results = await DB.query(query);
-
-      // // Insert the owe amount.
-      // for (let result of results) {
-      //   const contactAddress = result.address;
-      //
-      //   // Get all un-deleted expenses among you both.
-      //   const owe = await Expenses.getOweAmount(address, contactAddress);
-      //
-      //   // If anything is owed or you are owed.
-      //   if (Object.entries(owe).length !== 0 || owe.constructor !== Object) {
-      //     result.settle = owe;
-      //   }
-      // }
-
       return results;
     } catch (err) {
       throw err;

@@ -33,11 +33,11 @@ app.post(config.api.addContact.path, Auth.validate, async (req, res) => {
 
   // Add the new contact to DB.
   try {
-    await Contacts.addContact(address, contactAddress, contactNickname);
+    const id = await Contacts.addContact(address, contactAddress, contactNickname);
 
     res.status(200).send({
-      status: "ok",
-      msg: "new contact added!"
+      status: 'ok',
+      msg: id
     });
   } catch (err) {
     res.status(500).send({

@@ -4,7 +4,7 @@ const Wallet = require('./metamask.js');
 const Session = require('./session.js');
 
 const Contacts = {
-  validateNewContactFields: async (address, name) => {
+  validateContactFields: (address, name) => {
     // Validate Name.
     if (name.trim().length === 0) {
       throw new Error('Nickname cannot be empty!');
@@ -16,7 +16,7 @@ const Contacts = {
 
     // Validate ETH address.
     if (address.trim().length === 0) {
-      throw new Error('ETH Address is not empty!');
+      throw new Error('ETH Address cannot be not empty!');
     }
     const addressValid = ethUtil.isValidAddress(address);
     if (!addressValid) {
@@ -25,6 +25,14 @@ const Contacts = {
 
     if (address.trim() === Wallet.address) {
       throw new Error('Contact address cannot be as same as your address!');
+    }
+  },
+  validateNewContactFields: async (address, name) => {
+    // Validate the fields.
+    try {
+      Contacts.validateContactFields(address, name);
+    } catch (err) {
+      throw err;
     }
 
     // Validate that this address or name hasnt been used before.
