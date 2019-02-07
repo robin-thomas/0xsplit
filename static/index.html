@@ -720,6 +720,45 @@
       </div>
       <div class="contacts" id="contacts-after-connect">
         <div class="container-fluid"></div>
+        <div id="token-swap-div">
+          <i class="far fa-circle" style="position:absolute"></i>
+          <div class="container">
+            <div class="row">
+              <div class="token-swap-title">
+                <i class="fas fa-angle-double-left"></i>
+                &nbsp;Swap&nbsp;
+                <i class="fas fa-angle-double-right"></i>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-5">
+                <select class="custom-select token-swap-select" id="token-swap-select-1"></select>
+              </div>
+              <div class="col-md-2">
+                <i class="fas fa-exchange-alt" style="color:#12131f;font-size:28px;"></i>
+              </div>
+              <div class="col-md-5">
+                <select class="custom-select token-swap-select" id="token-swap-select-2"></select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-5">
+                <input id="token-swap-input-1" class="form-control token-swap-input" type="text"
+                  placeholder="0"
+                  onkeyup="this.value = this.value.replace(/[^0-9.]/, '')">
+              </div>
+              <div class="col-md-2">&nbsp;</div>
+              <div class="col-md-5">
+                <input id="token-swap-input-2" class="form-control token-swap-input" type="text"
+                  placeholder="0"
+                  onkeyup="this.value = this.value.replace(/[^0-9.]/, '')">
+              </div>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-primary" id="confirm-swap-tokens" style="padding:5px 20px"><i class="fas fa-sync"></i></button>
+            </div>
+          </div>
+        </div>
         <i id="add-new-contact" class="fa fa-address-book" title="Add new contact"></i>
       </div>
     </div>

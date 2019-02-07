@@ -28,6 +28,7 @@ const WalletHandler = {
       options += '<option value="' + token.token + '">' + token.token + '</option>';
     }
     expenseCurrencies.html(options);
+    $('.token-swap-select').html(options);
   },
   walletConnectHandler: async (e) => {
     try {
@@ -75,6 +76,8 @@ const WalletHandler = {
         WalletHandler.walletDisplayHandler();
 
         await OrdersHandler.orderDisplayHandler();
+
+        Wallet.getTokensExchangeRate();
 
         ContactsHandler.contactsList = await Contacts.loadContacts(Wallet.address);
         ContactsHandler.contactsDisplayHandler();

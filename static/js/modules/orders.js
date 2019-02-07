@@ -100,7 +100,6 @@ const setOrderConfig = async (order) => {
   const orderConfig = await Orders.getClient().getOrderConfigAsync(order, {
     networkId: config.app.networkId,
   });
-  console.log(orderConfig);
 
   order.makerFee = orderConfig.makerFee;
   order.takerFee = orderConfig.takerFee;
@@ -137,10 +136,11 @@ const Orders = {
   provider: null,
   getProvider: () => {
     if (Orders.provider === null) {
-      Orders.provider = new Web3ProviderEngine();
-      Orders.provider.addProvider(new MetamaskSubprovider(window.web3.currentProvider));
-      Orders.provider.addProvider(new RPCSubprovider(config.infura[config.app.network]));
-      Orders.provider.start();
+      Orders.provider = new MetamaskSubprovider(window.web3.givenProvider);
+      // Orders.provider = new Web3ProviderEngine();
+      // Orders.provider.addProvider(new MetamaskSubprovider(window.web3.currentProvider));
+      // Orders.provider.addProvider(new RPCSubprovider(config.infura[config.app.network]));
+      // Orders.provider.start();
     }
     return Orders.provider;
   },
@@ -217,11 +217,17 @@ const Orders = {
       order.signature = await getOrderSignature(maker, orderHashHex);
       console.log(order);
 
-      // Validate this order.
-      await Orders.getContractWrapper().exchange.validateOrderFillableOrThrowAsync(order);
+      // Some weird bug here.
+      // Validator fails with INSUFFICIENT MAKER BALANCE, even when there is enough balance.
+      // The order is submitted and filled successfully though.
+      // Have a feeling the issue might be with web3@1.0.0-beta.37 version.
+      // I had gotten it working with web3@1.0.0-beta.38 version.
+      // await Orders.getContractWrapper().exchange.validateOrderFillableOrThrowAsync(order);
 
       // Submit the order to the relayer.
-      await Orders.getClient().submitOrderAsync(order);
+      await Orders.getClient().submitOrderAsync(order, {
+        networkId: config.app.networkId
+      });
     } catch (err) {
       throw err;
     }

@@ -4,6 +4,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Open Sans', sans-serif;
+  overflow: hidden;
 }
 
 #header {
@@ -378,7 +379,7 @@ body {
 }
 
 #contacts-after-connect .container-fluid {
-  height: 80%;
+  height: 60%;
   overflow: hidden;
   border-bottom: 1px solid rgba(181,187,202,.1);
   padding-right: 0 !important;
@@ -416,12 +417,46 @@ body {
   cursor: pointer;
  }
 
+ #contacts-after-connect .fa-circle {
+   position: absolute;
+   font-size: 400px;
+   z-index: -1;
+   right: -100px;
+   color: #12131f;
+ }
+
+.token-swap-title {
+  font-family: 'Dancing Script', cursive;
+  font-size: 30px;
+  color: #dc3545;
+}
+
+.token-swap-input {
+   background: #12131f;
+   border: 1px solid rgba(181,187,202,.1);
+ }
+
+.token-swap-select {
+   background: #12131f url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right .75rem center;
+   background-size: 8px 10px;
+   border: 1px solid rgba(181,187,202,.1);
+   cursor: pointer;
+}
+
+.token-swap-select:focus,
+.token-swap-input:focus {
+  outline: 0 none;
+  border: 1px solid rgba(181,187,202,.1);
+  box-shadow: none;
+  background: #12131f;
+}
+
 #add-new-contact {
   font-size: 3em;
   cursor: pointer;
   position: absolute;
   right: 25px;
-  bottom: 25px;
+  top: 50%;
 }
 
 #footer {

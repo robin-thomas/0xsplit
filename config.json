@@ -7,6 +7,11 @@
     "network": "ropsten",
     "etherscan": "https://ropsten.etherscan.io/tx/"
   },
+  "crypto": {
+    "api": {
+      "compare": "https://min-api.cryptocompare.com/data/price"
+    }
+  },
   "api": {
     "login": {
       "name": "login",

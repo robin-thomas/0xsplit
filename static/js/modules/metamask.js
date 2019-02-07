@@ -1,10 +1,20 @@
 const Web3New = require('web3');
+const fetch = require('node-fetch');
+const Url = require('url');
 
+const config = require('../../../config.json');
 const contracts = require('./config/contracts.json');
 const contractABI = require('./config/abi.json');
 const logos = require('./config/tokens.json');
 
+const sleep = (ms) => {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms);
+  });
+}
+
 const Metamask = {
+  tokenExchangeRateList: null,
   address: null,
 
   hasMetamask: () => {
@@ -156,6 +166,30 @@ const Metamask = {
       throw err;
     }
   },
+
+  getTokensExchangeRate: async () => {
+    const contractAddresses = contracts[await Metamask.getNetwork()];
+    const tokens = Object.keys(contractAddresses);
+
+    let data = {};
+    for (const token of tokens) {
+      const url = config.crypto.api.compare + Url.format({
+        query: {
+          fsym: token,
+          tsyms: tokens.join(','),
+        },
+      });
+
+      const ret = await fetch(url, {
+        method: 'GET',
+      });
+      const json = await ret.json();
+      data[token] = json;
+
+      await sleep(250 /* milliseconds */);
+    }
+    Metamask.tokenExchangeRateList = data;
+  }
 };
 
 module.exports = Metamask;

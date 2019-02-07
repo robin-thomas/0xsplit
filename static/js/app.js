@@ -2,6 +2,8 @@ const ContactsHandler = require('./modules/handlers/contacts.js');
 const ExpensesHandler = require('./modules/handlers/expenses.js');
 const OrdersHandler = require('./modules/handlers/orders.js');
 const WalletHandler = require('./modules/handlers/wallet.js');
+const Wallet = require('./modules/metamask.js');
+const Orders = require('./modules/orders.js');
 
 $(document).ready(() => {
   const confirmAddrButton       = $('#confirm-eth-addr'),
@@ -258,6 +260,86 @@ $(document).ready(() => {
     } catch (err) {
       console.log(err);
       alert('Unable to buy the order!');
+    }
+  });
+
+  const setSecondTokenBasedOnRate = () => {
+    const val1 = parseFloat($('#token-swap-input-1').val());
+    if (val1 !== 0 && !isNaN(val1)) {
+      const token1 = $('#token-swap-select-1').val();
+      const token2 = $('#token-swap-select-2').val();
+
+      let rate = Wallet.tokenExchangeRateList[token1][token2];
+      rate = parseFloat(rate);
+
+      const val2 = parseFloat(val1 * rate).toFixed(2);
+      $('#token-swap-input-2').val(val2);
+    }
+  };
+  const setFirstTokenBasedOnRate = () => {
+    const val2 = parseFloat($('#token-swap-input-2').val());
+    if (val2 !== 0 && !isNaN(val2)) {
+      const token1 = $('#token-swap-select-1').val();
+      const token2 = $('#token-swap-select-2').val();
+
+      let rate = Wallet.tokenExchangeRateList[token2][token1];
+      rate = parseFloat(rate);
+
+      const val1 = parseFloat(val2 * rate);
+      $('#token-swap-input-1').val(val1);
+    }
+  }
+
+  $('#token-swap-select-1').on('input', setSecondTokenBasedOnRate);
+  $('#token-swap-input-1').on('input', setSecondTokenBasedOnRate);
+  $('#token-swap-input-2').on('input', setFirstTokenBasedOnRate);
+  $('#token-swap-select-2').on('input', setFirstTokenBasedOnRate);
+
+  $('#confirm-swap-tokens').on('click', async function() {
+    const sellToken = $('#token-swap-select-1').val();
+    const sellTokenAmount = parseFloat($('#token-swap-input-1').val());
+    const buyToken = $('#token-swap-select-2').val();
+    const buyTokenAmount = parseFloat($('#token-swap-input-2').val());
+
+    if (sellToken === buyToken) {
+      alert('Cannot buy and sell same token!');
+      return;
+    }
+
+    // Verify that you have that much balance to sell.
+    const {balance, logo} = await Wallet.getTokenBalanceAndLogo(sellToken, Wallet.address);
+    if (balance < sellTokenAmount) {
+      alert('You do not have ' + sellTokenAmount + ' ' + sellToken + '!');
+      $(this).find('i').removeClass('fa-spin');
+      $('#token-swap-div').find('input, select').prop('disabled', false);
+      return;
+    }
+
+    if (confirm('Buy ' + buyTokenAmount + ' ' + buyToken + ' for ' + sellTokenAmount + ' ' + sellToken + ' ?')) {
+      // Disable the inputs.
+      $('#token-swap-div').find('input, select').prop('disabled', true);
+
+      $(this).find('i').addClass('fa-spin');
+
+      try {
+        await Orders.submitOrder({
+          address: Wallet.address,
+          token: sellToken,
+          price: sellTokenAmount,
+        }, {
+          token: buyToken,
+          price: buyTokenAmount,
+        });
+
+        // Update the UI.
+        await OrdersHandler.orderDisplayHandler();
+      } catch (err) {
+        console.log(err);
+        alert(err.message);
+      }
+
+      $(this).find('i').removeClass('fa-spin');
+      $('#token-swap-div').find('input, select').prop('disabled', false);
     }
   });
 
