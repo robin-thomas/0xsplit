@@ -149,7 +149,9 @@ const displayCurrentExpense = async (expense, dialogEle, expenseJsonStr) => {
   dialogEle.find('#expense-notes').val(expense.notes);
 
   // Hide the delete button if expense is already deleted.
-  if (expense.deleted === 1 || expense.address !== Wallet.address) {
+  if (expense.deleted === 1 ||
+      expense.address !== Wallet.address ||
+      expense.is_settlement === 1) {
     if (expense.deleted === 1) {
       dialogEle.find('#delete-expense').fadeOut();
       dialogEle.find('.expense-has-deleted-caption').html('This expense has been deleted').show();
@@ -325,7 +327,7 @@ const expenseSettle = async (contact, token, amount, etherscanLink) => {
     amount,
     etherscanLink
   );
-  console.log(expense);
+  expense.is_settlement = 1;
 
   try {
     await Expenses.addNewExpense(Wallet.address, contact.address, JSON.stringify(expense));
@@ -676,6 +678,7 @@ const ExpensesHandler = {
       let expense = JSON.parse(currentExpense.expense);
       expense.id = currentExpense.id;
       expense.deleted = currentExpense.deleted;
+      expense.is_settlement = currentExpense.is_settlement;
       console.log(expense);
 
       if (expense.deleted && $('#search-expense-deleted').is(':checked')) {

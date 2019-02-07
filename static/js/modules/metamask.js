@@ -155,10 +155,11 @@ const Metamask = {
       const decimals = await contract.methods.decimals().call();
       const tokenDecimals = window.web3.utils.toBN(decimals);
       const tokenAmountToTransfer = window.web3.utils.toBN(data.amount);
-      const calculatedTransferValue = window.web3.utils.toHex(tokenAmountToTransfer.mul(window.web3.utils.toBN(10).pow(tokenDecimals)));
+      const value = tokenAmountToTransfer.mul(window.web3.utils.toBN(10).pow(tokenDecimals));
 
-      const result = await contract.methods.transfer(data.to, calculatedTransferValue).send({
+      const result = await contract.methods.transfer(data.to, value.toString()).send({
         from: data.from,
+        gas: 200000
       });
       return result;
     } catch (err) {

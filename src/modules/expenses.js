@@ -66,12 +66,14 @@ const Expenses = {
       throw err;
     }
 
+    const isSettlement = expense.is_settlement === undefined ? 0 : 1;
+
     // Add the expense.
     const query = {
-      sql: 'INSERT INTO expenses(address, contact_address, expense, expense_timestamp) \
-            VALUES(?, ?, ?, ?)',
+      sql: 'INSERT INTO expenses(address, contact_address, expense, expense_timestamp, is_settlement) \
+            VALUES(?, ?, ?, ?, ?)',
       timeout: 6 * 1000, // 6s
-      values: [ address, contactAddress, expense, JSON.parse(expense).timestamp ],
+      values: [ address, contactAddress, expense, JSON.parse(expense).timestamp, isSettlement ],
     };
     try {
       const out = await DB.query(query);
@@ -141,12 +143,12 @@ const Expenses = {
   searchExpensesWithKeyword: async (address, keyword, includeDeleted) => {
     let sql = '';
     if (includeDeleted === 'true') {
-      sql = 'SELECT id,expense,deleted FROM expenses \
+      sql = 'SELECT id,expense,deleted,is_settlement FROM expenses \
             WHERE contact_address IN \
             (SELECT contact_address FROM contacts WHERE address = ? AND contact_nickname LIKE ?) \
             ORDER BY expense_timestamp DESC';
     } else {
-      sql = 'SELECT id,expense,deleted FROM expenses \
+      sql = 'SELECT id,expense,deleted,is_settlement FROM expenses \
             WHERE contact_address IN \
             (SELECT contact_address FROM contacts WHERE address = ? AND contact_nickname LIKE ?) \
             AND deleted = false \
