@@ -149,24 +149,29 @@ const displayCurrentExpense = async (expense, dialogEle, expenseJsonStr) => {
   dialogEle.find('#expense-notes').val(expense.notes);
 
   // Hide the delete button if expense is already deleted.
-  if (expense.deleted) {
-    dialogEle.find('#delete-expense').fadeOut();
+  if (expense.deleted === 1 || expense.address !== Wallet.address) {
+    if (expense.deleted === 1) {
+      dialogEle.find('#delete-expense').fadeOut();
+      dialogEle.find('.expense-has-deleted-caption').html('This expense has been deleted').show();
+    } else {
+      dialogEle.find('#delete-expense').fadeIn();
+      dialogEle.find('.expense-has-deleted-caption').html('This expense cannot be edited').show();
+    }
     dialogEle.find('#confirm-update-expense').fadeOut();
 
-    dialogEle.find('.expense-has-deleted-caption').show();
-
-    dialogEle.find('input').prop('readonly', true);
-    dialogEle.find('select').attr('disabled', true);
-    dialogEle.find('textarea').attr('disabled', true);
+    dialogEle.find('input, select, textarea').prop('disabled', true);
+    expenseSplitDialog.find('#confirm-expense-split').fadeOut();
   } else {
     dialogEle.find('#delete-expense').fadeIn();
     dialogEle.find('#confirm-update-expense').fadeIn();
 
     dialogEle.find('.expense-has-deleted-caption').hide();
 
-    dialogEle.find('input').prop('readonly', false);
-    dialogEle.find('select').attr('disabled', false);
-    dialogEle.find('textarea').attr('disabled', false);
+    dialogEle.find('input, select, textarea').prop('disabled', false);
+    expenseSplitDialog.find('#confirm-expense-split').fadeIn();
+
+    // Disable changing contact name.
+    dialogEle.find('#expense-contacts').prop('disabled', true);
   }
 
   dialogEle.find('.expense-json').val(expenseJsonStr);
@@ -331,33 +336,8 @@ const expenseSettle = async (contact, token, amount, etherscanLink) => {
   ExpensesUtils.displayNewExpense(expense, ContactsHandler.contactsList);
 }
 
-const switchIfYouOweExpense = (prevExpense, expense) => {
-  // Check if expense added by contact.
-  console.log(prevExpense);
-  console.log(expense);
-  if (prevExpense.address !== Wallet.address) {
-    expense.address = prevExpense.address;
-    expense.contactAddress = prevExpense.contactAddress;
-    expense.contactName = prevExpense.contactName;
-
-    // Swap between you and contact owe.
-    const youOwe = expense.amount.youOwe;
-    expense.amount.youOwe = expense.amount.contactOwe;
-    expense.amount.contactOwe = youOwe;
-
-    // Swap between you and contact split option.
-    const you = expense.split.you;
-    expense.split.you = expense.split.contact;
-    expense.split.contact = you;
-  }
-
-  return expense;
-};
-
 const ExpensesHandler = {
   tokensList: [],
-  expenseOffset: 0,
-  expenseLimit: 5,
   expenseSearching: false,
   currentExpenseRow: null,
   expenseSplitEquallyHandler: (dialogEle, expense) => {
@@ -674,7 +654,10 @@ const ExpensesHandler = {
             JSON.stringify(expense)
           );
 
-          ExpensesUtils.displayNewExpense(expense, ContactsHandler.contactsList);
+          const {row, rowMonth} = ExpensesUtils.displayNewExpense(expense, ContactsHandler.contactsList);
+          if (row) {
+            ExpensesUtils.expenseOffset++;
+          }
 
           btn.html(btn.data('original-text'));
           expenseAddDialog.modal('hide');
@@ -724,11 +707,11 @@ const ExpensesHandler = {
       expenseDisplay.find('.simplebar-content').append(row);
       el.recalculate();
     }
-    ExpensesHandler.expenseOffset += expenses.length;
+    ExpensesUtils.expenseOffset += expenses.length;
   },
   loadNextBatch: async () => {
     try {
-      const expenses = await Expenses.searchExpenses(Wallet.address, ExpensesHandler.expenseOffset, ExpensesHandler.expenseLimit);
+      const expenses = await Expenses.searchExpenses(Wallet.address, ExpensesUtils.expenseOffset, ExpensesUtils.expenseLimit);
       ExpensesHandler.displayExpenses(expenses);
     } catch (err) {
       throw err;
@@ -751,10 +734,9 @@ const ExpensesHandler = {
         expenseEditDialog.modal('hide');
 
         // Set it back to the row.
-        // TODO: figure out how to get the row.
         expense.deleted = 1;
         const updatedExpenseJsonStr = encodeURIComponent(JSON.stringify(expense));
-        ExpensesHandler.currentExpenseRow.find('expense-json').val(updatedExpenseJsonStr);
+        ExpensesHandler.currentExpenseRow.find('.expense-json').val(updatedExpenseJsonStr);
         ExpensesHandler.currentExpenseRow.addClass('row-expense-deleted');
       } catch (err) {
         alert('Unable to delete this expense');
@@ -762,14 +744,10 @@ const ExpensesHandler = {
     }
   },
   confirmUpdateExpenseHandler: async () => {
-    const prevExpenseJsonEle = expenseEditDialog.find('.expense-json');
-    let prevExpense = JSON.parse(decodeURIComponent(prevExpenseJsonEle.val()));
-
+    const expenseJsonEle = expenseEditDialog.find('.expense-json');
+    let id = JSON.parse(decodeURIComponent(expenseJsonEle.val())).id;
     let expense = constructExpenseObject(expenseEditDialog, 'edit');
-    expense.id = prevExpense.id;
-    expense.deleted = prevExpense.deleted;
-
-    expense = switchIfYouOweExpense(prevExpense, expense);
+    expense.id = id;
 
     if (validateExpenseObject(expense, expenseEditDialog)) {
       if (confirm('Are you sure you want to update this expense?')) {
@@ -805,6 +783,12 @@ const ExpensesHandler = {
             if (ExpensesHandler.currentExpenseRow.prev().hasClass('row-month')) {
               ExpensesHandler.currentExpenseRow.prev().remove();
             }
+          } else {
+            // if its the only element for this month.
+            if (ExpensesHandler.currentExpenseRow.next().hasClass('row-month') &&
+                ExpensesHandler.currentExpenseRow.prev().hasClass('row-month')) {
+              ExpensesHandler.currentExpenseRow.prev().remove();
+            }
           }
           ExpensesHandler.currentExpenseRow.remove();
           ExpensesUtils.displayNewExpense(expense, ContactsHandler.contactsList);
@@ -829,7 +813,7 @@ const ExpensesHandler = {
       try {
         let expenses = [];
         if (keyword.trim().length === 0) {
-          ExpensesHandler.expenseOffset = 0;
+          ExpensesUtils.expenseOffset = 0;
           await ExpensesHandler.loadNextBatch();
         } else {
           expenses = await Expenses.searchExpensesWithKeyword(Wallet.address, keyword, includeDeleted);

@@ -30,6 +30,9 @@ const getExpense = (which, expenses) => {
 };
 
 const ExpenseUtils = {
+  expenseOffset: 0,
+  expenseLimit: 10,
+
   displayNewExpense: (expense, contactsList, testing, expenses) => {
     testing = testing === undefined ? false : true;
 
@@ -47,7 +50,7 @@ const ExpenseUtils = {
 
       // Check if we need to display the expense.
       // As it will be loaded when user scroll down.
-      if (lastExpenseTimestamp > timestamp) {
+      if (lastExpenseTimestamp > timestamp && ExpenseUtils.expenseOffset >= ExpenseUtils.expenseLimit) {
         return {
           row: displayRow,
           rowMonth: displayMonth
@@ -164,7 +167,13 @@ const ExpenseUtils = {
 
       if (condition) {
         if (!testing) {
-          currExpense.after(ExpenseUtils.constructExpenseRow(expense, contactsList));
+          const expenseRow = ExpenseUtils.constructExpenseRow(expense, contactsList);
+          if (displayMonth) {
+            currExpense.parent().find('.row-month:last').after(expenseRow);
+          } else {
+            currExpense.after(expenseRow);
+          }
+
           el.recalculate();
         }
 

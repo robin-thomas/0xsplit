@@ -58,7 +58,7 @@ describe('ExpensesUtils', () => {
       const lastExpense = constructDummyExpenseObject(moment().add(1, 'days').format('YYYY-MM-DD HH:mm:ss'));
       const {row, rowMonth} = ExpensesUtils.displayNewExpense(expense, [], true, [lastExpense]);
 
-      assert.equal(row, false);
+      assert.equal(row, true);
       assert.equal(rowMonth, false);
     });
 
@@ -66,8 +66,8 @@ describe('ExpensesUtils', () => {
       const lastExpense = constructDummyExpenseObject(moment().add(1, 'M').format('YYYY-MM-DD HH:mm:ss'));
       const {row, rowMonth} = ExpensesUtils.displayNewExpense(expense, [], true, [lastExpense]);
 
-      assert.equal(row, false);
-      assert.equal(rowMonth, false);
+      assert.equal(row, true);
+      assert.equal(rowMonth, true);
     });
 
     it('new expense between displayed expenses (month already displayed)', () => {

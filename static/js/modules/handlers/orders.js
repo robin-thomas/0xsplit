@@ -56,6 +56,7 @@ const OrderHandler = {
     walletAfterConnect.html(html);
 
     const walletDisplay = walletAfterConnect.find('#wallet-erc20-display');
+    walletDisplay.html('');
 
     for (const order of orders) {
       const {balance, logo} = await Wallet.getTokenBalanceAndLogo(order.takerToken, Wallet.address);

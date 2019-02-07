@@ -55,9 +55,10 @@ $(document).ready(() => {
       }
     }
 
-    let expense = expenseEditDialog.find('.expense-json').val();
-    expense = decodeURIComponent(expense);
-    expense = JSON.parse(expense);
+    let prevExpense = expenseEditDialog.find('.expense-json').val();
+    prevExpense = JSON.parse(decodeURIComponent(prevExpense));
+
+    const expense = ExpensesHandler.constructExpenseForYouOweExpense(prevExpense);
 
     switch (expense.split.option) {
       case '1':
@@ -226,20 +227,26 @@ $(document).ready(() => {
     await ExpensesHandler.searchExpenseHandler(keyword, includeDeleted);
   });
 
-  const el = new SimpleBar(expenseDisplay.find('.container-fluid')[0]);
-  el.getScrollElement().addEventListener('scroll', async function() {
-    if (Math.abs($(this)[0].scrollHeight - $(this)[0].scrollTop - $(this)[0].clientHeight) <= 3.0) {
+  const expenseScrollHandler = async (div) => {
+    if ((div.scrollTop() + div.outerHeight() + 3) >= div[0].scrollHeight) {
+      // Disable scroll.
+      div.off('scroll');
+
       const ele = expenseDisplay.find('.simplebar-content');
-      if (ele.find('.row-expense-loading').length > 0) {
-        return;
-      }
       ele.append('<div class="row row-expense-loading"><i class="fas fa-spinner fa-spin"></i></div>');
       el.recalculate();
 
-      await ExpensesHandler.loadNextBatch();
+      try {
+        await ExpensesHandler.loadNextBatch();
+      } catch (err) {}
       ele.find('.row-expense-loading').remove();
+
+      // Enable scroll.
+      div.on('scroll', () => expenseScrollHandler(div));
     }
-  });
+  }
+  const el = new SimpleBar(expenseDisplay.find('.container-fluid')[0]);
+  $(el.getScrollElement()).on('scroll', () => expenseScrollHandler($(el.getScrollElement())));
 
   $('#search-expenses-arrow').on('click', () => {
     $('#search-expenses-advanced').toggle();
